@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>skill-packager 使用說明</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.75;
+      color: #1f2937;
+      background: #f8fafc;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      color: #111827;
+    }
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 12px;
+    }
+    h2 {
+      margin-top: 36px;
+      padding-top: 12px;
+      border-top: 1px solid #dbe3ec;
+      font-size: 1.35rem;
+    }
+    h3 {
+      margin-top: 24px;
+      font-size: 1.05rem;
+    }
+    p {
+      margin: 12px 0;
+    }
+    .lead {
+      font-size: 1.08rem;
+      color: #374151;
+    }
+    .box {
+      background: #ffffff;
+      border: 1px solid #dbe3ec;
+      border-radius: 8px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+    .note {
+      background: #eef6ff;
+      border-color: #bfdbfe;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #eef2f7;
+      padding: 0.12rem 0.32rem;
+      border-radius: 4px;
+      font-size: 0.95em;
+    }
+    pre {
+      overflow-x: auto;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 8px;
+      padding: 16px;
+      line-height: 1.55;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    ul, ol {
+      padding-left: 1.4rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      margin: 16px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid #dbe3ec;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #eef2f7;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>skill-packager 使用說明</h1>
+    <p class="lead">這份說明用簡單的方式介紹 <code>skill-packager</code>。目標是讓第一次接觸 Codex skill 的人，也能知道它是什麼、怎麼安裝、怎麼使用。</p>
+
+    <section class="box note">
+      <h2>一句話說明</h2>
+      <p><code>skill-packager</code> 是一個幫你把 Codex skill 打包成 zip 的小工具。</p>
+      <p>你可以把它想成「整理書包」：它會檢查 skill 資料夾有沒有放對東西，然後把整包整理成一個可以搬到別台電腦的 zip 檔。</p>
+    </section>
+
+    <h2>它可以做什麼？</h2>
+    <ul>
+      <li>把一個 Codex skill 資料夾打包成 <code>.zip</code>。</li>
+      <li>打包前先檢查 <code>SKILL.md</code> 是否存在。</li>
+      <li>確認 skill 名稱和資料夾名稱是否一致。</li>
+      <li>讓同一個 skill 可以用三種方式安裝。</li>
+    </ul>
+
+    <h2>目前的檔案在哪裡？</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>檔案或資料夾</th>
+          <th>用途</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>skills/skill-packager/</code></td>
+          <td>真正的 Codex skill 資料夾。</td>
+        </tr>
+        <tr>
+          <td><code>skills/skill-packager/SKILL.md</code></td>
+          <td>告訴 Codex 什麼時候要使用這個 skill。</td>
+        </tr>
+        <tr>
+          <td><code>skills/skill-packager/scripts/package_skill.py</code></td>
+          <td>實際負責打包的 Python 程式。</td>
+        </tr>
+        <tr>
+          <td><code>dist/skill-packager.zip</code></td>
+          <td>已經打包好的 zip，可以拿去別台電腦安裝。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>三種安裝方式</h2>
+
+    <h3>方式 1：本機個人安裝</h3>
+    <p>如果你只想在自己的電腦使用，就把 <code>skills/skill-packager</code> 複製到 Codex 的 skills 目錄。</p>
+
+    <p>Linux、WSL、macOS 可以用：</p>
+    <pre><code>mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+cp -R skills/skill-packager "${CODEX_HOME:-$HOME/.codex}/skills/skill-packager"</code></pre>
+
+    <p>Windows PowerShell 可以用：</p>
+    <pre><code>$skills = if ($env:CODEX_HOME) {
+  Join-Path $env:CODEX_HOME "skills"
+} else {
+  Join-Path $HOME ".codex\skills"
+}
+
+New-Item -ItemType Directory -Force $skills
+Copy-Item -Recurse -Force .\skills\skill-packager (Join-Path $skills "skill-packager")</code></pre>
+
+    <p>裝好後，重新啟動 Codex。</p>
+
+    <h3>方式 2：透過 $skill-installer 從 GitHub 安裝</h3>
+    <p>如果你把 <code>skills/skill-packager/</code> 放到 GitHub repo，別人可以請 Codex 用 <code>$skill-installer</code> 安裝。</p>
+
+    <pre><code>$skill-installer install https://github.com/&lt;owner&gt;/&lt;repo&gt;/tree/main/skills/skill-packager</code></pre>
+
+    <p>這種方式適合放在 GitHub 上，讓自己或別人從同一個位置安裝。</p>
+
+    <h3>方式 3：zip 移植安裝</h3>
+    <p>如果你要把它放到隨身碟、雲端硬碟，或傳到另一台電腦，就用 zip。</p>
+
+    <p>這個 zip 已經在這裡：</p>
+    <pre><code>dist/skill-packager.zip</code></pre>
+
+    <p>Linux、WSL、macOS 解壓：</p>
+    <pre><code>mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+python3 -m zipfile -e dist/skill-packager.zip "${CODEX_HOME:-$HOME/.codex}/skills"</code></pre>
+
+    <p>Windows PowerShell 解壓：</p>
+    <pre><code>$skills = if ($env:CODEX_HOME) {
+  Join-Path $env:CODEX_HOME "skills"
+} else {
+  Join-Path $HOME ".codex\skills"
+}
+
+New-Item -ItemType Directory -Force $skills
+Expand-Archive .\dist\skill-packager.zip -DestinationPath $skills -Force</code></pre>
+
+    <p>裝好後，應該會看到這種結果：</p>
+    <pre><code>~/.codex/skills/skill-packager/SKILL.md</code></pre>
+
+    <p>Windows 則通常像這樣：</p>
+    <pre><code>%USERPROFILE%\.codex\skills\skill-packager\SKILL.md</code></pre>
+
+    <h2>怎麼使用 skill-packager？</h2>
+    <p>如果你有一個 skill 叫 <code>my-skill</code>，放在 <code>skills/my-skill</code>，你可以這樣打包：</p>
+
+    <pre><code>python3 skills/skill-packager/scripts/package_skill.py skills/my-skill dist</code></pre>
+
+    <p>成功後會得到：</p>
+    <pre><code>dist/my-skill.zip</code></pre>
+
+    <p>zip 裡面應該長這樣：</p>
+    <pre><code>my-skill/
+├── SKILL.md
+├── agents/
+├── scripts/
+├── references/
+└── assets/</code></pre>
+
+    <p>不是每個 skill 都一定有 <code>agents</code>、<code>scripts</code>、<code>references</code>、<code>assets</code>。有什麼就包什麼。</p>
+
+    <h2>如果出錯怎麼辦？</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>錯誤情況</th>
+          <th>意思</th>
+          <th>怎麼處理</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>找不到 <code>SKILL.md</code></td>
+          <td>這個資料夾不像標準 skill。</td>
+          <td>確認你選的是 skill 資料夾，不是上一層資料夾。</td>
+        </tr>
+        <tr>
+          <td>資料夾名稱不符合 skill 名稱</td>
+          <td><code>SKILL.md</code> 裡的 <code>name</code> 跟資料夾名稱不同。</td>
+          <td>把兩邊改成一樣。</td>
+        </tr>
+        <tr>
+          <td>YAML frontmatter 錯誤</td>
+          <td><code>SKILL.md</code> 最上面的設定格式有錯。</td>
+          <td>檢查最上面的 <code>---</code>、<code>name</code>、<code>description</code>。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <section class="box">
+      <h2>最重要的記法</h2>
+      <p>如果你只記一件事，請記這個：</p>
+      <pre><code>skill-packager.zip 解壓後，要變成：
+Codex skills 目錄 / skill-packager / SKILL.md</code></pre>
+      <p>只要這個位置對了，Codex 重新啟動後就比較容易讀到這個 skill。</p>
+    </section>
+  </main>
+</body>
+</html>

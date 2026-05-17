@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Packager"
+  short_description: "Package Codex skills as zip archives"
+  default_prompt: "Package a Codex skill folder into a portable zip archive."

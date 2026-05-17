@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>skill-packager 規格書</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.7;
+      color: #172033;
+      background: #f7f8fb;
+    }
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 20px 72px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      color: #0f172a;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+    h2 {
+      margin-top: 36px;
+      padding-top: 12px;
+      border-top: 1px solid #d8dee9;
+      font-size: 1.35rem;
+    }
+    h3 {
+      margin-top: 24px;
+      font-size: 1.05rem;
+    }
+    .meta {
+      color: #475569;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #d8dee9;
+      border-radius: 8px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #eef2f7;
+      border-radius: 4px;
+      padding: 0.12rem 0.32rem;
+      font-size: 0.95em;
+    }
+    pre {
+      overflow-x: auto;
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 8px;
+      padding: 16px;
+      line-height: 1.55;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      margin: 16px 0;
+    }
+    th, td {
+      border: 1px solid #d8dee9;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #edf2f7;
+      color: #0f172a;
+    }
+    ul, ol {
+      padding-left: 1.4rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>skill-packager 規格書</h1>
+    <p class="meta">版本：1.0.0　|　日期：2026-05-17　|　範圍：個人使用的 Codex skill 打包工具</p>
+
+    <section class="card">
+      <h2>目標</h2>
+      <p><code>skill-packager</code> 的目標是提供一個標準 Codex skill，用來驗證並打包其他 Codex skill。打包結果必須能支援本機個人安裝、<code>$skill-installer</code> 從 GitHub folder path 安裝，以及 zip 移植安裝。</p>
+    </section>
+
+    <h2>非目標</h2>
+    <ul>
+      <li>不做 Codex plugin。</li>
+      <li>不做 marketplace 發佈結構。</li>
+      <li>不修改 Codex 內建 <code>.system/skill-creator</code>。</li>
+      <li>不把安裝教學放進 skill 本體。</li>
+    </ul>
+
+    <h2>目前產物</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>路徑</th>
+          <th>角色</th>
+          <th>是否進入 zip</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>skills/skill-packager/SKILL.md</code></td>
+          <td>skill 定義與使用說明</td>
+          <td>是</td>
+        </tr>
+        <tr>
+          <td><code>skills/skill-packager/agents/openai.yaml</code></td>
+          <td>Codex UI metadata</td>
+          <td>是</td>
+        </tr>
+        <tr>
+          <td><code>skills/skill-packager/scripts/package_skill.py</code></td>
+          <td>驗證與打包腳本</td>
+          <td>是</td>
+        </tr>
+        <tr>
+          <td><code>dist/skill-packager.zip</code></td>
+          <td>可移植安裝包</td>
+          <td>否，這是輸出成果</td>
+        </tr>
+        <tr>
+          <td><code>dist/skill-packager-install.zh-TW.md</code></td>
+          <td>外部安裝教學</td>
+          <td>否</td>
+        </tr>
+        <tr>
+          <td><code>dist/README.html</code></td>
+          <td>白話使用與安裝說明</td>
+          <td>否</td>
+        </tr>
+        <tr>
+          <td><code>dist/SPEC.html</code></td>
+          <td>本規格書</td>
+          <td>否</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>標準 skill 結構</h2>
+    <pre><code>skills/
+└── skill-packager/
+    ├── SKILL.md
+    ├── agents/
+    │   └── openai.yaml
+    └── scripts/
+        └── package_skill.py</code></pre>
+
+    <h2>zip 輸出格式</h2>
+    <p>輸出的 zip 必須保留頂層 skill 目錄。以 <code>skill-packager</code> 自身為例：</p>
+    <pre><code>skill-packager.zip
+└── skill-packager/
+    ├── SKILL.md
+    ├── agents/
+    │   └── openai.yaml
+    └── scripts/
+        └── package_skill.py</code></pre>
+
+    <p>對一般 skill，若存在 <code>references/</code> 或 <code>assets/</code>，打包器也會包含它們。</p>
+
+    <h2>安裝方式支援矩陣</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>安裝方式</th>
+          <th>輸入</th>
+          <th>預期結果</th>
+          <th>狀態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>本機個人安裝</td>
+          <td><code>skills/skill-packager/</code></td>
+          <td><code>$CODEX_HOME/skills/skill-packager/SKILL.md</code> 或 <code>~/.codex/skills/skill-packager/SKILL.md</code></td>
+          <td>支援</td>
+        </tr>
+        <tr>
+          <td><code>$skill-installer</code> GitHub 安裝</td>
+          <td>GitHub repo 中的 <code>skills/skill-packager/</code> folder path</td>
+          <td>安裝到 Codex user skills 目錄</td>
+          <td>支援</td>
+        </tr>
+        <tr>
+          <td>zip 移植安裝</td>
+          <td><code>dist/skill-packager.zip</code></td>
+          <td>解壓後得到 <code>&lt;skills-dir&gt;/skill-packager/SKILL.md</code></td>
+          <td>支援</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>驗證規則</h2>
+    <p><code>package_skill.py</code> 在產生 zip 前會執行下列驗證：</p>
+    <ul>
+      <li>來源路徑必須存在，且必須是資料夾。</li>
+      <li>來源資料夾內必須有 <code>SKILL.md</code>。</li>
+      <li><code>SKILL.md</code> 必須有 YAML frontmatter。</li>
+      <li>frontmatter 必須能被 PyYAML 解析為 dictionary。</li>
+      <li>允許的 frontmatter keys：<code>name</code>、<code>description</code>、<code>license</code>、<code>allowed-tools</code>、<code>metadata</code>。</li>
+      <li><code>name</code> 必須是非空字串，只能使用小寫英文字母、數字和 hyphen。</li>
+      <li><code>name</code> 不能以 hyphen 開頭或結尾，也不能包含連續 hyphen。</li>
+      <li><code>name</code> 長度上限為 64 字元。</li>
+      <li>skill 資料夾名稱必須等於 frontmatter 的 <code>name</code>。</li>
+      <li><code>description</code> 必須是非空字串，不能包含 angle brackets，長度上限為 1024 字元。</li>
+    </ul>
+
+    <h2>排除規則</h2>
+    <p>打包時會排除下列內容：</p>
+    <table>
+      <thead>
+        <tr>
+          <th>類型</th>
+          <th>排除項目</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>目錄</td>
+          <td><code>.git</code>、<code>.hg</code>、<code>.svn</code>、<code>__pycache__</code></td>
+        </tr>
+        <tr>
+          <td>檔名</td>
+          <td><code>.DS_Store</code></td>
+        </tr>
+        <tr>
+          <td>副檔名</td>
+          <td><code>.pyc</code>、<code>.pyo</code>、<code>.zip</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>使用介面</h2>
+    <pre><code>python3 skills/skill-packager/scripts/package_skill.py &lt;path/to/skill-folder&gt; [output-directory]
+python3 skills/skill-packager/scripts/package_skill.py &lt;path/to/skill-folder&gt; --output-dir dist</code></pre>
+
+    <h2>本機安裝指令</h2>
+    <h3>Linux、WSL、macOS</h3>
+    <pre><code>mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+cp -R skills/skill-packager "${CODEX_HOME:-$HOME/.codex}/skills/skill-packager"</code></pre>
+
+    <h3>Windows PowerShell</h3>
+    <pre><code>$skills = if ($env:CODEX_HOME) {
+  Join-Path $env:CODEX_HOME "skills"
+} else {
+  Join-Path $HOME ".codex\skills"
+}
+
+New-Item -ItemType Directory -Force $skills
+Copy-Item -Recurse -Force .\skills\skill-packager (Join-Path $skills "skill-packager")</code></pre>
+
+    <h2>$skill-installer 安裝指令</h2>
+    <p>將 <code>skills/skill-packager/</code> 放到 GitHub repo 後，使用：</p>
+    <pre><code>$skill-installer install https://github.com/&lt;owner&gt;/&lt;repo&gt;/tree/main/skills/skill-packager</code></pre>
+
+    <h2>zip 安裝指令</h2>
+    <h3>產生 zip</h3>
+    <pre><code>python3 skills/skill-packager/scripts/package_skill.py skills/skill-packager dist</code></pre>
+
+    <h3>Linux、WSL、macOS 解壓</h3>
+    <pre><code>mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+python3 -m zipfile -e dist/skill-packager.zip "${CODEX_HOME:-$HOME/.codex}/skills"</code></pre>
+
+    <h3>Windows PowerShell 解壓</h3>
+    <pre><code>$skills = if ($env:CODEX_HOME) {
+  Join-Path $env:CODEX_HOME "skills"
+} else {
+  Join-Path $HOME ".codex\skills"
+}
+
+New-Item -ItemType Directory -Force $skills
+Expand-Archive .\dist\skill-packager.zip -DestinationPath $skills -Force</code></pre>
+
+    <h2>驗證紀錄</h2>
+    <p>已執行並通過下列檢查：</p>
+    <pre><code>python3 /home/robert/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/skill-packager
+python3 -m py_compile skills/skill-packager/scripts/package_skill.py
+python3 skills/skill-packager/scripts/package_skill.py --help
+python3 skills/skill-packager/scripts/package_skill.py skills/skill-packager dist
+python3 -m zipfile -l dist/skill-packager.zip
+python3 -m zipfile -e dist/skill-packager.zip /tmp/skill-packager-install-check
+python3 /home/robert/.codex/skills/.system/skill-creator/scripts/quick_validate.py /tmp/skill-packager-install-check/skill-packager</code></pre>
+
+    <h2>後續維護原則</h2>
+    <ul>
+      <li>維持 <code>skill-packager</code> 是 skill，不升級成 plugin。</li>
+      <li>文件與安裝教學維持在 <code>dist/</code>，不要放進 skill 本體。</li>
+      <li>如果 Codex skill frontmatter 規則變更，優先同步 <code>package_skill.py</code> 的驗證規則。</li>
+      <li>如果要公開給別人用，優先把 <code>skills/skill-packager/</code> 放在 GitHub repo，讓 <code>$skill-installer</code> 可直接安裝。</li>
+    </ul>
+  </main>
+</body>
+</html>

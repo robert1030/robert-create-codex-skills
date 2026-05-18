@@ -1,0 +1,7 @@
+interface:
+  display_name: "iTest Help"
+  short_description: "Search Spirent iTest Automation help"
+  default_prompt: "Use $itest-help to find the relevant iTest Automation help page and answer with source file names."
+
+policy:
+  allow_implicit_invocation: true

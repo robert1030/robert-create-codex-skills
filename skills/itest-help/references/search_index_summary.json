@@ -1,0 +1,7 @@
+{
+  "document_count": 963,
+  "index_path": "references/search_index.json",
+  "pages_path": "references/help_pages.jsonl",
+  "source": "packaged references/help_pages.jsonl",
+  "term_count": 12042
+}

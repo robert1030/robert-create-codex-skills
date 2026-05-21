@@ -14,6 +14,9 @@ itest-help/
   references/help_pages.jsonl
   references/search_index.json
   references/search_index_summary.json
+  references/interpreter-guide.md
+  references/analysis-rule-wizard-guide.md
+  references/regression-questions.md
 ```
 
 重要原則：
@@ -179,6 +182,36 @@ Copy-Item "F:\MyCode\Java\iTest26.5\itest_help_skill_data\search_index.json" "F:
 Copy-Item "F:\MyCode\Java\iTest26.5\itest_help_skill_data\search_index_summary.json" "F:\MyCode\Java\iTest26.5\itest-help\references\search_index_summary.json" -Force
 ```
 
+如果既有 skill 已有 guardrail references，複製 skill 當基底時會一起保留：
+
+```text
+references/interpreter-guide.md
+references/analysis-rule-wizard-guide.md
+references/regression-questions.md
+```
+
+更新新版本時，請抽樣確認 guardrail 內列出的 source pages 在新版本仍存在；若檔名或行為改變，先更新 guardrail，再打包。
+
+特別注意 `interpreter-guide.md` 的 clock/time conversion guardrail。這個檔案記錄 25.4 使用時觀察到的風險。
+
+**問題**
+
+在 iTest interpreter 直接使用 `[clock scan ...]` 做時間轉換時，近期日期可能正常。但遇到 2038 以後，或更大的未來日期，結果可能變成錯誤的負秒數。
+
+**要驗證的情境**
+
+這個風險不只跟 certificate expiration 或 `notAfter` 有關。只要是在處理日期、時間、秒數或時間比較，都要重新驗證：
+
+- date/time string 轉 epoch seconds，也就是把日期文字轉成秒數
+- timestamp comparison，也就是比較兩個時間誰早誰晚
+- time arithmetic，也就是時間加減
+- clock scan / clock format，也就是時間讀取和格式轉換
+- 2041、2049 或其他 2038 以後日期
+
+**如果新版本行為不同**
+
+若新版本行為已改變，更新 `interpreter-guide.md` 與 `regression-questions.md`。請明確標示這是專案觀察到的行為，還是官方 help 已經明文寫出的行為。
+
 如果 `SKILL.md` description 要標明版本，可以把 `25.4` 改成 `26.5`，但 skill name 不要改：
 
 ```yaml
@@ -213,14 +246,20 @@ source_ref: topics/popups/arules/query.html
 同步工作區版到本機 skills：
 
 ```powershell
-Copy-Item "F:\MyCode\Java\iTest26.5\itest-help" "C:\Users\robert\.codex\skills\itest-help" -Recurse -Force
+$source = "F:\MyCode\Java\iTest26.5\itest-help"
+$target = "C:\Users\robert\.codex\skills\itest-help"
+New-Item -ItemType Directory -Path $target -Force | Out-Null
+Copy-Item "$source\*" $target -Recurse -Force
 ```
+
+注意：這裡複製的是 `itest-help` 裡面的內容，不是把整個 `itest-help` 資料夾再放進目標資料夾。完成後應該看到 `C:\Users\robert\.codex\skills\itest-help\SKILL.md`，不要變成 `C:\Users\robert\.codex\skills\itest-help\itest-help\SKILL.md`。
 
 驗證安裝版：
 
 ```powershell
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "parameter merging logic" --top 2
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" --show-file "topics/popups/query.html" --text
+python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "tcl clock scan target_date 2049 time conversion" --top 4
 (Get-Content "C:\Users\robert\.codex\skills\itest-help\references\help_pages.jsonl" | Measure-Object -Line).Lines
 ```
 
@@ -252,6 +291,8 @@ Rename-Item `
 
 ## Step 7: 驗證 Zip
 
+下面的範例使用版本化檔名 `itest-help_v26.5.zip`。如果 Step 6 沒有重新命名，請把下面指令中的 `itest-help_v26.5.zip` 改成 `itest-help.zip`。
+
 檢查 zip 內容：
 
 ```powershell
@@ -270,6 +311,9 @@ itest-help/scripts/search_help.py
 itest-help/references/help_pages.jsonl
 itest-help/references/search_index.json
 itest-help/references/search_index_summary.json
+itest-help/references/interpreter-guide.md
+itest-help/references/analysis-rule-wizard-guide.md
+itest-help/references/regression-questions.md
 ```
 
 檢查 zip 展開後沒有本機絕對路徑：
@@ -309,7 +353,7 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 最簡單版：
 
 ```text
-請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill-runbook.md
+請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill\itest-help-skill-runbook.md
 把 iTest Help skill 更新到 iTest 26.5。
 新的 help topics 目錄是：<新路徑>
 ```
@@ -319,7 +363,7 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 例如：
 
 ```text
-請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill-runbook.md
+請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill\itest-help-skill-runbook.md
 把 iTest Help skill 更新到 iTest 26.5。
 新的 help topics 目錄是：F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_26.5.0.xxxxxxxxxxxx\topics
 ```
@@ -327,7 +371,7 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 完整任務版：
 
 ```text
-請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill-runbook.md
+請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill\itest-help-skill-runbook.md
 把 iTest Help skill 更新到 iTest <version>。
 
 新的 help topics 目錄是：
@@ -343,5 +387,6 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 - `SKILL.md` 的 `name` 必須維持 `itest-help`。
 - references 裡不能留下本機絕對路徑。
 - 子目錄納入後會有同名檔案；搜尋結果與引用要使用 `source_ref` / `relative_path`，不要只依賴 `file_name`。
+- clock/time conversion guardrail 不只適用 certificate expiration。只要有日期文字轉秒數、時間比較、時間加減，或 `clock scan` / `clock format`，而且日期在 2038 以後，都要重新驗證。
 - 原始 HTML 可以不打包；目前 skill 查的是清理後的 `help_pages.jsonl` 與 `search_index.json`。
 - 如果新版本 help 結構大改，先抽樣檢查 title/H1/doc_set 是否仍能正確抽出。

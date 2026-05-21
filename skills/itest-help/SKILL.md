@@ -15,6 +15,8 @@ Use this skill to answer questions about Spirent iTest Automation 25.4 from the 
    python scripts/search_help.py "<query>" --top 8 --json
    ```
 
+   The JSON output includes `query_terms`, `unmatched_terms`, and `results`. Treat `unmatched_terms` as a warning that the indexed help did not directly cover part of the question.
+
 2. Read the strongest matching page when detail matters:
 
    ```powershell
@@ -30,6 +32,9 @@ Use this skill to answer questions about Spirent iTest Automation 25.4 from the 
 - `references/help_pages.jsonl`: one cleaned text record per help page.
 - `references/search_index.json`: weighted term index for deterministic lookup.
 - `references/search_index_summary.json`: index metadata and counts.
+- `references/interpreter-guide.md`: guardrails for iTest interpreter, Tcl interpreter, and clock questions.
+- `references/analysis-rule-wizard-guide.md`: guardrails for Analysis Rule Wizard and analysis rule behavior.
+- `references/regression-questions.md`: high-risk questions used to verify answer quality.
 
 The packaged index contains 963 `.htm` / `.html` help pages under `topics/`, including `topics/popups/` and `topics/popups/arules/`.
 Source references are original help paths under the logical `topics/` path, such as `topics/quickcalls_arguments_in_quickcall_steps.htm` and `topics/popups/arules/query.html`.
@@ -47,3 +52,14 @@ Source references are original help paths under the logical `topics/` path, such
 - Include the relevant source file name in the answer.
 - Do not claim behavior that was not found in the indexed help.
 - Use Traditional Chinese when replying to this user unless they ask otherwise.
+
+## High-Risk Topics
+
+Before answering these topics, read the relevant guardrail file and inspect the required source pages listed there:
+
+- For iTest interpreter, Tcl interpreter, `eval`, `scriptEval`, `scriptSet`, `scriptGet`, `tcl`, `tclexpr`, `clock`, time conversion, epoch seconds, timestamp comparison, time arithmetic, clock scan/format, large future dates, 2038-style questions, 2041, 2049, certificate expiry, `notAfter`, or expiration dates, read `references/interpreter-guide.md`.
+- For Analysis Rule Wizard, Quick Analysis Rule, query extractor, extractor/processor behavior, `When True`, `When False`, `RepeatStep`, thread/asynchronous behavior, `$value`, `$itest_value`, `$index`, `$itest_index`, or secret values, read `references/analysis-rule-wizard-guide.md`.
+
+If a high-risk query has unmatched terms, explicitly say which requested detail was not found in the packaged help. For example, if `2038` is unmatched, do not infer post-2038 clock behavior from Tcl or operating-system knowledge.
+
+For direct iTest `[clock scan ...]` used in time conversion, epoch-second conversion, timestamp comparison, time arithmetic, clock formatting/scanning, or large future-date handling, apply the observed large-date guardrail in `references/interpreter-guide.md`: distinguish direct iTest interpreter clock handling from `[tcl "clock scan ..."]`, and label the workaround as observed behavior rather than official help text. Certificate expiration and `notAfter` handling are examples of this broader risk, not the only case.

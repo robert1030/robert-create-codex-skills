@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>docs-quality-gen 觸發與應用說明</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: #f6f8fb;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px 72px;
+      background: #ffffff;
+    }
+    h1, h2 {
+      color: #12324a;
+      line-height: 1.25;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 2rem;
+      border-bottom: 3px solid #2f7d8c;
+      padding-bottom: 12px;
+    }
+    h2 {
+      margin-top: 34px;
+      padding-top: 14px;
+      border-top: 1px solid #d8e2ea;
+      font-size: 1.3rem;
+    }
+    p {
+      margin: 12px 0;
+    }
+    ul {
+      padding-left: 1.5rem;
+    }
+    li {
+      margin: 4px 0;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #eef4f7;
+      border-radius: 4px;
+      padding: 0.12rem 0.32rem;
+      font-size: 0.95em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    th, td {
+      border: 1px solid #d8e2ea;
+      padding: 9px 11px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #e7f1f4;
+      color: #12324a;
+    }
+    .note {
+      border-left: 4px solid #2f7d8c;
+      background: #edf7f9;
+      padding: 12px 14px;
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>docs-quality-gen 觸發與應用說明</h1>
+    <p><code>docs-quality-gen</code> 是 robert 個人的文件品質 gate。除了明確輸入 <code>$docs-quality-gen</code>，實際對話中只要出現與文件產出、同步、review、HTML 基礎美化或交付檢查相關的需求，也可能適合使用這個 skill。</p>
+
+    <div class="note">主要觸發依據是 <code>SKILL.md</code> frontmatter 的 <code>description</code>。Skill 本文中的 workflow 與 hard rules 是觸發後才用來決定怎麼執行。</div>
+
+    <h2>動作詞</h2>
+    <p>這些動作詞通常代表使用者要處理文件品質、文件同步或文件交付。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>分類</th>
+          <th>常見詞彙</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>產出與更新</td>
+          <td>產生文件、建立文件、更新文件、修改文件、整理文件、補文件</td>
+        </tr>
+        <tr>
+          <td>同步與一致性</td>
+          <td>同步、對齊、檢查前後一致、格式一致、流程一致、內容一致</td>
+        </tr>
+        <tr>
+          <td>Review 與交付</td>
+          <td>review、檢查文件品質、最終交付檢查、交付前檢查、品質 gate</td>
+        </tr>
+        <tr>
+          <td>HTML 文件處理</td>
+          <td>HTML 基礎美化、HTM 美化、表格分類、標題整理、條列式整理、色調美化</td>
+        </tr>
+        <tr>
+          <td>可讀性與可攜性</td>
+          <td>七年級可讀性、國一可讀性、本機環境提醒、Windows/Linux 指令對照</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>文件類型</h2>
+    <p>這個 skill 主要處理 robert 個人的 SPEC、runbook、README，以及它們的 Markdown/HTML 版本。</p>
+    <ul>
+      <li><code>SPEC.md</code></li>
+      <li><code>runbook.md</code>、<code>runbook.htm</code>、<code>runbook.html</code></li>
+      <li><code>README.md</code>、<code>README.htm</code>、<code>README.html</code></li>
+      <li>Markdown 與 HTML 成對文件</li>
+      <li>需要交接、操作、review 或最終交付檢查的文件</li>
+    </ul>
+
+    <h2>對話例子</h2>
+    <p>下列表達方式通常足以讓我判斷應該使用 <code>docs-quality-gen</code>。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>使用者說法</th>
+          <th>代表的工作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>幫我 review 這份 <code>runbook.md</code> 是否前後一致。</td>
+          <td>文件 review、流程一致性、內容一致性檢查。</td>
+        </tr>
+        <tr>
+          <td>同步 <code>runbook.md</code> 和 <code>runbook.htm</code>。</td>
+          <td>Markdown/HTML 同步。</td>
+        </tr>
+        <tr>
+          <td>把 <code>README.html</code> 做基礎美化，但不要改意思。</td>
+          <td>HTML 基礎美化與內容一致性檢查。</td>
+        </tr>
+        <tr>
+          <td>檢查 <code>SPEC.md</code> 有沒有把本機路徑寫成通用規格。</td>
+          <td>SPEC 規格邊界與本機環境可攜性檢查。</td>
+        </tr>
+        <tr>
+          <td>這份文件要補 Windows PowerShell 和 Ubuntu Bash 指令。</td>
+          <td>Windows/Linux 指令對照。</td>
+        </tr>
+        <tr>
+          <td>交付前檢查這三份文件。</td>
+          <td>最終交付 review。</td>
+        </tr>
+        <tr>
+          <td>檢查這份 runbook 國一生是否能看懂主線。</td>
+          <td>七年級可讀性檢查。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>此 skill 的應用</h2>
+    <p><code>docs-quality-gen</code> 適合用在 robert 個人文件的產出與品質檢查，不是公開通用文件規格，也不是泛用寫作助手。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>應用面向</th>
+          <th>實際處理內容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SPEC 文件</td>
+          <td>確認規格契約、範圍、非範圍、驗收條件與可驗證性。</td>
+        </tr>
+        <tr>
+          <td>Runbook 文件</td>
+          <td>確認每一步的目的、動作、預期輸出、驗證方式與流程順序。</td>
+        </tr>
+        <tr>
+          <td>README 文件</td>
+          <td>確認文件用途、主要入口、使用方式與交付前說明清楚。</td>
+        </tr>
+        <tr>
+          <td>Markdown/HTML 同步</td>
+          <td>確認成對文件的段落、警告、路徑、檔名、清單、表格與指令意思一致。</td>
+        </tr>
+        <tr>
+          <td>HTML/HTM 基礎美化</td>
+          <td>整理標題、條列式、分類表格、code block、提示區與基礎色調，並保持內容意思不變。</td>
+        </tr>
+        <tr>
+          <td>Windows/Linux 指令對照</td>
+          <td>在文件中分開提供 Windows PowerShell 與 Ubuntu Bash/sh 指令，並標示 WSL 路徑只是 WSL 範例。</td>
+        </tr>
+        <tr>
+          <td>可讀性檢查</td>
+          <td>讓交接或操作文件先說白話主線，再保留必要技術細節。</td>
+        </tr>
+        <tr>
+          <td>最終交付 review</td>
+          <td>確認格式、流程、內容、可讀性、同步狀態與「做了什麼、驗證了什麼、沒做什麼」。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>不適用範圍</h2>
+    <ul>
+      <li>不處理 Word <code>.doc</code> 或 <code>.docx</code> 文件。</li>
+      <li>不加入 iTest 或其他專案專屬知識，除非該專案另有專屬 skill 或明確要求。</li>
+      <li>不做完整 HTML 視覺設計、品牌設計、互動式 UI 或行銷頁。</li>
+      <li>不主動打包 skill、安裝 skill、同步到 <code>.codex\skills</code> 或產生 zip，除非使用者明確要求。</li>
+    </ul>
+  </main>
+</body>
+</html>

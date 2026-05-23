@@ -32,12 +32,14 @@ Use this skill to answer questions about Spirent iTest Automation 25.4 from the 
 - `references/help_pages.jsonl`: one cleaned text record per help page.
 - `references/search_index.json`: weighted term index for deterministic lookup.
 - `references/search_index_summary.json`: index metadata and counts.
+- `references/toc_index.json`: official iTest Online Help table-of-contents metadata from `com.fnfr.svt.help/toc.xml`.
 - `references/interpreter-guide.md`: guardrails for iTest interpreter, Tcl interpreter, and clock questions.
 - `references/analysis-rule-wizard-guide.md`: guardrails for Analysis Rule Wizard and analysis rule behavior.
 - `references/regression-questions.md`: high-risk questions used to verify answer quality.
 
 The packaged index contains 963 `.htm` / `.html` help pages under `topics/`, including `topics/popups/` and `topics/popups/arules/`.
 Source references are original help paths under the logical `topics/` path, such as `topics/quickcalls_arguments_in_quickcall_steps.htm` and `topics/popups/arules/query.html`.
+Pages that appear in the official iTest Online Help contents include `toc_paths` and `toc_top_categories`; popup and supplemental pages may have no TOC entry.
 
 ## Query Guidance
 
@@ -45,11 +47,14 @@ Source references are original help paths under the logical `topics/` path, such
 - For workflow questions, search the task phrase, then inspect one or two top pages.
 - For command/action questions, include the command or action name.
 - For product-specific questions, include the product name, such as `Spirent TestCenter`, `Avalanche`, `CyberFlood`, or `NTAF`.
+- For chapter, category, or navigation questions, use `toc_paths` from search results or inspect `references/toc_index.json`.
 
 ## Answering Rules
 
 - Keep answers grounded in the help page text and mention uncertainty when pages disagree.
 - Include the relevant source file name in the answer.
+- When useful, include the official iTest Online Help TOC path from `toc_paths` to identify the chapter context.
+- Prefer official TOC metadata over `probable_category`; `probable_category` is a heuristic fallback.
 - Do not claim behavior that was not found in the indexed help.
 - Use Traditional Chinese when replying to this user unless they ask otherwise.
 

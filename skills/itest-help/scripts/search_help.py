@@ -85,6 +85,16 @@ def guardrail_boost(page, query_terms):
         }:
             boost += 180
 
+    if "clock" in terms and (
+        {"scan", "format", "time", "date", "conversion", "2038", "2041", "2049"} & terms
+    ):
+        if source_ref == "topics/command_syntax.htm":
+            boost += 300
+        if source_ref == "topics/popups/clock.html":
+            boost += 520
+        if "tcl" in terms and source_ref == "topics/command_tcl.htm":
+            boost += 180
+
     return boost
 
 
@@ -136,6 +146,8 @@ def search(query, data_dir, top):
                 page.get("title", ""),
                 page.get("h1", ""),
                 " ".join(item["text"] for item in page.get("headings", [])),
+                " ".join(page.get("toc_paths", [])),
+                " ".join(page.get("toc_top_categories", [])),
                 page.get("text", ""),
             ]
         ).lower()
@@ -155,6 +167,9 @@ def search(query, data_dir, top):
                 "h1": page["h1"],
                 "doc_set": page["doc_set"],
                 "probable_category": page["probable_category"],
+                "toc_primary_path": page.get("toc_primary_path", ""),
+                "toc_top_categories": page.get("toc_top_categories", []),
+                "toc_paths": page.get("toc_paths", []),
                 "matched_terms": sorted(set(matched_terms[doc_id])),
                 "unmatched_terms": unmatched_terms,
                 "snippet": compact_snippet(page.get("text", ""), query, tokens),
@@ -231,6 +246,8 @@ def main():
     for rank, result in enumerate(response["results"], start=1):
         print(f"{rank}. [{result['score']}] {result['source_ref']}")
         print(f"   title: {result['title']}")
+        if result.get("toc_primary_path"):
+            print(f"   toc: {result['toc_primary_path']}")
         print(f"   category: {result['probable_category']} / {result['doc_set']}")
         print(f"   snippet: {result['snippet']}")
 

@@ -1,20 +1,47 @@
-# skill-packager
+# robert-create-codex-skills
 
-  Install with Codex:
+這個 repo 保存 Robert 個人使用的 Codex skills、文件與可移植 zip。
 
-  $skill-installer install https://github.com/owner/robert-create-codex-skills/skills/skill-packager
+## skill-packager
 
-  See docs/docs-quality-gen/README.htm and runbook.htmskill-packager/README.html and docs/skill-packager/SPEC.html for details.
-  
-# itest-help
-  Install with Codex:  
-  $skill-installer install https://github.com/owner/robert-create-codex-skills/skills/itest-help
-  當前基礎版本: iTest v25.4
-  
-  See docs/itest-help-skill/itest-help-skill-runbook.htm and docs/itest-help-skill/SPEC.md for details
-  
-# docs-quality-gen (For Robert 個人使用)
-  Install with Codex:
-  $skill-installer install https://github.com/owner/robert-create-codex-skills/skills/docs-quality-gen
-  
-  See docs/docs-quality-gen/README.htm and docs/docs-quality-gen/runbook.htm
+Codex 安裝提示：
+
+```text
+$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/skill-packager
+```
+
+文件：
+
+- `docs/skill-packager/README.html`
+- `docs/skill-packager/SPEC.html`
+
+## itest-help
+
+Codex 安裝提示：
+
+```text
+$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/itest-help
+```
+
+目前基礎版本：iTest v25.4。
+
+文件：
+
+- `docs/itest-help-skill/itest-help-skill-runbook.htm`
+- `docs/itest-help-skill/SPEC.md`
+
+## docs-quality-gen
+
+Robert 個人文件品質 gate。
+
+Codex 安裝提示：
+
+```text
+$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/docs-quality-gen
+```
+
+文件：
+
+- `docs/docs-quality-gen/README.html`
+- `docs/docs-quality-gen/runbook.htm`
+- `docs/docs-quality-gen/SPEC.md`

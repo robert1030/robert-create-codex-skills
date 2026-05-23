@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
@@ -23,9 +23,11 @@
   SKILL.md
   agents/openai.yaml
   scripts/search_help.py
+  scripts/apply_toc_metadata.py
   references/help_pages.jsonl
   references/search_index.json
   references/search_index_summary.json
+  references/toc_index.json
   references/interpreter-guide.md
   references/analysis-rule-wizard-guide.md
   references/regression-questions.md</code></pre>
@@ -37,15 +39,24 @@
 <li>解壓後必須是 <code>.codex/skills/itest-help/SKILL.md</code>。</li>
 <li><code>SKILL.md</code> frontmatter 的 <code>name</code> 必須是 <code>itest-help</code>。</li>
 </ul>
+<h2>執行環境</h2>
+<p>這份 runbook 目前是 Windows PowerShell 流程。原因是目前的 iTest 25.4 help plugin、inventory 腳本與安裝路徑都使用 Windows 本機路徑，例如 <code>F:\MyCode\...</code> 與 <code>C:\Users\robert\...</code>。</p>
+<p>如果要在 Ubuntu、WSL 或其他機器更新新版 iTest help，請先把原始 <code>com.fnfr.svt.help_&lt;actual-version&gt;</code>、工作區路徑、Python 指令與安裝路徑改成該環境的實際路徑，再重跑 inventory、search index、TOC metadata 與驗證。不要直接把本文件中的 Windows 路徑當成 Linux 路徑使用。</p>
 <h2>目前 25.4 版本來源</h2>
 <p>原始 iTest help HTML：</p>
 <pre><code>F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\topics</code></pre>
+<p>原始 iTest Online Help 目錄：</p>
+<pre><code>F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\toc.xml</code></pre>
 <p>目前 25.4 中，<code>topics</code> 遞迴 <code>.htm</code> + <code>.html</code> 應為：</p>
 <pre><code>963</code></pre>
 <p>25.4 的分布：</p>
 <pre><code>topics                  761
 topics\popups           166
 topics\popups\arules     36</code></pre>
+<p>25.4 的 <code>toc.xml</code> 分布：</p>
+<pre><code>iTest Online Help top-level labels    76
+TOC topic nodes                       890
+TOC href entries                      749</code></pre>
 <p>工作區版 skill：</p>
 <pre><code>F:\MyCode\Java\iTest25.4\itest-help</code></pre>
 <p>已安裝版 skill：</p>
@@ -57,6 +68,7 @@ topics\popups\arules     36</code></pre>
 <pre><code>F:\MyCode\Java\iTest26.5\
   com.fnfr.svt.help_&lt;actual-version&gt;\
     topics\
+    toc.xml
   itest_help_inventory\
   itest_help_skill_data\
   itest-help\</code></pre>
@@ -120,6 +132,23 @@ Copy-Item &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data\search_index_summ
 <pre><code>references/interpreter-guide.md
 references/analysis-rule-wizard-guide.md
 references/regression-questions.md</code></pre>
+<p>套用官方 iTest Online Help 目錄 metadata：</p>
+<pre><code>python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\apply_toc_metadata.py&quot; `
+  --toc-xml &quot;F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_&lt;actual-version&gt;\toc.xml&quot; `
+  --references-dir &quot;F:\MyCode\Java\iTest26.5\itest-help\references&quot;</code></pre>
+<p>預期輸出會列出 <code>toc_root_label</code>、<code>toc_top_category_count</code>、<code>toc_href_entry_count</code>、<code>documents_with_toc</code> 和 <code>documents_without_toc</code>。</p>
+<p>驗證 TOC metadata：</p>
+<pre><code>Get-Content &quot;F:\MyCode\Java\iTest26.5\itest-help\references\search_index_summary.json&quot; -Raw |
+  ConvertFrom-Json |
+  Select-Object document_count,toc_root_label,toc_top_category_count,toc_href_entry_count,documents_with_toc,documents_without_toc
+
+python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Field Replacements&quot; --top 3</code></pre>
+<p>確認：</p>
+<ul>
+<li><code>toc_root_label</code> 應為 <code>iTest Online Help</code>，除非新版官方 help 已改名。</li>
+<li>章節類查詢應顯示 <code>toc:</code> 行，例如 <code>iTest Online Help &gt; Field Replacements &gt; ...</code>。</li>
+<li>popup 或補充頁可以沒有 TOC path，但仍應可用 <code>source_ref</code> 查到。</li>
+</ul>
 <p>更新新版本時，請抽樣確認 guardrail 內列出的 source pages 在新版本仍存在；若檔名或行為改變，先更新 guardrail，再打包。</p>
 <p>特別注意 <code>interpreter-guide.md</code> 的 clock/time conversion guardrail。這個檔案記錄 25.4 使用時觀察到的風險。</p>
 <p><strong>問題</strong></p>
@@ -140,9 +169,10 @@ references/regression-questions.md</code></pre>
 <h2>Step 4: 清理可攜性</h2>
 <p>打包前，references 不應保留本機絕對路徑，例如 <code>F:\MyCode\...</code>。</p>
 <p>檢查：</p>
-<pre><code>Select-String -Path &quot;F:\MyCode\Java\iTest26.5\itest-help\references\*.json*&quot; -Pattern &quot;F:\\MyCode|com.fnfr.svt.help&quot; | Measure-Object</code></pre>
+<pre><code>Select-String -Path &quot;F:\MyCode\Java\iTest26.5\itest-help\references\*.json*&quot; -Pattern &quot;F:\\MyCode|C:\\Users\\|com.fnfr.svt.help_[0-9]&quot; | Measure-Object</code></pre>
 <p>若有殘留，將 <code>source_path</code> 或 Eclipse help link 改成邏輯來源：</p>
 <pre><code>source_ref: topics/&lt;relative_path&gt;</code></pre>
+<p><code>toc_index.json</code> 可以保留邏輯來源 <code>com.fnfr.svt.help/toc.xml</code>，但不能保留實際本機 plugin 版本資料夾路徑。</p>
 <p>25.4 時已採用這個格式。查詢結果應該看到：</p>
 <pre><code>source_ref: topics/quickcalls_arguments_in_quickcall_steps.htm
 source_ref: topics/popups/arules/query.html</code></pre>
@@ -155,6 +185,7 @@ Copy-Item &quot;$source\*&quot; $target -Recurse -Force</code></pre>
 <p>注意：這裡複製的是 <code>itest-help</code> 裡面的內容，不是把整個 <code>itest-help</code> 資料夾再放進目標資料夾。完成後應該看到 <code>C:\Users\robert\.codex\skills\itest-help\SKILL.md</code>，不要變成 <code>C:\Users\robert\.codex\skills\itest-help\itest-help\SKILL.md</code>。</p>
 <p>驗證安裝版：</p>
 <pre><code>python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;parameter merging logic&quot; --top 2
+python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Field Replacements&quot; --top 3
 python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; --show-file &quot;topics/popups/query.html&quot; --text
 python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;tcl clock scan target_date 2049 time conversion&quot; --top 4
 (Get-Content &quot;C:\Users\robert\.codex\skills\itest-help\references\help_pages.jsonl&quot; | Measure-Object -Line).Lines</code></pre>
@@ -181,9 +212,11 @@ $zip.Dispose()</code></pre>
 <pre><code>itest-help/SKILL.md
 itest-help/agents/openai.yaml
 itest-help/scripts/search_help.py
+itest-help/scripts/apply_toc_metadata.py
 itest-help/references/help_pages.jsonl
 itest-help/references/search_index.json
 itest-help/references/search_index_summary.json
+itest-help/references/toc_index.json
 itest-help/references/interpreter-guide.md
 itest-help/references/analysis-rule-wizard-guide.md
 itest-help/references/regression-questions.md</code></pre>
@@ -191,7 +224,7 @@ itest-help/references/regression-questions.md</code></pre>
 <pre><code>$tmp = Join-Path $env:TEMP &quot;itest-help-zip-check&quot;
 if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
 Expand-Archive &quot;F:\MyCode\robert-create-codex-skills\dist\itest-help_v26.5.zip&quot; -DestinationPath $tmp -Force
-Select-String -Path (Join-Path $tmp &quot;itest-help\references\*.json*&quot;) -Pattern &quot;F:\\MyCode|com.fnfr.svt.help&quot; | Measure-Object
+Select-String -Path (Join-Path $tmp &quot;itest-help\references\*.json*&quot;) -Pattern &quot;F:\\MyCode|C:\\Users\\|com.fnfr.svt.help_[0-9]&quot; | Measure-Object
 Remove-Item $tmp -Recurse -Force</code></pre>
 <p>結果應為：</p>
 <pre><code>0</code></pre>
@@ -225,6 +258,8 @@ Remove-Item $tmp -Recurse -Force</code></pre>
 <li>只改 zip 檔名可以，不能改 skill 資料夾名稱。</li>
 <li><code>SKILL.md</code> 的 <code>name</code> 必須維持 <code>itest-help</code>。</li>
 <li>references 裡不能留下本機絕對路徑。</li>
+<li>更新 help data 後要重新套用 <code>toc.xml</code>，否則查詢結果會缺少官方 iTest Online Help 章節路徑。</li>
+<li><code>probable_category</code> 是推測分類；回答章節或分類問題時，優先使用 <code>toc_paths</code>。</li>
 <li>子目錄納入後會有同名檔案；搜尋結果與引用要使用 <code>source_ref</code> / <code>relative_path</code>，不要只依賴 <code>file_name</code>。</li>
 <li>clock/time conversion guardrail 不只適用 certificate expiration。只要有日期文字轉秒數、時間比較、時間加減，或 <code>clock scan</code> / <code>clock format</code>，而且日期在 2038 以後，都要重新驗證。</li>
 <li>原始 HTML 可以不打包；目前 skill 查的是清理後的 <code>help_pages.jsonl</code> 與 <code>search_index.json</code>。</li>

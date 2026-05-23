@@ -136,17 +136,12 @@
           <td>否，這是輸出成果</td>
         </tr>
         <tr>
-          <td><code>dist/skill-packager-install.zh-TW.md</code></td>
-          <td>外部安裝教學</td>
-          <td>否</td>
-        </tr>
-        <tr>
-          <td><code>dist/README.html</code></td>
+          <td><code>docs/skill-packager/README.html</code></td>
           <td>白話使用與安裝說明</td>
           <td>否</td>
         </tr>
         <tr>
-          <td><code>dist/SPEC.html</code></td>
+          <td><code>docs/skill-packager/SPEC.html</code></td>
           <td>本規格書</td>
           <td>否</td>
         </tr>
@@ -288,6 +283,7 @@ New-Item -ItemType Directory -Force $skills
 Expand-Archive .\dist\skill-packager.zip -DestinationPath $skills -Force</code></pre>
 
     <h2>驗證紀錄</h2>
+    <p>以下是當時環境的驗證紀錄。<code>/home/robert</code> 與 <code>/tmp</code> 是該次 Linux 環境的路徑；換到其他機器時，請改用實際的使用者目錄與暫存目錄。</p>
     <p>已執行並通過下列檢查：</p>
     <pre><code>python3 /home/robert/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/skill-packager
 python3 -m py_compile skills/skill-packager/scripts/package_skill.py

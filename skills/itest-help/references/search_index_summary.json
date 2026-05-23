@@ -1,7 +1,15 @@
 {
   "document_count": 963,
+  "documents_with_toc": 749,
+  "documents_without_toc": 214,
   "index_path": "references/search_index.json",
   "pages_path": "references/help_pages.jsonl",
   "source": "packaged references/help_pages.jsonl",
-  "term_count": 12042
+  "term_count": 12042,
+  "toc_href_entry_count": 749,
+  "toc_path": "references/toc_index.json",
+  "toc_referenced_source_count": 749,
+  "toc_root_label": "iTest Online Help",
+  "toc_top_category_count": 76,
+  "toc_topic_node_count": 890
 }

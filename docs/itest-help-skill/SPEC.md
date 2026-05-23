@@ -57,6 +57,15 @@ Each indexed help page may include best-effort metadata:
 
 Best-effort metadata is not authoritative. Popup pages may have empty `title` or `h1` while still containing valid searchable text.
 
+Each indexed help page should preserve official iTest Online Help table-of-contents context when the page appears in `com.fnfr.svt.help/toc.xml`:
+
+- `toc_entries`: one or more official TOC entries for the page
+- `toc_paths`: breadcrumb strings such as `iTest Online Help > Field Replacements > ...`
+- `toc_top_categories`: official top-level TOC labels
+- `toc_primary_path`: first TOC breadcrumb, used for display
+
+TOC metadata is authoritative for help navigation context. It does not replace page text as evidence for product behavior. Popup and supplemental pages may have no TOC entry.
+
 ## Search Behavior（搜尋規則）
 
 中文說明：這段規定搜尋工具要怎麼找資料。搜尋只能根據索引裡真的有的文字，不可以因為 AI 覺得像，就當成 help 文件已經證明。
@@ -64,6 +73,8 @@ Best-effort metadata is not authoritative. Popup pages may have empty `title` or
 Search must be deterministic and lexical. It is not semantic search and must not infer iTest behavior beyond retrieved help content.
 
 Search results must expose logical sources through `source_ref`. User-facing answers should cite `source_ref` or the source file name when context is unambiguous.
+
+Search results should expose official TOC context when available. User-facing answers may include `toc_primary_path` to identify where a page appears in iTest Online Help.
 
 When multiple pages share the same `file_name`, lookup by file name alone must not silently choose one page. The tool must report ambiguity and require `relative_path` or `source_ref`, for example `topics/popups/query.html`.
 
@@ -124,9 +135,11 @@ itest-help/
   SKILL.md
   agents/openai.yaml
   scripts/search_help.py
+  scripts/apply_toc_metadata.py
   references/help_pages.jsonl
   references/search_index.json
   references/search_index_summary.json
+  references/toc_index.json
   references/interpreter-guide.md
   references/analysis-rule-wizard-guide.md
   references/regression-questions.md
@@ -140,8 +153,11 @@ A generated package is acceptable only if:
 
 - Inventory count equals `help_pages.jsonl` line count.
 - `search_index_summary.json` document count equals `help_pages.jsonl` line count.
+- `toc_index.json` is packaged and reports the official iTest Online Help root label.
+- TOC-referenced pages include `toc_paths`; pages not present in TOC remain searchable by `source_ref`.
 - Packaged references contain no machine-specific absolute source paths.
 - Sample searches return relevant pages for common topics such as parameters, QuickCalls, response maps, and query commands.
+- Chapter searches, such as `Field Replacements`, return pages with matching official TOC paths.
 - High-risk searches expose query terms that were not found in the indexed help. Missing terms are warning signals only; they must not be treated as evidence that the help supports those terms.
 - High-risk guardrail references are packaged and readable.
 - Time conversion regression checks cover general post-2038 date/time conversion, not only certificate expiration examples.
@@ -160,9 +176,11 @@ topics                  761
 topics/popups           166
 topics/popups/arules     36
 total                   963
+toc top-level labels     76
+toc href entries        749
 ```
 
-The `963` count is a 25.4 baseline fact, not a permanent requirement. New iTest versions must be counted from their own source tree.
+The `963`, `76`, and `749` counts are 25.4 baseline facts, not permanent requirements. New iTest versions must be counted from their own source tree and `toc.xml`.
 
 ## Known Risks（已知風險）
 
@@ -177,3 +195,5 @@ Subdirectories can contain files with the same base name. `relative_path` and `s
 The current scope excludes HTML outside `topics/`. That does not prove excluded files are irrelevant; it only means they are outside the current accepted data boundary.
 
 Generated categories are heuristic and should not be treated as official Spirent taxonomy.
+
+Official TOC metadata covers pages linked from `toc.xml`. Popup pages and some supplemental pages can be valid searchable help content even when they have no TOC path.

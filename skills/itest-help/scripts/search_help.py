@@ -141,7 +141,7 @@ def search(query, data_dir, top):
     for doc_id in list(scores.keys()):
         page = pages[doc_id]
         scores[doc_id] += guardrail_boost(page, query_terms)
-        haystack = "\n".join(
+        evidence_haystack = "\n".join(
             [
                 page.get("title", ""),
                 page.get("h1", ""),
@@ -151,8 +151,18 @@ def search(query, data_dir, top):
                 page.get("text", ""),
             ]
         ).lower()
-        if phrase and phrase in haystack:
+        metadata_haystack = "\n".join(
+            [
+                " ".join(page.get("index_terms", [])),
+                " ".join(page.get("index_paths", [])),
+                " ".join(page.get("context_ids", [])),
+                " ".join(page.get("context_labels", [])),
+            ]
+        ).lower()
+        if phrase and phrase in evidence_haystack:
             scores[doc_id] += 50
+        elif phrase and phrase in metadata_haystack:
+            scores[doc_id] += 10
 
     ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)[:top]
     results = []
@@ -170,6 +180,10 @@ def search(query, data_dir, top):
                 "toc_primary_path": page.get("toc_primary_path", ""),
                 "toc_top_categories": page.get("toc_top_categories", []),
                 "toc_paths": page.get("toc_paths", []),
+                "index_terms": page.get("index_terms", [])[:24],
+                "index_paths": page.get("index_paths", [])[:8],
+                "context_ids": page.get("context_ids", [])[:12],
+                "context_labels": page.get("context_labels", [])[:12],
                 "matched_terms": sorted(set(matched_terms[doc_id])),
                 "unmatched_terms": unmatched_terms,
                 "snippet": compact_snippet(page.get("text", ""), query, tokens),
@@ -248,6 +262,10 @@ def main():
         print(f"   title: {result['title']}")
         if result.get("toc_primary_path"):
             print(f"   toc: {result['toc_primary_path']}")
+        if result.get("index_paths"):
+            print(f"   index: {result['index_paths'][0]}")
+        if result.get("context_ids"):
+            print(f"   contexts: {', '.join(result['context_ids'][:5])}")
         print(f"   category: {result['probable_category']} / {result['doc_set']}")
         print(f"   snippet: {result['snippet']}")
 

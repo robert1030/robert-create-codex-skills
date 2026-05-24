@@ -16,6 +16,8 @@ itest-help/
   references/search_index.json
   references/search_index_summary.json
   references/toc_index.json
+  references/help_index.json
+  references/contexts_index.json
   references/interpreter-guide.md
   references/analysis-rule-wizard-guide.md
   references/regression-questions.md
@@ -47,6 +49,8 @@ F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\topics
 
 ```text
 F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\toc.xml
+F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\index.xml
+F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\contexts.xml
 ```
 
 目前 25.4 中，`topics` 遞迴 `.htm` + `.html` 應為：
@@ -69,6 +73,19 @@ topics\popups\arules     36
 iTest Online Help top-level labels    76
 TOC topic nodes                       890
 TOC href entries                      749
+```
+
+25.4 的 `index.xml` 與 `contexts.xml` 分布：
+
+```text
+Index topic refs                     1901
+Index referenced topic pages          444
+Index keyword paths                  1671
+Contexts                              645
+Context topic refs                    656
+Context referenced topic pages        620
+Context stale topic refs                1
+Contexts without topics                 3
 ```
 
 工作區版 skill：
@@ -98,6 +115,8 @@ F:\MyCode\Java\iTest26.5\
   com.fnfr.svt.help_<actual-version>\
     topics\
     toc.xml
+    index.xml
+    contexts.xml
   itest_help_inventory\
   itest_help_skill_data\
   itest-help\
@@ -213,30 +232,35 @@ references/analysis-rule-wizard-guide.md
 references/regression-questions.md
 ```
 
-套用官方 iTest Online Help 目錄 metadata：
+套用官方 iTest Online Help 目錄、index 與 context metadata：
 
 ```powershell
 python "F:\MyCode\Java\iTest26.5\itest-help\scripts\apply_toc_metadata.py" `
   --toc-xml "F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_<actual-version>\toc.xml" `
+  --index-xml "F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_<actual-version>\index.xml" `
+  --contexts-xml "F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_<actual-version>\contexts.xml" `
   --references-dir "F:\MyCode\Java\iTest26.5\itest-help\references"
 ```
 
-預期輸出會列出 `toc_root_label`、`toc_top_category_count`、`toc_href_entry_count`、`documents_with_toc` 和 `documents_without_toc`。
+預期輸出會列出 `toc_root_label`、`toc_top_category_count`、`toc_href_entry_count`、`documents_with_toc`、`documents_with_index`、`documents_with_contexts`、`contexts_missing_source_ref_count` 和 `contexts_without_topic_count`。
 
-驗證 TOC metadata：
+驗證官方 help metadata：
 
 ```powershell
 Get-Content "F:\MyCode\Java\iTest26.5\itest-help\references\search_index_summary.json" -Raw |
   ConvertFrom-Json |
-  Select-Object document_count,toc_root_label,toc_top_category_count,toc_href_entry_count,documents_with_toc,documents_without_toc
+  Select-Object document_count,toc_root_label,toc_top_category_count,toc_href_entry_count,documents_with_toc,documents_with_index,documents_with_contexts,help_index_topic_ref_count,help_index_referenced_source_count,contexts_count,contexts_missing_source_ref_count,contexts_without_topic_count
 
 python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Field Replacements" --top 3
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "activitywiz_topo_edit_device_session" --top 3
 ```
 
 確認：
 
 - `toc_root_label` 應為 `iTest Online Help`，除非新版官方 help 已改名。
 - 章節類查詢應顯示 `toc:` 行，例如 `iTest Online Help > Field Replacements > ...`。
+- context ID 類查詢可用來定位候選頁，但回答產品行為時仍必須讀取該頁 `text`。
+- `contexts_index.json` 應記錄 contexts without topics 與 missing/stale topic references。
 - popup 或補充頁可以沒有 TOC path，但仍應可用 `source_ref` 查到。
 
 更新新版本時，請抽樣確認 guardrail 內列出的 source pages 在新版本仍存在；若檔名或行為改變，先更新 guardrail，再打包。
@@ -283,7 +307,7 @@ Select-String -Path "F:\MyCode\Java\iTest26.5\itest-help\references\*.json*" -Pa
 source_ref: topics/<relative_path>
 ```
 
-`toc_index.json` 可以保留邏輯來源 `com.fnfr.svt.help/toc.xml`，但不能保留實際本機 plugin 版本資料夾路徑。
+`toc_index.json`、`help_index.json` 與 `contexts_index.json` 可以保留邏輯來源 `com.fnfr.svt.help/toc.xml`、`com.fnfr.svt.help/index.xml` 和 `com.fnfr.svt.help/contexts.xml`，但不能保留實際本機 plugin 版本資料夾路徑。
 
 25.4 時已採用這個格式。查詢結果應該看到：
 
@@ -365,6 +389,8 @@ itest-help/references/help_pages.jsonl
 itest-help/references/search_index.json
 itest-help/references/search_index_summary.json
 itest-help/references/toc_index.json
+itest-help/references/help_index.json
+itest-help/references/contexts_index.json
 itest-help/references/interpreter-guide.md
 itest-help/references/analysis-rule-wizard-guide.md
 itest-help/references/regression-questions.md
@@ -440,7 +466,10 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 - 只改 zip 檔名可以，不能改 skill 資料夾名稱。
 - `SKILL.md` 的 `name` 必須維持 `itest-help`。
 - references 裡不能留下本機絕對路徑。
-- 更新 help data 後要重新套用 `toc.xml`，否則查詢結果會缺少官方 iTest Online Help 章節路徑。
+- 更新 help data 後要重新套用 `toc.xml`、`index.xml` 與 `contexts.xml`，否則查詢結果會缺少官方 iTest Online Help 章節、index 與 context metadata。
+- `index.xml` 與 `contexts.xml` 只能用來幫助找頁、定位或記錄官方 metadata；回答產品行為時仍必須以 help page 文字為證據。
+- 不要把 context ID 當成官方章節分類。
+- 官方 help 的 examples、lists 和 tables 不一定是完整清單。不要把正向範例反推成未列項目不支援，也不要把反向範例反推成未列項目都支援，除非 help 明確說它是完整或排他的規則。
 - `probable_category` 是推測分類；回答章節或分類問題時，優先使用 `toc_paths`。
 - 子目錄納入後會有同名檔案；搜尋結果與引用要使用 `source_ref` / `relative_path`，不要只依賴 `file_name`。
 - clock/time conversion guardrail 不只適用 certificate expiration。只要有日期文字轉秒數、時間比較、時間加減，或 `clock scan` / `clock format`，而且日期在 2038 以後，都要重新驗證。

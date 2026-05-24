@@ -33,6 +33,8 @@ Use this skill to answer questions about Spirent iTest Automation 25.4 from the 
 - `references/search_index.json`: weighted term index for deterministic lookup.
 - `references/search_index_summary.json`: index metadata and counts.
 - `references/toc_index.json`: official iTest Online Help table-of-contents metadata from `com.fnfr.svt.help/toc.xml`.
+- `references/help_index.json`: official iTest Online Help index metadata from `com.fnfr.svt.help/index.xml`.
+- `references/contexts_index.json`: official Eclipse help context metadata from `com.fnfr.svt.help/contexts.xml`, including missing or stale topic references.
 - `references/interpreter-guide.md`: guardrails for iTest interpreter, Tcl interpreter, and clock questions.
 - `references/analysis-rule-wizard-guide.md`: guardrails for Analysis Rule Wizard and analysis rule behavior.
 - `references/regression-questions.md`: high-risk questions used to verify answer quality.
@@ -40,6 +42,8 @@ Use this skill to answer questions about Spirent iTest Automation 25.4 from the 
 The packaged index contains 963 `.htm` / `.html` help pages under `topics/`, including `topics/popups/` and `topics/popups/arules/`.
 Source references are original help paths under the logical `topics/` path, such as `topics/quickcalls_arguments_in_quickcall_steps.htm` and `topics/popups/arules/query.html`.
 Pages that appear in the official iTest Online Help contents include `toc_paths` and `toc_top_categories`; popup and supplemental pages may have no TOC entry.
+Pages referenced by the official help index may include `index_terms` and `index_paths`. Pages referenced by Eclipse help contexts may include `context_ids` and `context_labels`.
+These fields are auxiliary metadata for finding and locating pages. They are not page body text and do not prove product behavior by themselves.
 
 ## Query Guidance
 
@@ -48,6 +52,8 @@ Pages that appear in the official iTest Online Help contents include `toc_paths`
 - For command/action questions, include the command or action name.
 - For product-specific questions, include the product name, such as `Spirent TestCenter`, `Avalanche`, `CyberFlood`, or `NTAF`.
 - For chapter, category, or navigation questions, use `toc_paths` from search results or inspect `references/toc_index.json`.
+- For index-style terms, use `index_terms` / `index_paths` from search results or inspect `references/help_index.json` to find candidate pages.
+- For UI help, dialog, wizard, or F1-style context questions, use `context_ids` / `context_labels` from search results or inspect `references/contexts_index.json` to find candidate pages.
 
 ## Answering Rules
 
@@ -55,6 +61,13 @@ Pages that appear in the official iTest Online Help contents include `toc_paths`
 - Include the relevant source file name in the answer.
 - When useful, include the official iTest Online Help TOC path from `toc_paths` to identify the chapter context.
 - Prefer official TOC metadata over `probable_category`; `probable_category` is a heuristic fallback.
+- Use `help_index.json` and `contexts_index.json` only to find candidate pages, identify UI/context links, or explain navigation metadata.
+- Do not use `index_terms`, `index_paths`, `context_ids`, or `context_labels` alone as evidence for product behavior. Verify behavior in the retrieved help page `text`.
+- Do not treat context IDs as official chapter categories.
+- Treat official examples, lists, and tables as evidence only for what they explicitly state.
+- Do not infer inverse, opposite, or exhaustive behavior from examples, positive lists, negative lists, or tables unless the help page explicitly says the list is complete, exclusive, required, unsupported, always true, or never true.
+- If the help gives only positive examples, say the help documents those examples but does not prove that unlisted cases are unsupported.
+- If the help gives only negative examples or unsupported cases, say the help documents those limits but does not prove that every unlisted case is supported.
 - Do not claim behavior that was not found in the indexed help.
 - Use Traditional Chinese when replying to this user unless they ask otherwise.
 

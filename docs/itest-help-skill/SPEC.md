@@ -66,6 +66,20 @@ Each indexed help page should preserve official iTest Online Help table-of-conte
 
 TOC metadata is authoritative for help navigation context. It does not replace page text as evidence for product behavior. Popup and supplemental pages may have no TOC entry.
 
+Each indexed help page should preserve official iTest Online Help index metadata when the page appears in `com.fnfr.svt.help/index.xml`:
+
+- `index_entries`: one or more official help index entries for the page
+- `index_terms`: deduplicated keyword terms from the help index
+- `index_paths`: breadcrumb strings from nested index keywords
+
+Each indexed help page should preserve Eclipse help context metadata when the page appears in `com.fnfr.svt.help/contexts.xml`:
+
+- `context_entries`: one or more context mappings for the page
+- `context_ids`: Eclipse help context IDs
+- `context_labels`: labels attached to context topic references
+
+Index and context metadata are auxiliary metadata. They help find candidate pages and identify official context links, but they must not be inserted into `text` and must not replace page text as evidence for product behavior. Context IDs are not official iTest chapter categories.
+
 ## Search Behavior（搜尋規則）
 
 中文說明：這段規定搜尋工具要怎麼找資料。搜尋只能根據索引裡真的有的文字，不可以因為 AI 覺得像，就當成 help 文件已經證明。
@@ -76,9 +90,23 @@ Search results must expose logical sources through `source_ref`. User-facing ans
 
 Search results should expose official TOC context when available. User-facing answers may include `toc_primary_path` to identify where a page appears in iTest Online Help.
 
+Search may use official help index and context metadata as low-weight ranking signals. These signals must not outweigh page text, title, H1, headings, or official TOC context. A match that exists only in `index_terms`, `index_paths`, `context_ids`, or `context_labels` is a page-location signal, not product-behavior evidence.
+
 When multiple pages share the same `file_name`, lookup by file name alone must not silently choose one page. The tool must report ambiguity and require `relative_path` or `source_ref`, for example `topics/popups/query.html`.
 
 Weak or mixed search results must be described as weak or mixed instead of being treated as authoritative.
+
+## Evidence Boundaries（證據邊界）
+
+中文說明：這段規定回答時不能把官方範例、清單或表格過度解讀。官方 help 有寫到的內容可以引用；沒有直接寫到的反向結論或完整性結論，不能自動推論。
+
+Retrieved help examples, lists, and tables are evidence only for what they explicitly state.
+
+The skill must not infer inverse, opposite, or exhaustive behavior from examples, positive lists, negative lists, or tables unless the help page explicitly says the list is complete, exclusive, required, unsupported, always true, or never true.
+
+If a help page gives only positive examples, the answer must not claim that unlisted cases are unsupported. If a help page gives only negative examples or unsupported cases, the answer must not claim that every unlisted case is supported.
+
+When an answer combines multiple documented facts into a recommended workflow, it must separate official help statements from the derived recommendation. For example, it may say that the help documents a regex extractor and a store processor, but it must not claim that a combined multi-output workflow is officially guaranteed unless the help directly says so.
 
 ## Guardrail Behavior（高風險提醒規則）
 
@@ -140,6 +168,8 @@ itest-help/
   references/search_index.json
   references/search_index_summary.json
   references/toc_index.json
+  references/help_index.json
+  references/contexts_index.json
   references/interpreter-guide.md
   references/analysis-rule-wizard-guide.md
   references/regression-questions.md
@@ -155,11 +185,16 @@ A generated package is acceptable only if:
 - `search_index_summary.json` document count equals `help_pages.jsonl` line count.
 - `toc_index.json` is packaged and reports the official iTest Online Help root label.
 - TOC-referenced pages include `toc_paths`; pages not present in TOC remain searchable by `source_ref`.
+- `help_index.json` is packaged and reports official help index reference counts.
+- `contexts_index.json` is packaged and reports context counts, contexts without topics, and missing or stale topic references.
+- Pages referenced by `index.xml` include `index_terms` and `index_paths`.
+- Pages referenced by `contexts.xml` include `context_ids` and `context_labels`.
 - Packaged references contain no machine-specific absolute source paths.
 - Sample searches return relevant pages for common topics such as parameters, QuickCalls, response maps, and query commands.
 - Chapter searches, such as `Field Replacements`, return pages with matching official TOC paths.
 - High-risk searches expose query terms that were not found in the indexed help. Missing terms are warning signals only; they must not be treated as evidence that the help supports those terms.
 - High-risk guardrail references are packaged and readable.
+- Example/list/table boundary checks confirm that the answer does not infer unsupported inverse, opposite, or exhaustive behavior from official examples.
 - Time conversion regression checks cover general post-2038 date/time conversion, not only certificate expiration examples.
 - A duplicate file-name lookup reports ambiguity instead of choosing an arbitrary page.
 - A lookup using `source_ref` or `relative_path` can show a specific popup page.
@@ -178,9 +213,17 @@ topics/popups/arules     36
 total                   963
 toc top-level labels     76
 toc href entries        749
+index topic refs       1901
+index source refs       444
+index keyword paths    1671
+contexts                645
+context topic refs      656
+context source refs     620
+context stale refs        1
+contexts without topic    3
 ```
 
-The `963`, `76`, and `749` counts are 25.4 baseline facts, not permanent requirements. New iTest versions must be counted from their own source tree and `toc.xml`.
+The `963`, `76`, `749`, `1901`, `444`, `1671`, `645`, `656`, `620`, `1`, and `3` counts are 25.4 baseline facts, not permanent requirements. New iTest versions must be counted from their own source tree, `toc.xml`, `index.xml`, and `contexts.xml`.
 
 ## Known Risks（已知風險）
 
@@ -197,3 +240,9 @@ The current scope excludes HTML outside `topics/`. That does not prove excluded 
 Generated categories are heuristic and should not be treated as official Spirent taxonomy.
 
 Official TOC metadata covers pages linked from `toc.xml`. Popup pages and some supplemental pages can be valid searchable help content even when they have no TOC path.
+
+Official index metadata can contain duplicate topic references and printed-page wording. Search-quality checks must confirm that index metadata improves recall without allowing index keywords to answer product-behavior questions by themselves.
+
+Official context metadata can contain context IDs without topic references and stale topic references. These must be recorded in `contexts_index.json` and treated as metadata-quality findings, not as extracted help pages.
+
+Official examples, lists, and tables can be partial. A page that lists supported examples does not automatically prove that unlisted items are unsupported. A page that lists unsupported cases does not automatically prove that every unlisted case is supported.

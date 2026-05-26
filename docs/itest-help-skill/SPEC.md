@@ -57,6 +57,16 @@ Each indexed help page may include best-effort metadata:
 
 Best-effort metadata is not authoritative. Popup pages may have empty `title` or `h1` while still containing valid searchable text.
 
+Search results may include deterministic UI-scope hints inferred from packaged page metadata:
+
+- `ui_scope`: stable scope key used by `search_help.py`
+- `ui_scope_label`: human-readable scope label
+- `ui_scope_note`: short note about how to use the scope
+- `scope_summary`: grouped scope counts in a search response
+- `mixed_scope_warning`: warning that a query spans multiple UI or product scopes
+
+UI-scope hints are answer-organization metadata. They help separate GUI surfaces such as Step Properties, Analysis Rule Properties, Custom Extractor, Custom Processor, Custom Types, and custom session type pages. They are not official iTest taxonomy and must not replace page text as evidence for product behavior.
+
 Each indexed help page should preserve official iTest Online Help table-of-contents context when the page appears in `com.fnfr.svt.help/toc.xml`:
 
 - `toc_entries`: one or more official TOC entries for the page
@@ -96,6 +106,10 @@ When multiple pages share the same `file_name`, lookup by file name alone must n
 
 Weak or mixed search results must be described as weak or mixed instead of being treated as authoritative.
 
+For GUI, wizard, editor, property, setting, or "where do I click" questions, search results should expose UI-scope information. If `mixed_scope_warning` appears, the answer must separate the relevant UI locations or refine the search with `--scope`.
+
+The scope filter is a search aid. A filtered search must still cite retrieved help page text for product behavior.
+
 ## Evidence Boundaries（證據邊界）
 
 中文說明：這段規定回答時不能把官方範例、清單或表格過度解讀。官方 help 有寫到的內容可以引用；沒有直接寫到的反向結論或完整性結論，不能自動推論。
@@ -107,6 +121,8 @@ The skill must not infer inverse, opposite, or exhaustive behavior from examples
 If a help page gives only positive examples, the answer must not claim that unlisted cases are unsupported. If a help page gives only negative examples or unsupported cases, the answer must not claim that every unlisted case is supported.
 
 When an answer combines multiple documented facts into a recommended workflow, it must separate official help statements from the derived recommendation. For example, it may say that the help documents a regex extractor and a store processor, but it must not claim that a combined multi-output workflow is officially guaranteed unless the help directly says so.
+
+The skill must not let UI-scope metadata prove behavior. For example, `ui_scope=analysis_rule_processor_properties` can help choose pages, but the answer must still read the page `text` before describing processor or action behavior.
 
 ## Guardrail Behavior（高風險提醒規則）
 
@@ -195,6 +211,10 @@ A generated package is acceptable only if:
 - High-risk searches expose query terms that were not found in the indexed help. Missing terms are warning signals only; they must not be treated as evidence that the help supports those terms.
 - High-risk guardrail references are packaged and readable.
 - Example/list/table boundary checks confirm that the answer does not infer unsupported inverse, opposite, or exhaustive behavior from official examples.
+- GUI-scope searches expose `scope_summary` and `ui_scope` values for relevant results.
+- Mixed GUI or properties searches, such as `Custom Extractor Custom Process` and `Step Properties Analysis Rule Properties`, produce `mixed_scope_warning`.
+- Scope-filtered searches using `--scope` return only results from the requested UI scope.
+- Answer guardrails distinguish Step Properties from Analysis Rule Properties and distinguish Custom Extractor / Custom Processor from Custom Types or custom session type pages.
 - Time conversion regression checks cover general post-2038 date/time conversion, not only certificate expiration examples.
 - A duplicate file-name lookup reports ambiguity instead of choosing an arbitrary page.
 - A lookup using `source_ref` or `relative_path` can show a specific popup page.
@@ -246,3 +266,7 @@ Official index metadata can contain duplicate topic references and printed-page 
 Official context metadata can contain context IDs without topic references and stale topic references. These must be recorded in `contexts_index.json` and treated as metadata-quality findings, not as extracted help pages.
 
 Official examples, lists, and tables can be partial. A page that lists supported examples does not automatically prove that unlisted items are unsupported. A page that lists unsupported cases does not automatically prove that every unlisted case is supported.
+
+Some UI terms are reused across unrelated product areas. `Custom`, `Properties`, `Action`, `Command`, `Query`, and `Message` must be tied back to the owning UI surface before answering.
+
+UI-scope labels are deterministic helper classifications from the packaged metadata. They are useful for answer structure, but they are not official Spirent categories.

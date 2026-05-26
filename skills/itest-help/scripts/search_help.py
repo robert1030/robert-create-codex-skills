@@ -14,6 +14,69 @@ STOPWORDS = {
     "not", "or", "that", "the", "this", "to", "with", "you", "your",
 }
 
+UI_SCOPE_DETAILS = {
+    "analysis_rule_wizard_page": {
+        "label": "Analysis Rule Wizard page",
+        "note": "Wizard UI page; selections may map to generated analysis rule properties.",
+    },
+    "analysis_rule_extractor_properties": {
+        "label": "Analysis rule extractor properties",
+        "note": "Extractor settings and behavior inside analysis rules; not a general step setting.",
+    },
+    "analysis_rule_processor_properties": {
+        "label": "Analysis rule processor/action properties",
+        "note": "Processor and When True/When False action behavior inside analysis rules.",
+    },
+    "analysis_rule_popup_reference": {
+        "label": "Analysis rule popup reference",
+        "note": "Popup reference page for an analysis rule item; inspect the page title for the exact owner.",
+    },
+    "analysis_rule_editor_properties": {
+        "label": "Analysis rule editor properties",
+        "note": "Analysis Rule Properties section for editing rule extractor/processor settings.",
+    },
+    "step_properties_section": {
+        "label": "Step Properties section",
+        "note": "Step-level settings in the Test Case Editor or Properties view.",
+    },
+    "properties_view": {
+        "label": "Properties view",
+        "note": "General Properties view behavior; selected object determines which properties appear.",
+    },
+    "parameter_custom_types": {
+        "label": "Parameter custom types",
+        "note": "Custom parameter type/value definitions; unrelated to Custom Extractor/Processor.",
+    },
+    "session_builder_custom_session_type": {
+        "label": "Session Builder custom session type",
+        "note": "Custom session type creation/installation/use; unrelated to analysis rule custom pages.",
+    },
+    "response_map_editor": {
+        "label": "Response Map editor",
+        "note": "Response map/query/parser authoring surface.",
+    },
+    "test_case_step_action": {
+        "label": "Test case step/action reference",
+        "note": "Action or step behavior; related properties may appear under Step Properties.",
+    },
+    "itest_command_reference": {
+        "label": "iTest command reference",
+        "note": "Interpreter or field-replacement command reference.",
+    },
+    "analysis_rule_topic": {
+        "label": "Analysis rule topic",
+        "note": "General analysis rule documentation; inspect page text for exact UI layer.",
+    },
+    "test_case_editor_topic": {
+        "label": "Test Case Editor topic",
+        "note": "General Test Case Editor documentation; inspect page text for exact UI layer.",
+    },
+    "general_help_page": {
+        "label": "General help page",
+        "note": "No narrower UI scope inferred from packaged metadata.",
+    },
+}
+
 
 def tokenize(value):
     value = (value or "").lower()
@@ -44,6 +107,130 @@ def load_index(data_dir):
 
 def is_specific_token(token):
     return "_" in token or any(char.isdigit() for char in token) or len(token) >= 12
+
+
+def infer_ui_scope(page):
+    source_ref = page.get("source_ref", page.get("relative_path", page.get("file_name", "")))
+    source_ref = source_ref.replace("\\", "/").lower()
+    title_text = " ".join(
+        [
+            page.get("title", ""),
+            page.get("h1", ""),
+            " ".join(item.get("text", "") for item in page.get("headings", [])),
+        ]
+    ).lower()
+    toc_text = " ".join(page.get("toc_paths", []) + page.get("toc_top_categories", [])).lower()
+    doc_set = (page.get("doc_set", "") or "").lower()
+
+    if source_ref.startswith("topics/popups/arules/"):
+        if "extractor" in title_text:
+            scope = "analysis_rule_extractor_properties"
+        elif "processor" in title_text or "action" in title_text:
+            scope = "analysis_rule_processor_properties"
+        else:
+            scope = "analysis_rule_popup_reference"
+    elif source_ref.startswith("topics/arw_") or title_text.startswith("analysis rule wizard:"):
+        scope = "analysis_rule_wizard_page"
+    elif source_ref == "topics/arules_extractor_properties.htm":
+        scope = "analysis_rule_extractor_properties"
+    elif source_ref == "topics/arules_processor_properties.htm":
+        scope = "analysis_rule_processor_properties"
+    elif source_ref in {
+        "topics/arules_global_working_with.htm",
+        "topics/arules_working_with.htm",
+    } or "analysis rule properties" in title_text:
+        scope = "analysis_rule_editor_properties"
+    elif source_ref.startswith("topics/tce_step_properties_") or title_text.startswith("step properties section:"):
+        scope = "step_properties_section"
+    elif source_ref == "topics/view_properties.htm":
+        scope = "properties_view"
+    elif "custom type" in title_text or "custom types" in title_text:
+        scope = "parameter_custom_types"
+    elif "custom session type" in title_text or (source_ref.startswith("topics/sb_") and "session builder" in toc_text):
+        scope = "session_builder_custom_session_type"
+    elif "response map editor" in title_text or doc_set == "response_mapping":
+        scope = "response_map_editor"
+    elif doc_set == "actions":
+        scope = "test_case_step_action"
+    elif doc_set == "commands":
+        scope = "itest_command_reference"
+    elif doc_set == "analysis_rules":
+        scope = "analysis_rule_topic"
+    elif doc_set == "test_case_editor":
+        scope = "test_case_editor_topic"
+    else:
+        scope = "general_help_page"
+
+    detail = UI_SCOPE_DETAILS[scope]
+    return {
+        "ui_scope": scope,
+        "ui_scope_label": detail["label"],
+        "ui_scope_note": detail["note"],
+    }
+
+
+def build_scope_summary(results):
+    seen = {}
+    order = []
+    for result in results:
+        scope = result["ui_scope"]
+        if scope not in seen:
+            seen[scope] = {
+                "ui_scope": scope,
+                "ui_scope_label": result["ui_scope_label"],
+                "count": 0,
+                "examples": [],
+            }
+            order.append(scope)
+        seen[scope]["count"] += 1
+        if len(seen[scope]["examples"]) < 3:
+            seen[scope]["examples"].append(result["source_ref"])
+    return [seen[scope] for scope in order]
+
+
+def mixed_scope_warning(query_terms, scope_summary):
+    if len(scope_summary) <= 1:
+        return ""
+
+    terms = set(query_terms)
+    sensitive_terms = {
+        "action",
+        "analysis",
+        "click",
+        "custom",
+        "dialog",
+        "editor",
+        "extractor",
+        "page",
+        "process",
+        "processor",
+        "properties",
+        "property",
+        "rule",
+        "rules",
+        "setting",
+        "settings",
+        "step",
+        "view",
+        "wizard",
+    }
+    sensitive_scopes = {
+        "analysis_rule_editor_properties",
+        "analysis_rule_extractor_properties",
+        "analysis_rule_popup_reference",
+        "analysis_rule_processor_properties",
+        "analysis_rule_wizard_page",
+        "parameter_custom_types",
+        "properties_view",
+        "response_map_editor",
+        "session_builder_custom_session_type",
+        "step_properties_section",
+        "test_case_editor_topic",
+        "test_case_step_action",
+    }
+    if terms & sensitive_terms or any(item["ui_scope"] in sensitive_scopes for item in scope_summary):
+        return "Search results span multiple UI or product scopes; separate the answer by location/scope or refine with --scope."
+    return ""
 
 
 def guardrail_boost(page, query_terms):
@@ -85,6 +272,36 @@ def guardrail_boost(page, query_terms):
         }:
             boost += 180
 
+    if "custom" in terms and "extractor" in terms:
+        if source_ref == "topics/arw_extractor_selection_page.htm":
+            boost += 260
+        if source_ref == "topics/arules_extractor_properties.htm":
+            boost += 180
+
+    if "custom" in terms and ({"processor", "process"} & terms):
+        if source_ref == "topics/arw_processor_selection_page.htm":
+            boost += 260
+        if source_ref == "topics/arules_processor_properties.htm":
+            boost += 180
+
+    if {"analysis", "rule", "properties"} <= terms:
+        if source_ref in {
+            "topics/arules_extractor_properties.htm",
+            "topics/arules_processor_properties.htm",
+        }:
+            boost += 560
+        if source_ref in {
+            "topics/arules_global_working_with.htm",
+            "topics/arules_working_with.htm",
+        }:
+            boost += 420
+
+    if {"step", "properties"} <= terms:
+        if source_ref.startswith("topics/tce_step_properties_"):
+            boost += 160
+        if source_ref == "topics/view_properties.htm":
+            boost += 120
+
     if "clock" in terms and (
         {"scan", "format", "time", "date", "conversion", "2038", "2041", "2049"} & terms
     ):
@@ -121,7 +338,7 @@ def compact_snippet(text, query, tokens, width=240):
     return snippet
 
 
-def search(query, data_dir, top):
+def search(query, data_dir, top, scope=None):
     index = load_index(data_dir)
     pages = load_pages(data_dir)
     tokens = tokenize(query)
@@ -164,10 +381,21 @@ def search(query, data_dir, top):
         elif phrase and phrase in metadata_haystack:
             scores[doc_id] += 10
 
-    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)[:top]
+    if scope and scope not in UI_SCOPE_DETAILS:
+        raise ValueError(f"Unknown UI scope: {scope}")
+
+    candidates = []
+    for doc_id, score in scores.items():
+        ui_scope = infer_ui_scope(pages[doc_id])["ui_scope"]
+        if scope and ui_scope != scope:
+            continue
+        candidates.append((doc_id, score))
+
+    ranked = sorted(candidates, key=lambda item: item[1], reverse=True)[:top]
     results = []
     for doc_id, score in ranked:
         page = pages[doc_id]
+        ui_scope = infer_ui_scope(page)
         results.append(
             {
                 "score": score,
@@ -177,6 +405,7 @@ def search(query, data_dir, top):
                 "h1": page["h1"],
                 "doc_set": page["doc_set"],
                 "probable_category": page["probable_category"],
+                **ui_scope,
                 "toc_primary_path": page.get("toc_primary_path", ""),
                 "toc_top_categories": page.get("toc_top_categories", []),
                 "toc_paths": page.get("toc_paths", []),
@@ -190,10 +419,14 @@ def search(query, data_dir, top):
                 "source_ref": page.get("source_ref", page["file_name"]),
             }
         )
+    scope_summary = build_scope_summary(results)
     return {
         "query": query,
         "query_terms": query_terms,
         "unmatched_terms": unmatched_terms,
+        "scope_filter": scope or "",
+        "scope_summary": scope_summary,
+        "mixed_scope_warning": mixed_scope_warning(query_terms, scope_summary),
         "results": results,
     }
 
@@ -236,30 +469,49 @@ def main():
     parser.add_argument("query", nargs="?")
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR)
     parser.add_argument("--top", type=int, default=8)
+    parser.add_argument("--scope", choices=sorted(UI_SCOPE_DETAILS))
+    parser.add_argument("--list-scopes", action="store_true")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--show-file")
     parser.add_argument("--text", action="store_true")
     args = parser.parse_args()
 
+    if args.list_scopes:
+        for scope in sorted(UI_SCOPE_DETAILS):
+            print(f"{scope}: {UI_SCOPE_DETAILS[scope]['label']}")
+        return
     if args.show_file:
         raise SystemExit(show_file(args.show_file, args.data_dir, args.text))
     if not args.query:
         parser.error("query is required unless --show-file is used")
 
-    response = search(args.query, args.data_dir, args.top)
+    response = search(args.query, args.data_dir, args.top, args.scope)
     if args.json:
         print(json.dumps(response, ensure_ascii=False, indent=2))
         return
 
+    if response["scope_filter"]:
+        print(f"scope filter: {response['scope_filter']}")
     if response["unmatched_terms"]:
         print(f"unmatched terms: {', '.join(response['unmatched_terms'])}")
     if not response["results"]:
         print("No matching help pages found.")
         return
+    if response["scope_summary"]:
+        print(
+            "ui scopes: "
+            + "; ".join(
+                f"{item['ui_scope_label']} ({item['count']})"
+                for item in response["scope_summary"]
+            )
+        )
+    if response["mixed_scope_warning"]:
+        print(f"warning: {response['mixed_scope_warning']}")
 
     for rank, result in enumerate(response["results"], start=1):
         print(f"{rank}. [{result['score']}] {result['source_ref']}")
         print(f"   title: {result['title']}")
+        print(f"   scope: {result['ui_scope_label']} ({result['ui_scope']})")
         if result.get("toc_primary_path"):
             print(f"   toc: {result['toc_primary_path']}")
         if result.get("index_paths"):

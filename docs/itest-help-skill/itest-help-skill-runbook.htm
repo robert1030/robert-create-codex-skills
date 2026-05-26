@@ -71,7 +71,7 @@ Context referenced topic pages        620
 Context stale topic refs                1
 Contexts without topics                 3</code></pre>
 <p>工作區版 skill：</p>
-<pre><code>F:\MyCode\Java\iTest25.4\itest-help</code></pre>
+<pre><code>F:\MyCode\robert-create-codex-skills\skills\itest-help</code></pre>
 <p>已安裝版 skill：</p>
 <pre><code>C:\Users\robert\.codex\skills\itest-help</code></pre>
 <p>打包輸出：</p>
@@ -137,8 +137,8 @@ python &quot;F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py&quot;
 <li>同名檔案必須用 <code>topics/...</code> 或 <code>relative_path</code> 查，例如 <code>topics/popups/query.html</code>；只查 <code>query.html</code> 可能會回報多筆相符。</li>
 </ul>
 <h2>Step 3: 建立或更新 Skill 資料夾</h2>
-<p>新版本可以複製既有 25.4 skill 當基底：</p>
-<pre><code>Copy-Item &quot;F:\MyCode\Java\iTest25.4\itest-help&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help&quot; -Recurse -Force</code></pre>
+<p>新版本可以複製目前維護中的 skill 當基底：</p>
+<pre><code>Copy-Item &quot;F:\MyCode\robert-create-codex-skills\skills\itest-help&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help&quot; -Recurse -Force</code></pre>
 <p>然後覆蓋 references：</p>
 <pre><code>Copy-Item &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data\help_pages.jsonl&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help\references\help_pages.jsonl&quot; -Force
 Copy-Item &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data\search_index.json&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help\references\search_index.json&quot; -Force
@@ -160,7 +160,11 @@ references/regression-questions.md</code></pre>
   Select-Object document_count,toc_root_label,toc_top_category_count,toc_href_entry_count,documents_with_toc,documents_with_index,documents_with_contexts,help_index_topic_ref_count,help_index_referenced_source_count,contexts_count,contexts_missing_source_ref_count,contexts_without_topic_count
 
 python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Field Replacements&quot; --top 3
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;activitywiz_topo_edit_device_session&quot; --top 3</code></pre>
+python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;activitywiz_topo_edit_device_session&quot; --top 3
+python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; --list-scopes
+python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Custom Extractor Custom Process&quot; --top 4
+python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Step Properties Analysis Rule Properties&quot; --top 4
+python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Step Properties Analysis Rule Properties&quot; --top 4 --scope analysis_rule_processor_properties</code></pre>
 <p>確認：</p>
 <ul>
 <li><code>toc_root_label</code> 應為 <code>iTest Online Help</code>，除非新版官方 help 已改名。</li>
@@ -168,6 +172,10 @@ python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &q
 <li>context ID 類查詢可用來定位候選頁，但回答產品行為時仍必須讀取該頁 <code>text</code>。</li>
 <li><code>contexts_index.json</code> 應記錄 contexts without topics 與 missing/stale topic references。</li>
 <li>popup 或補充頁可以沒有 TOC path，但仍應可用 <code>source_ref</code> 查到。</li>
+<li><code>--list-scopes</code> 應列出可用的 UI scope，例如 <code>analysis_rule_wizard_page</code>、<code>analysis_rule_processor_properties</code>、<code>step_properties_section</code>。</li>
+<li><code>Custom Extractor Custom Process</code> 應顯示跨 UI scope 的 warning。回答時要分開說明 Analysis Rule Wizard、Analysis Rule Properties、custom session type 等不同位置。</li>
+<li><code>Step Properties Analysis Rule Properties</code> 應顯示 Step Properties 與 Analysis Rule Properties 是不同 UI scope。</li>
+<li><code>--scope</code> 只用來縮小候選頁；回答產品行為時仍必須讀取 help page <code>text</code>。</li>
 </ul>
 <p>更新新版本時，請抽樣確認 guardrail 內列出的 source pages 在新版本仍存在；若檔名或行為改變，先更新 guardrail，再打包。</p>
 <p>特別注意 <code>interpreter-guide.md</code> 的 clock/time conversion guardrail。這個檔案記錄 25.4 使用時觀察到的風險。</p>
@@ -208,6 +216,8 @@ Copy-Item &quot;$source\*&quot; $target -Recurse -Force</code></pre>
 python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Field Replacements&quot; --top 3
 python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; --show-file &quot;topics/popups/query.html&quot; --text
 python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;tcl clock scan target_date 2049 time conversion&quot; --top 4
+python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Custom Extractor Custom Process&quot; --top 4
+python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Step Properties Analysis Rule Properties&quot; --top 4
 (Get-Content &quot;C:\Users\robert\.codex\skills\itest-help\references\help_pages.jsonl&quot; | Measure-Object -Line).Lines</code></pre>
 <h2>Step 6: 打包</h2>
 <p>使用 <code>$skill-packager</code>：</p>
@@ -282,6 +292,9 @@ Remove-Item $tmp -Recurse -Force</code></pre>
 <li>references 裡不能留下本機絕對路徑。</li>
 <li>更新 help data 後要重新套用 <code>toc.xml</code>、<code>index.xml</code> 與 <code>contexts.xml</code>，否則查詢結果會缺少官方 iTest Online Help 章節、index 與 context metadata。</li>
 <li><code>index.xml</code> 與 <code>contexts.xml</code> 只能用來幫助找頁、定位或記錄官方 metadata；回答產品行為時仍必須以 help page 文字為證據。</li>
+<li><code>ui_scope</code>、<code>scope_summary</code> 與 <code>mixed_scope_warning</code> 只能幫助分辨 UI 位置與候選頁，不能單獨證明產品行為。</li>
+<li>不要把 <code>Custom Extractor</code> / <code>Custom Processor</code> 與 <code>Custom Types</code>、custom session type、custom parsers 或報表客製化混在一起。</li>
+<li>不要把 <code>Step Properties</code> 與 <code>Analysis Rule Properties</code> 混在一起。Step Properties 是 Test Case Editor 中 step 層級的設定；Analysis Rule Properties 是 analysis rule 內 extractor、processor 或 action 層級的設定。</li>
 <li>不要把 context ID 當成官方章節分類。</li>
 <li>官方 help 的 examples、lists 和 tables 不一定是完整清單。不要把正向範例反推成未列項目不支援，也不要把反向範例反推成未列項目都支援，除非 help 明確說它是完整或排他的規則。</li>
 <li><code>probable_category</code> 是推測分類；回答章節或分類問題時，優先使用 <code>toc_paths</code>。</li>

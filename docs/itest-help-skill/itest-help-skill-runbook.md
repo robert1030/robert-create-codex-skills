@@ -91,7 +91,7 @@ Contexts without topics                 3
 工作區版 skill：
 
 ```text
-F:\MyCode\Java\iTest25.4\itest-help
+F:\MyCode\robert-create-codex-skills\skills\itest-help
 ```
 
 已安裝版 skill：
@@ -210,10 +210,10 @@ python "F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py" --show-fi
 
 ## Step 3: 建立或更新 Skill 資料夾
 
-新版本可以複製既有 25.4 skill 當基底：
+新版本可以複製目前維護中的 skill 當基底：
 
 ```powershell
-Copy-Item "F:\MyCode\Java\iTest25.4\itest-help" "F:\MyCode\Java\iTest26.5\itest-help" -Recurse -Force
+Copy-Item "F:\MyCode\robert-create-codex-skills\skills\itest-help" "F:\MyCode\Java\iTest26.5\itest-help" -Recurse -Force
 ```
 
 然後覆蓋 references：
@@ -253,6 +253,10 @@ Get-Content "F:\MyCode\Java\iTest26.5\itest-help\references\search_index_summary
 
 python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Field Replacements" --top 3
 python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "activitywiz_topo_edit_device_session" --top 3
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" --list-scopes
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Custom Extractor Custom Process" --top 4
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 4
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 4 --scope analysis_rule_processor_properties
 ```
 
 確認：
@@ -262,6 +266,10 @@ python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "activitywiz
 - context ID 類查詢可用來定位候選頁，但回答產品行為時仍必須讀取該頁 `text`。
 - `contexts_index.json` 應記錄 contexts without topics 與 missing/stale topic references。
 - popup 或補充頁可以沒有 TOC path，但仍應可用 `source_ref` 查到。
+- `--list-scopes` 應列出可用的 UI scope，例如 `analysis_rule_wizard_page`、`analysis_rule_processor_properties`、`step_properties_section`。
+- `Custom Extractor Custom Process` 應顯示跨 UI scope 的 warning。回答時要分開說明 Analysis Rule Wizard、Analysis Rule Properties、custom session type 等不同位置。
+- `Step Properties Analysis Rule Properties` 應顯示 Step Properties 與 Analysis Rule Properties 是不同 UI scope。
+- `--scope` 只用來縮小候選頁；回答產品行為時仍必須讀取 help page `text`。
 
 更新新版本時，請抽樣確認 guardrail 內列出的 source pages 在新版本仍存在；若檔名或行為改變，先更新 guardrail，再打包。
 
@@ -336,6 +344,8 @@ python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "parame
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Field Replacements" --top 3
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" --show-file "topics/popups/query.html" --text
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "tcl clock scan target_date 2049 time conversion" --top 4
+python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Custom Extractor Custom Process" --top 4
+python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 4
 (Get-Content "C:\Users\robert\.codex\skills\itest-help\references\help_pages.jsonl" | Measure-Object -Line).Lines
 ```
 
@@ -468,6 +478,9 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 - references 裡不能留下本機絕對路徑。
 - 更新 help data 後要重新套用 `toc.xml`、`index.xml` 與 `contexts.xml`，否則查詢結果會缺少官方 iTest Online Help 章節、index 與 context metadata。
 - `index.xml` 與 `contexts.xml` 只能用來幫助找頁、定位或記錄官方 metadata；回答產品行為時仍必須以 help page 文字為證據。
+- `ui_scope`、`scope_summary` 與 `mixed_scope_warning` 只能幫助分辨 UI 位置與候選頁，不能單獨證明產品行為。
+- 不要把 `Custom Extractor` / `Custom Processor` 與 `Custom Types`、custom session type、custom parsers 或報表客製化混在一起。
+- 不要把 `Step Properties` 與 `Analysis Rule Properties` 混在一起。Step Properties 是 Test Case Editor 中 step 層級的設定；Analysis Rule Properties 是 analysis rule 內 extractor、processor 或 action 層級的設定。
 - 不要把 context ID 當成官方章節分類。
 - 官方 help 的 examples、lists 和 tables 不一定是完整清單。不要把正向範例反推成未列項目不支援，也不要把反向範例反推成未列項目都支援，除非 help 明確說它是完整或排他的規則。
 - `probable_category` 是推測分類；回答章節或分類問題時，優先使用 `toc_paths`。

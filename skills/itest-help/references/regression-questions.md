@@ -95,3 +95,30 @@ Question: When answering Analysis Rule Wizard runtime behavior, which pages must
 Expected behavior:
 
 - Answer should include the relevant wizard page plus `topics/arules_extractor_properties.htm` and/or `topics/arules_processor_properties.htm`.
+
+Question: What is the difference between Custom Extractor, Custom Processor, and Custom Types?
+
+Expected behavior:
+
+- Answer must separate the UI scopes instead of treating all "Custom" items as the same setting.
+- Custom Extractor should cite `topics/arw_extractor_selection_page.htm` and/or `topics/arules_extractor_properties.htm`.
+- Custom Processor should cite `topics/arw_processor_selection_page.htm` and/or `topics/arules_processor_properties.htm`.
+- Custom Types should cite `topics/parameters_custom_types.htm`, `topics/tce_custom_type_page.htm`, or `topics/spe_custom_types_page.htm` only when discussing parameter type/value definitions.
+- Answer must not imply Custom Types are an Analysis Rule Wizard setting.
+
+Question: Are Step Properties and Analysis Rule Properties the same place in the UI?
+
+Expected behavior:
+
+- Answer must say they are different UI scopes.
+- Step Properties should be described as step-level settings in the Test Case Editor or Properties view, citing a `topics/tce_step_properties_*.htm` page or `topics/view_properties.htm`.
+- Analysis Rule Properties should be described as rule-level extractor/processor/action settings, citing `topics/arules_extractor_properties.htm`, `topics/arules_processor_properties.htm`, or `topics/arules_global_working_with.htm`.
+- Answer must not merge Step Properties options with Analysis Rule Properties options.
+
+Question: Search results for `Custom` or `Properties` span multiple UI scopes. How should the answer be structured?
+
+Expected behavior:
+
+- Answer should use `scope_summary` / `ui_scope` from `search_help.py` to identify the mixed scopes.
+- Answer should either separate the response by UI location or refine the search with `--scope`.
+- Answer must still verify product behavior in page `text`; `ui_scope` is only an organization hint.

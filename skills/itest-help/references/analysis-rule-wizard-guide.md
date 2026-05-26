@@ -31,6 +31,9 @@ For implementation details and limitations, also inspect:
 - The wizard UI page labels do not fully define runtime behavior. Runtime details often live in extractor and processor property pages.
 - For query extractor answers, do not rely only on the Extract page. Check `topics/arules_extractor_properties.htm`.
 - For action/result behavior, do not rely only on the Actions page. Check `topics/arules_processor_properties.htm`.
+- Keep Analysis Rule Wizard pages separate from Analysis Rule Properties pages. Wizard pages describe what the user selects while creating a rule. Properties pages describe the resulting extractor, processor, action, and runtime behavior.
+- Keep Analysis Rule Properties separate from Step Properties. Step Properties are step-level settings in the Test Case Editor or Properties view; Analysis Rule Properties are rule-level settings inside local or global analysis rules.
+- Keep `Custom Extractor` / `Custom Processor` separate from `Custom Types`, `custom session type`, custom parsers, and report customization. These are different UI surfaces even though they share the word "Custom".
 
 ## Known Limitations And Traps
 
@@ -47,4 +50,4 @@ For implementation details and limitations, also inspect:
 - When a user asks "what should I click" or "what does the wizard create", answer from wizard pages and mention the generated property/rule mapping.
 - When a user asks "what happens during execution", answer from extractor/processor property pages, not only wizard pages.
 - When a user reports UI behavior that differs from a generic wizard explanation, search for limitations using terms such as `right-click`, `not thread safe`, `multiple matches`, `secret`, `RepeatStep`, `When True`, and `When False`.
-- If retrieved pages disagree or cover different layers, state the layer explicitly: wizard UI, generated analysis rule, extractor property, processor property, or execution behavior.
+- If retrieved pages disagree or cover different layers, state the layer explicitly: wizard UI, generated analysis rule, Step Properties, Analysis Rule Properties, extractor property, processor property, action property, or execution behavior.

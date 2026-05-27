@@ -62,10 +62,30 @@ Search results may include deterministic UI-scope hints inferred from packaged p
 - `ui_scope`: stable scope key used by `search_help.py`
 - `ui_scope_label`: human-readable scope label
 - `ui_scope_note`: short note about how to use the scope
+- `ui_surface`: narrower display label for the UI surface, such as `Analysis Rule Wizard > Processor page`
+- `ui_location`: readable location string for answer organization
 - `scope_summary`: grouped scope counts in a search response
+- `surface_summary`: grouped UI-surface counts in a search response
 - `mixed_scope_warning`: warning that a query spans multiple UI or product scopes
 
 UI-scope hints are answer-organization metadata. They help separate GUI surfaces such as Step Properties, Analysis Rule Properties, Custom Extractor, Custom Processor, Custom Types, and custom session type pages. They are not official iTest taxonomy and must not replace page text as evidence for product behavior.
+
+Search results must also expose where the query matched:
+
+- `match_sources`: structured match-source records
+- `match_source_summary`: compact display summary of sources such as `title`, `h1`, `page_text`, `toc`, `index_metadata`, and `context_metadata`
+- `metadata_only_match`: true when the result matched only metadata fields
+- `metadata_exact_match`: true when an exact query matched index or context metadata
+- `has_page_text_match`: true when the page body text matched at least one query term
+- `evidence_note`: short note that tells the assistant whether the result can support product behavior or only locate a candidate page
+
+Match-source fields are required because index and context metadata can find useful pages but cannot prove iTest product behavior by themselves.
+
+Search results may include a small property proof-of-concept field:
+
+- `property_poc`: a structured hint for selected documented property sections and rows
+
+`property_poc` must come from official help page text or table content. It must not be inferred from `index.xml`, `contexts.xml`, `ui_scope`, or context IDs. It is a POC hint, not a complete property catalog.
 
 Each indexed help page should preserve official iTest Online Help table-of-contents context when the page appears in `com.fnfr.svt.help/toc.xml`:
 
@@ -102,6 +122,14 @@ Search results should expose official TOC context when available. User-facing an
 
 Search may use official help index and context metadata as low-weight ranking signals. These signals must not outweigh page text, title, H1, headings, or official TOC context. A match that exists only in `index_terms`, `index_paths`, `context_ids`, or `context_labels` is a page-location signal, not product-behavior evidence.
 
+The current search implementation uses fielded lexical ranking. Title, H1, page text, and TOC fields have higher ranking weight than index or context metadata. Metadata exact matches may receive a navigation boost for identifier-style queries such as Eclipse context IDs, but the result must still be labeled as metadata evidence and must not be cited as behavior proof.
+
+High-risk phrases and sensitive UI terms may use data-driven rules from `references/search_rules.json`. These rules are navigation aids for candidate ranking. They must not add product behavior facts that are not present in help page `text`.
+
+Phrase-sensitive queries such as `Step Properties`, `Analysis Rule Properties`, `Custom Extractor`, and `Custom Processor` must keep their phrase meaning when possible. Single terms such as `properties` or `custom` must not dominate the answer when the query clearly spans multiple UI surfaces.
+
+Mixed-scope GUI searches should use scope-diverse reranking so that representative pages from different UI surfaces are retained in the top results. The reranker should balance relevance with UI-surface diversity; it must not hide the strongest relevant page only to force diversity.
+
 When multiple pages share the same `file_name`, lookup by file name alone must not silently choose one page. The tool must report ambiguity and require `relative_path` or `source_ref`, for example `topics/popups/query.html`.
 
 Weak or mixed search results must be described as weak or mixed instead of being treated as authoritative.
@@ -123,6 +151,8 @@ If a help page gives only positive examples, the answer must not claim that unli
 When an answer combines multiple documented facts into a recommended workflow, it must separate official help statements from the derived recommendation. For example, it may say that the help documents a regex extractor and a store processor, but it must not claim that a combined multi-output workflow is officially guaranteed unless the help directly says so.
 
 The skill must not let UI-scope metadata prove behavior. For example, `ui_scope=analysis_rule_processor_properties` can help choose pages, but the answer must still read the page `text` before describing processor or action behavior.
+
+The skill must not let `property_poc` prove completeness. It can help identify documented sections such as Step Properties, Analysis Rule Extractor Properties, or Analysis Rule Processor/Action Properties, but the answer must still read the source page text and avoid claiming a complete list unless the help page says the list is complete.
 
 ## Guardrail Behavior（高風險提醒規則）
 
@@ -179,10 +209,13 @@ itest-help/
   SKILL.md
   agents/openai.yaml
   scripts/search_help.py
+  scripts/regression_search.py
   scripts/apply_toc_metadata.py
   references/help_pages.jsonl
   references/search_index.json
   references/search_index_summary.json
+  references/search_rules.json
+  references/property_index.jsonl
   references/toc_index.json
   references/help_index.json
   references/contexts_index.json
@@ -210,11 +243,20 @@ A generated package is acceptable only if:
 - Chapter searches, such as `Field Replacements`, return pages with matching official TOC paths.
 - High-risk searches expose query terms that were not found in the indexed help. Missing terms are warning signals only; they must not be treated as evidence that the help supports those terms.
 - High-risk guardrail references are packaged and readable.
+- `search_help.py` and `regression_search.py` compile with `python -m py_compile`.
+- `search_rules.json` parses as JSON.
+- `property_index.jsonl` parses one valid JSON object per non-empty line.
 - Example/list/table boundary checks confirm that the answer does not infer unsupported inverse, opposite, or exhaustive behavior from official examples.
-- GUI-scope searches expose `scope_summary` and `ui_scope` values for relevant results.
+- GUI-scope searches expose `scope_summary`, `surface_summary`, `ui_scope`, `ui_surface`, and `ui_location` values for relevant results.
+- Search results expose match-source fields, including `match_sources`, `match_source_summary`, `metadata_only_match`, `metadata_exact_match`, `has_page_text_match`, and `evidence_note`.
+- Metadata-only or metadata-exact results are labeled as navigation candidates, not product-behavior evidence.
 - Mixed GUI or properties searches, such as `Custom Extractor Custom Process` and `Step Properties Analysis Rule Properties`, produce `mixed_scope_warning`.
 - Scope-filtered searches using `--scope` return only results from the requested UI scope.
 - Answer guardrails distinguish Step Properties from Analysis Rule Properties and distinguish Custom Extractor / Custom Processor from Custom Types or custom session type pages.
+- `Custom Extractor Custom Process` retains representative results for Custom Extractor, Custom Processor/Process, Custom Types, and custom session type pages when those surfaces are relevant.
+- `Step Properties Analysis Rule Properties` retains representative Step Properties and Analysis Rule Properties results, and `--scope analysis_rule_processor_properties` does not mix Step Properties into the filtered result set.
+- `property_poc` appears only for the documented POC scope and does not claim complete property coverage.
+- The regression harness covers the key Custom, Properties, metadata, clock, and property-index checks.
 - Time conversion regression checks cover general post-2038 date/time conversion, not only certificate expiration examples.
 - A duplicate file-name lookup reports ambiguity instead of choosing an arbitrary page.
 - A lookup using `source_ref` or `relative_path` can show a specific popup page.
@@ -241,9 +283,10 @@ context topic refs      656
 context source refs     620
 context stale refs        1
 contexts without topic    3
+property_index rows       7
 ```
 
-The `963`, `76`, `749`, `1901`, `444`, `1671`, `645`, `656`, `620`, `1`, and `3` counts are 25.4 baseline facts, not permanent requirements. New iTest versions must be counted from their own source tree, `toc.xml`, `index.xml`, and `contexts.xml`.
+The `963`, `76`, `749`, `1901`, `444`, `1671`, `645`, `656`, `620`, `1`, `3`, and `7` counts are 25.4 baseline facts, not permanent requirements. New iTest versions must be counted from their own source tree, `toc.xml`, `index.xml`, and `contexts.xml`. The `property_index rows` count is the current POC row count, not a complete product-property count.
 
 ## Known Risks（已知風險）
 
@@ -270,3 +313,9 @@ Official examples, lists, and tables can be partial. A page that lists supported
 Some UI terms are reused across unrelated product areas. `Custom`, `Properties`, `Action`, `Command`, `Query`, and `Message` must be tied back to the owning UI surface before answering.
 
 UI-scope labels are deterministic helper classifications from the packaged metadata. They are useful for answer structure, but they are not official Spirent categories.
+
+Data-driven search rules can overfit if they are treated as product facts. They are ranking and recall aids only. When a rule boosts a page, the answer still needs page-text evidence.
+
+The property index is intentionally small. It improves property-section recall for the current POC scope, but it does not prove that omitted properties, processors, actions, or pages are unsupported.
+
+Scope-diverse reranking can change top-result ordering. Review searches should check representative sources and scopes, not only a single numeric score.

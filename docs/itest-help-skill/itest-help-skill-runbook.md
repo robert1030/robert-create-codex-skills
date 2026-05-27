@@ -11,10 +11,13 @@ itest-help/
   SKILL.md
   agents/openai.yaml
   scripts/search_help.py
+  scripts/regression_search.py
   scripts/apply_toc_metadata.py
   references/help_pages.jsonl
   references/search_index.json
   references/search_index_summary.json
+  references/search_rules.json
+  references/property_index.jsonl
   references/toc_index.json
   references/help_index.json
   references/contexts_index.json
@@ -30,6 +33,8 @@ itest-help/
 - zip 內部頂層資料夾必須仍是 `itest-help/`。
 - 解壓後必須是 `.codex/skills/itest-help/SKILL.md`。
 - `SKILL.md` frontmatter 的 `name` 必須是 `itest-help`。
+- `search_rules.json` 只能調整候選頁排序與召回，不可新增 help page text 沒有的產品行為。
+- `property_index.jsonl` 是小範圍 property POC，不是完整 property catalog。
 
 ## 執行環境
 
@@ -105,6 +110,14 @@ C:\Users\robert\.codex\skills\itest-help
 ```text
 F:\MyCode\robert-create-codex-skills\dist\itest-help.zip
 ```
+
+目前維護狀態要分清楚：
+
+- 工作區版可以先完成程式與文件驗證。
+- 安裝版只有在 Step 5 同步後，才可以說已更新本機 Codex skill。
+- zip 只有在 Step 6 和 Step 7 完成後，才可以說打包輸出已更新。
+
+不要把「workspace 已驗證」寫成「安裝版已驗證」或「zip 已更新」。
 
 ## 更新到新版本時的建議資料夾
 
@@ -230,7 +243,14 @@ Copy-Item "F:\MyCode\Java\iTest26.5\itest_help_skill_data\search_index_summary.j
 references/interpreter-guide.md
 references/analysis-rule-wizard-guide.md
 references/regression-questions.md
+references/search_rules.json
+references/property_index.jsonl
+scripts/regression_search.py
 ```
+
+`search_rules.json` 是資料驅動搜尋規則。它用來保留高風險 phrase 的候選頁，例如 Custom Extractor、Custom Processor、Step Properties 與 Analysis Rule Properties。它不是產品行為資料。
+
+`property_index.jsonl` 是 property sections / rows 的小範圍 POC。資料只能來自官方 help page text 或 table。更新新版本時，先確認 POC 來源頁仍存在，再決定是否保留、修正或暫時移除對應列。
 
 套用官方 iTest Online Help 目錄、index 與 context metadata：
 
@@ -251,12 +271,19 @@ Get-Content "F:\MyCode\Java\iTest26.5\itest-help\references\search_index_summary
   ConvertFrom-Json |
   Select-Object document_count,toc_root_label,toc_top_category_count,toc_href_entry_count,documents_with_toc,documents_with_index,documents_with_contexts,help_index_topic_ref_count,help_index_referenced_source_count,contexts_count,contexts_missing_source_ref_count,contexts_without_topic_count
 
+python -m py_compile "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "F:\MyCode\Java\iTest26.5\itest-help\scripts\regression_search.py"
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\regression_search.py"
+
+python -c "import json,pathlib; base=pathlib.Path(r'F:\MyCode\Java\iTest26.5\itest-help\references'); json.load(open(base/'search_rules.json', encoding='utf-8')); rows=[json.loads(line) for line in open(base/'property_index.jsonl', encoding='utf-8') if line.strip()]; print('property_index_rows', len(rows))"
+
 python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Field Replacements" --top 3
 python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "activitywiz_topo_edit_device_session" --top 3
 python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" --list-scopes
-python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Custom Extractor Custom Process" --top 4
-python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 4
-python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 4 --scope analysis_rule_processor_properties
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Custom Extractor Custom Process" --top 6
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 6
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 6 --scope analysis_rule_processor_properties
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "writeFile processor properties Encoding" --top 2 --scope analysis_rule_processor_properties
+python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "tcl clock scan target_date 2049 time conversion" --top 4
 ```
 
 確認：
@@ -267,9 +294,14 @@ python "F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py" "Step Proper
 - `contexts_index.json` 應記錄 contexts without topics 與 missing/stale topic references。
 - popup 或補充頁可以沒有 TOC path，但仍應可用 `source_ref` 查到。
 - `--list-scopes` 應列出可用的 UI scope，例如 `analysis_rule_wizard_page`、`analysis_rule_processor_properties`、`step_properties_section`。
-- `Custom Extractor Custom Process` 應顯示跨 UI scope 的 warning。回答時要分開說明 Analysis Rule Wizard、Analysis Rule Properties、custom session type 等不同位置。
+- 查詢輸出應顯示 `matches:` 與 `evidence:`，用來分辨 `page_text`、TOC、index metadata 與 context metadata。
+- context ID 類查詢可以因 metadata exact match 找到候選頁，但 `evidence:` 必須提醒要用 page text 支撐產品行為。
+- `Custom Extractor Custom Process` 應顯示跨 UI scope 的 warning，且 top results 應保留 Custom Extractor、Custom Processor/Process、Custom Types 與 custom session type 的代表結果。回答時要分開說明 Analysis Rule Wizard、Analysis Rule Properties、custom session type 等不同位置。
 - `Step Properties Analysis Rule Properties` 應顯示 Step Properties 與 Analysis Rule Properties 是不同 UI scope。
 - `--scope` 只用來縮小候選頁；回答產品行為時仍必須讀取 help page `text`。
+- `--scope analysis_rule_processor_properties` 不應把 Step Properties 當成同類結果混入。
+- `property poc:` 只應在 POC 支援的來源頁或 popup action 頁出現，且不能被當成完整 property 清單。
+- 非 GUI 查詢，例如 Tcl clock scan，不應出現不必要的 mixed-scope warning。
 
 更新新版本時，請抽樣確認 guardrail 內列出的 source pages 在新版本仍存在；若檔名或行為改變，先更新 guardrail，再打包。
 
@@ -306,8 +338,11 @@ name: itest-help
 檢查：
 
 ```powershell
+python -c "import json,pathlib; base=pathlib.Path(r'F:\MyCode\Java\iTest26.5\itest-help\references'); json.load(open(base/'search_rules.json', encoding='utf-8')); [json.loads(line) for line in open(base/'property_index.jsonl', encoding='utf-8') if line.strip()]; print('json ok')"
 Select-String -Path "F:\MyCode\Java\iTest26.5\itest-help\references\*.json*" -Pattern "F:\\MyCode|C:\\Users\\|com.fnfr.svt.help_[0-9]" | Measure-Object
 ```
+
+第一行應顯示 `json ok`。第二行的 `Count` 應為 `0`。
 
 若有殘留，將 `source_path` 或 Eclipse help link 改成邏輯來源：
 
@@ -340,14 +375,20 @@ Copy-Item "$source\*" $target -Recurse -Force
 驗證安裝版：
 
 ```powershell
+python -m py_compile "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "C:\Users\robert\.codex\skills\itest-help\scripts\regression_search.py"
+python "C:\Users\robert\.codex\skills\itest-help\scripts\regression_search.py"
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "parameter merging logic" --top 2
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Field Replacements" --top 3
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" --show-file "topics/popups/query.html" --text
 python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "tcl clock scan target_date 2049 time conversion" --top 4
-python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Custom Extractor Custom Process" --top 4
-python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 4
+python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Custom Extractor Custom Process" --top 6
+python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 6
+python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "Step Properties Analysis Rule Properties" --top 6 --scope analysis_rule_processor_properties
+python "C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py" "writeFile processor properties Encoding" --top 2 --scope analysis_rule_processor_properties
 (Get-Content "C:\Users\robert\.codex\skills\itest-help\references\help_pages.jsonl" | Measure-Object -Line).Lines
 ```
+
+安裝版的 `regression_search.py` 必須通過，且關鍵查詢的 scope、matches、evidence 與 property POC 輸出應與工作區版一致。不要只驗證工作區版就打包。
 
 ## Step 6: 打包
 
@@ -394,10 +435,13 @@ $zip.Dispose()
 itest-help/SKILL.md
 itest-help/agents/openai.yaml
 itest-help/scripts/search_help.py
+itest-help/scripts/regression_search.py
 itest-help/scripts/apply_toc_metadata.py
 itest-help/references/help_pages.jsonl
 itest-help/references/search_index.json
 itest-help/references/search_index_summary.json
+itest-help/references/search_rules.json
+itest-help/references/property_index.jsonl
 itest-help/references/toc_index.json
 itest-help/references/help_index.json
 itest-help/references/contexts_index.json
@@ -468,7 +512,8 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 <貼上新版本 topics 路徑>
 
 請完成 inventory、search index、可攜 skill 更新、安裝到本機 skills、
-並用 skill-packager 打包成 itest-help_v<version>.zip。
+保留或更新 search_rules.json、property_index.jsonl 與 regression_search.py，
+通過 workspace 與安裝版關鍵查詢後，用 skill-packager 打包成 itest-help_v<version>.zip。
 ```
 
 ## 常見風險
@@ -478,7 +523,10 @@ C:\Users\<user>\.codex\skills\itest-help_v26.5\SKILL.md
 - references 裡不能留下本機絕對路徑。
 - 更新 help data 後要重新套用 `toc.xml`、`index.xml` 與 `contexts.xml`，否則查詢結果會缺少官方 iTest Online Help 章節、index 與 context metadata。
 - `index.xml` 與 `contexts.xml` 只能用來幫助找頁、定位或記錄官方 metadata；回答產品行為時仍必須以 help page 文字為證據。
-- `ui_scope`、`scope_summary` 與 `mixed_scope_warning` 只能幫助分辨 UI 位置與候選頁，不能單獨證明產品行為。
+- `ui_scope`、`ui_surface`、`scope_summary`、`surface_summary` 與 `mixed_scope_warning` 只能幫助分辨 UI 位置與候選頁，不能單獨證明產品行為。
+- `matches:`、`evidence:`、`metadata_only_match` 與 `metadata_exact_match` 用來判斷證據強度。metadata-only 結果只能定位候選頁，不能支撐產品行為答案。
+- `search_rules.json` 的 boost 是搜尋導覽設定，不是官方產品規格。調整後一定要跑 regression harness。
+- `property_index.jsonl` 只能放官方 help page text 或 table 明確出現的 property section / row。不要從 index keyword、context ID 或 UI scope 推論 property row。
 - 不要把 `Custom Extractor` / `Custom Processor` 與 `Custom Types`、custom session type、custom parsers 或報表客製化混在一起。
 - 不要把 `Step Properties` 與 `Analysis Rule Properties` 混在一起。Step Properties 是 Test Case Editor 中 step 層級的設定；Analysis Rule Properties 是 analysis rule 內 extractor、processor 或 action 層級的設定。
 - 不要把 context ID 當成官方章節分類。

@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "description": "Data-driven search rules for high-risk iTest help queries. Scores are navigation boosts only; product behavior must still be verified in page_text.",
+  "canonical_phrases": [
+    {
+      "name": "custom_extractor",
+      "all_terms": ["custom", "extractor"],
+      "ui_surfaces": ["analysis_rule_wizard_custom_extractor"],
+      "source_refs": ["topics/arules_extractor_properties.htm"],
+      "boost": 120
+    },
+    {
+      "name": "custom_processor",
+      "all_terms": ["custom"],
+      "any_terms": ["processor", "process"],
+      "ui_surfaces": ["analysis_rule_wizard_processor", "analysis_rule_processor_action_properties"],
+      "boost": 170
+    },
+    {
+      "name": "custom_types",
+      "all_terms": ["custom"],
+      "any_terms": ["type", "types"],
+      "ui_surfaces": ["parameter_custom_types"],
+      "boost": 100
+    },
+    {
+      "name": "custom_session_type",
+      "all_terms": ["custom", "session"],
+      "any_terms": ["type", "types"],
+      "ui_surfaces": ["session_builder_custom_session_type"],
+      "boost": 100
+    },
+    {
+      "name": "step_properties",
+      "all_terms": ["step", "properties"],
+      "all_phrases": ["step properties"],
+      "ui_surfaces": ["step_properties_section"],
+      "source_refs": ["topics/view_properties.htm"],
+      "boost": 115
+    },
+    {
+      "name": "analysis_rule_properties",
+      "all_terms": ["analysis", "rule", "properties"],
+      "all_phrases": ["analysis rule properties"],
+      "ui_surfaces": [
+        "analysis_rule_extractor_properties",
+        "analysis_rule_processor_action_properties",
+        "analysis_rule_editor_properties"
+      ],
+      "boost": 145
+    },
+    {
+      "name": "clock_scan",
+      "all_terms": ["clock", "scan"],
+      "source_refs": ["topics/command_syntax.htm", "topics/popups/clock.html"],
+      "boost": 120
+    }
+  ],
+  "source_rules": [
+    {
+      "name": "analysis_rule_local_variables",
+      "any_terms": ["itest_value", "itest_index"],
+      "sources": {
+        "topics/arules_extractor_properties.htm": 180,
+        "topics/arules_processor_properties.htm": 180,
+        "topics/commands_built_in_local_variables.htm": 130,
+        "topics/arw_assertion_page.htm": 80,
+        "topics/arw_message_page.htm": 80
+      }
+    },
+    {
+      "name": "analysis_rule_thread_safety",
+      "all_terms": ["thread", "safe"],
+      "sources": {
+        "topics/arules_extractor_properties.htm": 150,
+        "topics/arules_processor_properties.htm": 150,
+        "topics/commands_built_in_local_variables.htm": 90
+      }
+    },
+    {
+      "name": "analysis_rule_secret_values",
+      "all_terms": ["secret"],
+      "any_terms": ["wizard", "rule", "rules", "mask", "masked"],
+      "sources": {
+        "topics/arw_rule_type_selection_page.htm": 150,
+        "topics/arw_extractor_selection_page.htm": 120,
+        "topics/param_parameters_type_secret.htm": 100,
+        "topics/arules_processor_properties.htm": 80
+      }
+    },
+    {
+      "name": "analysis_rule_query_right_click",
+      "all_terms": ["query"],
+      "any_terms": ["right", "click", "right-click"],
+      "sources": {
+        "topics/arules_extractor_properties.htm": 170,
+        "topics/arules_global_working_with.htm": 100
+      }
+    },
+    {
+      "name": "field_replacements_insert_tool",
+      "all_phrases": ["field replacements"],
+      "sources": {
+        "topics/insert_field_tool.htm": 180
+      }
+    },
+    {
+      "name": "custom_extractor_core_pages",
+      "all_terms": ["custom", "extractor"],
+      "sources": {
+        "topics/arw_extractor_selection_page.htm": 230,
+        "topics/arules_extractor_properties.htm": 140
+      }
+    },
+    {
+      "name": "custom_processor_core_pages",
+      "all_terms": ["custom"],
+      "any_terms": ["processor", "process"],
+      "sources": {
+        "topics/arw_processor_selection_page.htm": 260,
+        "topics/arules_processor_properties.htm": 160
+      }
+    },
+    {
+      "name": "custom_extractor_processor_mixed_scope",
+      "all_terms": ["custom", "extractor"],
+      "any_terms": ["processor", "process"],
+      "sources": {
+        "topics/arw_processor_selection_page.htm": 3000,
+        "topics/arules_processor_properties.htm": 3400,
+        "topics/parameters_custom_types.htm": 450,
+        "topics/sb_creating_a_cs_type.htm": 300,
+        "topics/response_mapping.19.htm": -800,
+        "topics/process.3.htm": -1200,
+        "topics/process_command_set.htm": -1200,
+        "topics/preferences_process.htm": -1000,
+        "topics/session_profile_properties_process.htm": -1000,
+        "topics/process_session_editor_concept.htm": -1000
+      }
+    },
+    {
+      "name": "analysis_rule_properties_core_pages",
+      "all_terms": ["analysis", "rule", "properties"],
+      "sources": {
+        "topics/arules_extractor_properties.htm": 260,
+        "topics/arules_processor_properties.htm": 270,
+        "topics/arules_global_working_with.htm": 170,
+        "topics/arules_working_with.htm": 160
+      }
+    },
+    {
+      "name": "step_analysis_rule_properties_mixed_scope",
+      "all_phrases": ["step properties", "analysis rule properties"],
+      "sources": {
+        "topics/tce_step_properties_general.htm": 3800,
+        "topics/tce_step_properties_other_postprocessing.htm": 3800,
+        "topics/tce_step_properties_events.htm": 3300,
+        "topics/view_properties.htm": 2200,
+        "topics/arules_extractor_properties.htm": 1200,
+        "topics/arules_processor_properties.htm": 1200,
+        "topics/arw_rule_type_selection_page.htm": -2200,
+        "topics/add_analysis_rule_wizard.htm": -2200,
+        "topics/arw_select_step_page.htm": -2200,
+        "topics/arw_processor_selection_page.htm": -1600,
+        "topics/arw_extractor_selection_page.htm": -1600
+      }
+    },
+    {
+      "name": "step_properties_core_pages",
+      "all_terms": ["step", "properties"],
+      "sources": {
+        "topics/tce_step_properties_general.htm": 150,
+        "topics/tce_step_properties_events.htm": 140,
+        "topics/tce_step_properties_other_postprocessing.htm": 140,
+        "topics/view_properties.htm": 90
+      }
+    },
+    {
+      "name": "clock_large_date_guardrail",
+      "all_terms": ["clock"],
+      "any_terms": ["scan", "format", "time", "date", "conversion", "2038", "2041", "2049"],
+      "sources": {
+        "topics/command_syntax.htm": 260,
+        "topics/popups/clock.html": 300,
+        "topics/command_tcl.htm": 160
+      }
+    }
+  ]
+}

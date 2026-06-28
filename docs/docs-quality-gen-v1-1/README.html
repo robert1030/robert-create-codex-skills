@@ -76,7 +76,7 @@
 <body>
   <main>
     <h1>docs-quality-gen 觸發與應用說明</h1>
-    <p><code>docs-quality-gen</code> 是 robert 個人的文件品質 gate。除了明確輸入 <code>$docs-quality-gen</code>，實際對話中只要出現與文件產出、同步、review、HTML 基礎美化或交付檢查相關的需求，也可能適合使用這個 skill。</p>
+    <p><code>docs-quality-gen</code> 是 robert 個人的文件品質 gate。除了明確輸入 <code>$docs-quality-gen</code>，實際對話中只要出現與文件產出、同步、review、Word 文件品質或交付檢查相關的需求，也可能適合使用這個 skill。</p>
 
     <div class="note">主要觸發依據是 <code>SKILL.md</code> frontmatter 的 <code>description</code>。Skill 本文中的 workflow 與 hard rules 是觸發後才用來決定怎麼執行。</div>
 
@@ -103,12 +103,12 @@
           <td>review、檢查文件品質、最終交付檢查、交付前檢查、品質 gate</td>
         </tr>
         <tr>
-          <td>HTML 文件處理</td>
-          <td>HTML 基礎美化、HTM 美化、表格分類、標題整理、條列式整理、色調美化</td>
+          <td>Word 文件處理</td>
+          <td>DOC、DOCX、Word 文件品質、驗證層級、內容重讀、結構檢查、視覺 render QA</td>
         </tr>
         <tr>
           <td>可讀性與可攜性</td>
-          <td>七年級可讀性、國一可讀性、本機環境提醒、Windows/Linux 指令對照</td>
+          <td>七年級可讀性、國一可讀性、本機環境提醒、路徑與環境可攜性</td>
         </tr>
       </tbody>
     </table>
@@ -120,6 +120,7 @@
       <li><code>runbook.md</code>、<code>runbook.htm</code>、<code>runbook.html</code></li>
       <li><code>README.md</code>、<code>README.htm</code>、<code>README.html</code></li>
       <li>Markdown 與 HTML 成對文件</li>
+      <li>Word <code>.doc</code> 與 <code>.docx</code> 文件</li>
       <li>需要交接、操作、review 或最終交付檢查的文件</li>
     </ul>
 
@@ -142,16 +143,12 @@
           <td>Markdown/HTML 同步。</td>
         </tr>
         <tr>
-          <td>把 <code>README.html</code> 做基礎美化，但不要改意思。</td>
-          <td>HTML 基礎美化與內容一致性檢查。</td>
-        </tr>
-        <tr>
           <td>檢查 <code>SPEC.md</code> 有沒有把本機路徑寫成通用規格。</td>
           <td>SPEC 規格邊界與本機環境可攜性檢查。</td>
         </tr>
         <tr>
-          <td>這份文件要補 Windows PowerShell 和 Ubuntu Bash 指令。</td>
-          <td>Windows/Linux 指令對照。</td>
+          <td>檢查這份 <code>.docx</code> 是否和 Markdown/HTML 一樣達到交付品質。</td>
+          <td>Word 文件驗證層級、內容、結構、視覺 QA 或 fallback 檢查。</td>
         </tr>
         <tr>
           <td>交付前檢查這三份文件。</td>
@@ -191,12 +188,8 @@
           <td>確認成對文件的段落、警告、路徑、檔名、清單、表格與指令意思一致。</td>
         </tr>
         <tr>
-          <td>HTML/HTM 基礎美化</td>
-          <td>整理標題、條列式、分類表格、code block、提示區與基礎色調，並保持內容意思不變。</td>
-        </tr>
-        <tr>
-          <td>Windows/Linux 指令對照</td>
-          <td>在文件中分開提供 Windows PowerShell 與 Ubuntu Bash/sh 指令，並標示 WSL 路徑只是 WSL 範例。</td>
+          <td>Word 文件品質</td>
+          <td>檢查 Word <code>.doc</code> 與 <code>.docx</code> 的格式、流程、內容、可讀性、最高驗證層級、渲染 QA 或 fallback 驗證。</td>
         </tr>
         <tr>
           <td>可讀性檢查</td>
@@ -211,7 +204,7 @@
 
     <h2>不適用範圍</h2>
     <ul>
-      <li>不處理 Word <code>.doc</code> 或 <code>.docx</code> 文件。</li>
+      <li>不把 Word 檔案可開啟、可儲存或可轉檔當成唯一品質驗證。</li>
       <li>不加入 iTest 或其他專案專屬知識，除非該專案另有專屬 skill 或明確要求。</li>
       <li>不做完整 HTML 視覺設計、品牌設計、互動式 UI 或行銷頁。</li>
       <li>不主動打包 skill、安裝 skill、同步到 <code>.codex\skills</code> 或產生 zip，除非使用者明確要求。</li>

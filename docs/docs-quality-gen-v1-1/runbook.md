@@ -1,6 +1,6 @@
 # docs-quality-gen Runbook
 
-這份 runbook 說明如何建立、更新、同步與檢查 robert 個人的 `docs-quality-gen` 文件品質 gate。照著做時，先確認文件類型，再讀對應規則，最後做一致性、Windows/Linux 指令對照、HTML 基礎美化與可讀性檢查。
+這份 runbook 說明如何建立、更新、同步與檢查 robert 個人的 `docs-quality-gen` 文件品質 gate。照著做時，先確認文件類型，再讀對應規則，最後做一致性、Word 文件品質與可讀性檢查。
 
 ## 目標
 
@@ -41,7 +41,7 @@ WSL 對應目前 Windows F: 磁碟的文件位置範例:
 
 ## Step 1: 確認文件類型
 
-目的：先判斷這次要做的是 SPEC、runbook、Markdown/HTML 同步、HTML/HTM 基礎美化、文件 review，還是最終交付檢查。
+目的：先判斷這次要做的是 SPEC、runbook、Markdown/HTML 同步、Word 文件品質檢查、文件 review，還是最終交付檢查。
 
 動作：
 
@@ -99,17 +99,15 @@ WSL example for this Windows user profile:
 - SPEC：`spec-rules.md`
 - Runbook：`runbook-rules.md`
 - Markdown/HTML 同步：`markdown-html-sync.md`
-- HTML/HTM 基礎美化：`html-basic-style.md`
-- 指令環境對照：`command-environments.md`
+- Word `.doc` 或 `.docx`：`word-doc-quality.md`
 - 交接或操作文件：`readability-grade7.md`
 - 最終交付檢查：`final-review-checklist.md`
 
 驗證方式：
 
 - 本次文件類型有對應 reference。
-- 沒有把 Word、iTest、公開通用風格指南或完整 HTML 視覺設計規則加入 v1.2。
-- 如果要處理 `.htm/.html` 樣式，已讀取 `html-basic-style.md`。
-- 如果要處理可執行指令，已讀取 `command-environments.md`。
+- 沒有把 iTest、公開通用風格指南或完整 HTML 視覺設計規則加入 v1.1。
+- 如果要處理 Word `.doc` 或 `.docx`，已讀取 `word-doc-quality.md`。
 
 ## Step 3: 修改前確認成功標準
 
@@ -120,14 +118,14 @@ WSL example for this Windows user profile:
 - 要改哪些文件。
 - 哪些內容必須保持同步。
 - 要用什麼方式驗證。
-- 是否需要 Windows PowerShell 與 Ubuntu Bash/sh 兩種指令。
+- Word 文件預期達到哪個驗證層級。
 - 哪些事情不做，例如不打包、不安裝、不同步到 `.codex\skills`。
 
 驗證方式：
 
 - 成功標準中有明確的檔名。
 - 如果有 Markdown/HTML 成對文件，成功標準有提到同步。
-- 如果有可執行指令，成功標準有提到 Windows/Linux 指令對照，或說明為何只支援單一平台。
+- 如果有 Word 文件，成功標準有提到預期的 Word 驗證層級。
 - 如果文件面向交接或操作，成功標準有提到七年級可讀性檢查。
 
 ## Step 4: 修改 SPEC
@@ -145,7 +143,7 @@ WSL example for this Windows user profile:
 
 - `SPEC.md` 沒有變成逐步操作手冊。
 - 每個重要要求都能被檢查。
-- `SPEC.md` 沒有加入 Word `.doc/.docx`、iTest 專案規則或公開通用文件規格。
+- `SPEC.md` 沒有加入 iTest 專案規則或公開通用文件規格。
 
 ## Step 5: 修改 runbook.md
 
@@ -178,14 +176,14 @@ WSL example for this Windows user profile:
 2. 在 `runbook.htm` 保留相同段落意思。
 3. 用 `<code>` 標示短程式碼、路徑與檔名。
 4. 用 `<pre><code>` 標示多行指令或目錄結構。
-5. 如果要美化 HTML，先確認樣式不改變 Markdown 原意。
+5. 確認 HTML 標記與樣式沒有改變 Markdown 原意。
 
 驗證方式：
 
 Windows PowerShell：
 
 ```powershell
-Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.htm" -Pattern "Word","iTest","runbook.htm","七年級","PowerShell","html-basic-style","Ubuntu","Bash","command-environments.md"
+Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.htm" -Pattern "Word","iTest","runbook.htm","七年級","PowerShell","word-doc-quality.md","docx"
 ```
 
 Ubuntu Bash/sh：
@@ -193,38 +191,38 @@ Ubuntu Bash/sh：
 ```bash
 # Native Ubuntu example: replace <workspace> with the actual workspace path.
 DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen"
-grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|html-basic-style|Ubuntu|Bash" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
+grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|word-doc-quality\\.md|docx" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 
 # WSL example for the current Windows F: drive:
 DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen"
-grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|html-basic-style|Ubuntu|Bash" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
+grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|word-doc-quality\\.md|docx" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 ```
 
 確認：
 
 - 關鍵警告在兩邊都有。
 - 路徑、檔名與不做事項在兩邊一致。
-- Windows/Linux 指令對照在兩邊都有。
+- Word 品質檢查規則在兩邊都有。
 - HTML 沒有保留舊路徑、舊檔名或舊規則。
 
-## Step 7: 做 HTML/HTM 基礎美化
+## Step 7: 做 Word 文件品質檢查
 
-目的：讓 HTML 文件更容易閱讀和掃描，但不改變內容意思，也不做完整網站設計。
+目的：讓 Word `.doc` 和 `.docx` 文件達到和 Markdown、HTML 一樣的品質要求，而不是只確認檔案可開啟或可儲存。
 
 動作：
 
-1. 確認 HTML 有清楚的 `<title>` 和一個主要 `<h1>`。
-2. 檢查 `<h2>`、`<h3>` 等標題順序，不要只為了字體大小而跳級。
-3. 用條列式整理步驟、檢查點與短資訊。
-4. 有分類或比較時，使用表格，並加入清楚的表頭。
-5. 使用基礎色調區分標題、表格、提示、警告與程式碼區塊。
-6. 保持樣式在本機 HTML 內，不主動加入遠端 CSS、字型或 JavaScript。
+1. 檢查標題、清單、表格、註解、程式碼格式、頁首頁尾與分頁是否一致。
+2. 檢查段落順序、前置條件、交叉引用與檔名是否前後一致。
+3. 如果有 paired Markdown、HTML、PDF 或來源筆記，確認 Word 文件意思一致。
+4. 能渲染時，輸出 PDF 或頁面圖片做視覺 QA。
+5. 不能渲染時，明確記錄原因，並使用內容重讀與結構檢查作為 fallback。
 
 驗證方式：
 
-- HTML 標題、條列式、表格與 code block 都容易掃描。
-- 顏色有幫助閱讀，但沒有變成品牌頁或行銷頁。
-- 樣式沒有新增、刪除或弱化任何規格要求。
+- Level 1 內容重讀通過。
+- Level 2 標題、表格、清單、連結與必要字串經過結構檢查。
+- Level 3 視覺 render QA 已執行，或已清楚說明不可用並列出 fallback 檢查。
+- Level 4 可及性或文件稽核檢查已執行，或已說明本機工具鏈不提供。
 
 ## Step 8: 做七年級可讀性檢查
 
@@ -248,11 +246,17 @@ grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|html-basic-style|Ubunt
 
 目的：交付前確認文件一致、流程一致、內容不衝突，而且誠實說明沒做的事。
 
+動作：
+
+1. 先執行 `skills/docs-quality-gen/scripts/validate_docs_quality_gen.py`。
+2. 如果已經產生 zip，傳入 `--package` 檢查封裝內容。
+3. 再做人工的格式、流程、內容與可讀性回顧。
+
 檢查清單：
 
 - 格式一致：標題層級、清單格式與 code block 合理。
-- 指令環境一致：Windows PowerShell 與 Ubuntu Bash/sh 指令都有，或已說明單平台原因。
-- HTML 基礎美化一致：標題、條列式、表格分類、色調與 code block 不破壞內容。
+- 自我驗證通過：v1.1 契約、Word 驗證層級、mirrored docs 與可選 zip 結構都通過 Python script。
+- Word 文件品質一致：最高驗證層級、內容、結構、視覺 render QA 或 fallback 檢查有交代。
 - 流程一致：前置條件、步驟順序、檔名與驗證方式一致。
 - 內容一致：SPEC、runbook、Markdown/HTML 沒有互相打架。
 - 可讀性：主線清楚，七年級讀者能理解大方向。
@@ -263,8 +267,9 @@ grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|html-basic-style|Ubunt
 Windows PowerShell：
 
 ```powershell
+python skills\docs-quality-gen\scripts\validate_docs_quality_gen.py
 Get-ChildItem -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen" | Select-Object Name,Length
-Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\SPEC.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.htm" -Pattern "docx","iTest","public","generic","HTML 基礎","Ubuntu","Bash","PowerShell"
+Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\SPEC.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.htm" -Pattern "docx","iTest","public","generic","Word","word-doc-quality","PowerShell"
 ```
 
 Ubuntu Bash/sh：
@@ -272,23 +277,25 @@ Ubuntu Bash/sh：
 ```bash
 # Native Ubuntu example: replace <workspace> with the actual workspace path.
 DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen"
+python "$DOCS_DIR/../../skills/docs-quality-gen/scripts/validate_docs_quality_gen.py"
 find "$DOCS_DIR" -maxdepth 1 -type f -printf '%f %s bytes\n'
-grep -RInE "docx|iTest|public|generic|HTML 基礎|Ubuntu|Bash|PowerShell" "$DOCS_DIR/SPEC.md" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
+grep -RInE "docx|iTest|public|generic|Word|word-doc-quality|PowerShell" "$DOCS_DIR/SPEC.md" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 
 # WSL example for the current Windows F: drive:
 DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen"
+python "$DOCS_DIR/../../skills/docs-quality-gen/scripts/validate_docs_quality_gen.py"
 find "$DOCS_DIR" -maxdepth 1 -type f -printf '%f %s bytes\n'
-grep -RInE "docx|iTest|public|generic|HTML 基礎|Ubuntu|Bash|PowerShell" "$DOCS_DIR/SPEC.md" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
+grep -RInE "docx|iTest|public|generic|Word|word-doc-quality|PowerShell" "$DOCS_DIR/SPEC.md" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 ```
 
 預期結果：
 
 - 三份文件存在。
-- `docx` 只出現在 v1.2 非範圍說明中。
+- Python 自我驗證輸出 `[OK] docs-quality-gen v1.1 contract validated`。
+- `docx` 出現在 v1.1 Word 支援與品質檢查說明中。
 - `iTest` 只出現在「不加入專案專屬規則」的限制中。
 - `public` 與 `generic` 只出現在「不是公開通用規格或泛用助手」的限制中。
-- `HTML 基礎` 只指文件可讀性美化，不代表完整網站設計。
-- `Ubuntu`、`Bash`、`PowerShell` 出現在指令環境說明或對照指令中。
+- `word-doc-quality` 出現在 reference 對照或檢查說明中。
 
 ## 不做事項
 
@@ -298,6 +305,6 @@ grep -RInE "docx|iTest|public|generic|HTML 基礎|Ubuntu|Bash|PowerShell" "$DOCS
 - 安裝 skill。
 - 同步 skill 到 `.codex\skills`。
 - 產生 zip。
-- 建立 Word `.doc` 或 `.docx` 文件。
+- 把 Word 檔案可開啟、可儲存或可轉檔當成唯一品質驗證。
 - 加入 iTest 或其他專案專屬文件規則。
 - 做完整品牌設計、互動式 UI 或行銷頁。

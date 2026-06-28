@@ -10,6 +10,7 @@ Use this checklist before final delivery of robert's personal documentation chan
 - List style is consistent.
 - Code block language labels are correct when used.
 - Markdown and HTML versions match when both exist.
+- Word documents use consistent headings, lists, tables, captions, code formatting, page breaks, headers, and footers.
 
 ## 2. Flow Consistency
 
@@ -24,6 +25,7 @@ Use this checklist before final delivery of robert's personal documentation chan
 
 - Definitions do not conflict across the document.
 - SPEC, runbook, and README do not contradict each other when they cover the same topic.
+- Word documents do not contradict paired Markdown, HTML, PDF, or source notes when those files exist.
 - Examples, observed results, and formal requirements are clearly separated.
 - Local-environment assumptions are not written as universal facts.
 - Local examples include replacement notes or portable alternatives where useful.
@@ -39,5 +41,7 @@ Use this checklist before final delivery of robert's personal documentation chan
 
 - State which files changed.
 - State what was verified.
+- For Word documents, state the highest verification level reached and whether content re-read, structural checks, visual render QA, and accessibility or document-audit checks were run.
 - State what was not done.
 - Say clearly when tests, packaging, or synchronization were not run.
+- Say clearly when Word visual render QA was not available and name the fallback checks used instead.

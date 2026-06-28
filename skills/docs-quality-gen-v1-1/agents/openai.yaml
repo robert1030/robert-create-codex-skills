@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Quality Gen"
+  short_description: "robert personal document quality gate"
+  default_prompt: "Use this skill to produce, synchronize, or review robert's SPEC, runbook, README, Markdown/HTML, and Word DOC/DOCX documents with consistency, readability, verification-level, and final delivery checks."

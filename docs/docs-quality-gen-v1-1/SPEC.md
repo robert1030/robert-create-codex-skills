@@ -6,7 +6,7 @@ This document defines the expected behavior, boundaries, and acceptance criteria
 
 ## Purpose（目的）
 
-中文說明：`docs-quality-gen` 是 robert 個人的文件品質 gate。它用來產生、同步、檢查 SPEC、runbook、README 與成對的 Markdown/HTML 文件。v1.1 允許對 HTML/HTM 文件做基礎可讀性美化。v1.2 加入 Windows/Linux 指令對照。
+中文說明：`docs-quality-gen` 是 robert 個人的文件品質 gate。它用來產生、同步、檢查 SPEC、runbook、README、成對的 Markdown/HTML 文件，以及 Word `.doc` 和 `.docx` 文件。v1.1 加入 Word 文件品質檢查。
 
 `docs-quality-gen` must help Codex produce, update, synchronize, and review robert's personal documentation artifacts with these goals:
 
@@ -14,17 +14,16 @@ This document defines the expected behavior, boundaries, and acceptance criteria
 - Flow consistency
 - Content consistency
 - Markdown and HTML synchronization
-- Basic HTML/HTM document styling for readability
-- Windows PowerShell and Ubuntu Bash/sh command parity
+- Word `.doc` and `.docx` document quality checks
 - Grade-7 readability for handoff or operation documents
 - Clear separation between examples, observed behavior, and formal requirements
 - Honest final delivery notes
 
 ## Scope（範圍）
 
-中文說明：這段定義 v1.2 支援哪些文件。這不是公開通用文件標準，也不是泛用寫作助手。
+中文說明：這段定義 v1.1 支援哪些文件。這不是公開通用文件標準，也不是泛用寫作助手。
 
-In v1.2, the skill applies to these documentation artifacts:
+In v1.1, the skill applies to these documentation artifacts:
 
 - `SPEC.md`
 - `runbook.md`
@@ -34,20 +33,18 @@ In v1.2, the skill applies to these documentation artifacts:
 - `README.htm`
 - `README.html`
 - Paired Markdown and HTML versions of those files
+- Word `.doc` and `.docx` documents
 
 The skill is for robert's personal documentation workflow. It must not present itself as a public documentation standard or generic writing assistant.
 
-v1.1 allows basic HTML/HTM document styling for readability. This includes document titles, heading hierarchy, lists, categorized tables, code blocks, spacing, and restrained color accents.
-
-v1.2 requires command-environment coverage. When a document includes runnable commands, it should provide both Windows PowerShell and Ubuntu Bash/sh examples unless the step is intentionally single-platform.
+Word files must meet the same quality bar as Markdown and HTML files. This includes format consistency, flow consistency, content consistency, readability, portability notes, and honest final delivery notes.
 
 ## Out of Scope（非範圍）
 
-中文說明：這些項目不屬於 v1.2。除非使用者明確要求，skill 不應主動做文件以外的交付動作。
+中文說明：這些項目不屬於 v1.1。除非使用者明確要求，skill 不應主動做文件以外的交付動作。
 
-The v1.2 skill must not define rules for:
+The v1.1 skill must not define rules for:
 
-- Word `.doc` or `.docx` documents
 - Project-specific knowledge, such as iTest help rules
 - Full HTML visual design, brand design, interactive UI, or marketing-page layout
 - General public documentation style guides
@@ -71,16 +68,16 @@ The required skill entry file is:
 docs-quality-gen/SKILL.md
 ```
 
-The v1.2 reference files are:
+The v1.1 reference files are:
 
 ```text
 docs-quality-gen/references/spec-rules.md
 docs-quality-gen/references/runbook-rules.md
 docs-quality-gen/references/markdown-html-sync.md
-docs-quality-gen/references/html-basic-style.md
-docs-quality-gen/references/command-environments.md
+docs-quality-gen/references/word-doc-quality.md
 docs-quality-gen/references/readability-grade7.md
 docs-quality-gen/references/final-review-checklist.md
+docs-quality-gen/scripts/validate_docs_quality_gen.py
 ```
 
 `SKILL.md` must stay concise and act as the entry point. Detailed rules should live in the matching reference file so Codex only loads the context needed for the current task.
@@ -91,13 +88,13 @@ docs-quality-gen/references/final-review-checklist.md
 
 When the skill is used, Codex must follow this workflow:
 
-1. Identify the document type: SPEC, runbook, README, Markdown/HTML pair, HTML/HTM styling, command-environment coverage, review-only, or final delivery check.
+1. Identify the document type: SPEC, runbook, README, Markdown/HTML pair, Word document, review-only, or final delivery check.
 2. Read the matching reference files.
 3. State success criteria before editing.
 4. Read surrounding context before changing text.
 5. Make the smallest necessary document edits.
 6. Separate examples, observed behavior, and formal requirements.
-7. Review format consistency, flow consistency, content consistency, command-environment coverage, sync status, HTML styling consistency when relevant, and readability after editing.
+7. Review format consistency, flow consistency, content consistency, sync status, Word document quality when relevant, and readability after editing.
 8. In the final reply, state what changed, what was verified, and what was not done.
 
 ## Markdown and HTML Sync Requirements（Markdown/HTML 同步要求）
@@ -112,40 +109,27 @@ When a Markdown file and an HTML file represent the same document:
 - HTML may use semantic tags such as `<code>`, `<pre><code>`, and `<strong>`, but it must not change the document meaning.
 - After edits, Codex must search key terms or compare sections to confirm both versions were updated.
 
-## HTML Basic Styling Requirements（HTML 基礎美化要求）
+## Word Document Quality Requirements（Word 文件品質要求）
 
-中文說明：v1.1 可以美化 `.htm/.html` 文件，但目標是讓文件更好讀，不是做網站設計或品牌頁。
+中文說明：v1.1 支援 Word `.doc` 和 `.docx` 文件品質檢查。Word 文件的標準要和 Markdown、HTML 一樣，不能只確認檔案可開啟或可儲存。
 
-For `.htm` and `.html` documents, basic styling may include:
+For Word `.doc` and `.docx` documents, quality checks must include:
 
-- A useful `<title>` and one clear visible `<h1>`
-- Ordered heading levels
-- Readable lists for steps, checks, and grouped facts
-- Tables with headers and category grouping when comparison is clearer than a list
-- `<code>` and `<pre><code>` formatting for paths, commands, output, and examples
-- A constrained content width, readable line height, and comfortable spacing
-- Restrained color accents for headings, table headers, notes, warnings, and code blocks
+- Format consistency for headings, lists, tables, captions, code, page breaks, headers, and footers
+- Flow consistency for prerequisites, step order, section order, and cross-references
+- Content consistency with paired Markdown, HTML, PDF, source notes, or previous versions when those exist
+- Grade-7 readability when the document is for handoff or operation
+- Portability notes for local paths, user names, drive letters, tool locations, and version numbers
+- Honest final delivery notes that say which Word checks were run
 
-HTML styling must not:
+Word verification should use the strongest available level and report the highest level reached:
 
-- Change the meaning of the Markdown source
-- Add, remove, or weaken requirements
-- Depend on remote assets or external CSS frameworks unless the user asks
-- Turn a document into a product landing page, interactive UI, or full visual design project
+- Level 1, content re-read with a document-aware reader when possible
+- Level 2, structural inspection of headings, tables, lists, links, and required strings
+- Level 3, visual render QA to PDF or page images when a renderer is available
+- Level 4, accessibility or document-audit checks when the local toolchain provides them
 
-## Command Environment Requirements（指令環境要求）
-
-中文說明：runbook 或 README 只給 Windows 指令會讓 Linux 使用者無法照做。v1.2 要求能合理跨平台的操作提供 Windows PowerShell 與 Ubuntu Bash/sh 兩種版本。
-
-When a document includes runnable commands:
-
-- Label Windows command blocks as `powershell`.
-- Label Ubuntu Bash or POSIX shell command blocks as `bash` or `sh`.
-- Keep Windows PowerShell and Ubuntu Bash/sh commands in separate blocks.
-- Provide both environments when the operation can reasonably run in both.
-- If a step is intentionally single-platform, state the reason.
-- Do not put Windows drive paths such as `F:\...` in Bash examples unless the path is explicitly a WSL `/mnt/<drive>/...` example.
-- Do not put POSIX paths such as `/home/<user>/...` in PowerShell examples unless explaining a remote or mounted path.
+If visual render QA is unavailable, the final reply must say so and name the fallback checks that were used.
 
 ## Portability Requirements（可攜性要求）
 
@@ -178,19 +162,19 @@ The `/mnt/f/...` path is a WSL example, not a native Linux requirement.
 
 ## Acceptance Criteria（驗收條件）
 
-中文說明：符合這些條件，才算 `docs-quality-gen` 文件品質 gate 的 v1.2 行為可接受。
+中文說明：符合這些條件，才算 `docs-quality-gen` 文件品質 gate 的 v1.1 行為可接受。
 
 The skill is acceptable when:
 
-- `SKILL.md` explains the purpose, supported file types, v1.2 exclusions, basic workflow, and hard rules.
-- Each v1.2 reference file exists and has a single clear responsibility.
+- `SKILL.md` explains the purpose, supported file types, v1.1 exclusions, basic workflow, and hard rules.
+- Each v1.1 reference file exists and has a single clear responsibility.
 - SPEC rules do not become runbook steps.
 - Runbook rules describe step-by-step operation quality.
 - Markdown/HTML sync rules require paired files to carry the same meaning.
-- HTML basic style rules improve `.htm/.html` readability without changing meaning.
-- Command environment rules require Windows PowerShell and Ubuntu Bash/sh examples when both are reasonable.
+- Word document quality rules require explicit verification levels, content, structure, visual render QA when available, and honest fallback reporting when render QA is not available.
 - Grade-7 readability rules improve clarity without reducing technical correctness.
 - Final review rules require format, flow, content, readability, and honest delivery checks.
-- Word `.doc` and `.docx` behavior remains out of scope for v1.2.
+- `scripts/validate_docs_quality_gen.py` passes before packaging or release.
+- Word `.doc` and `.docx` behavior is included for v1.1 document quality checks.
 - iTest or other project-specific knowledge is not included.
 - The skill remains robert's personal documentation quality gate, not a public generic standard.

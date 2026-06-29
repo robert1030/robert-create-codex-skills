@@ -43,38 +43,35 @@ FROZEN = {"joan-coral"}
 
 ---
 
-## 3. bootstrap 授權式安裝（先檢查、再授權、維持冪等）
+## 3. bootstrap 授權式安裝（唯讀偵測、冪等、隔離環境優先）
 
 ```python
-import importlib.util, pathlib, subprocess, sys, sysconfig
+import importlib.util, subprocess, sys
 
-def _externally_managed():
-    marker = pathlib.Path(sysconfig.get_path("stdlib")) / "EXTERNALLY-MANAGED"
-    return sys.prefix == sys.base_prefix and marker.exists()
+def _pip(*pkgs, break_system=False):
+    cmd = [sys.executable, "-m", "pip", "install", "-q", *pkgs]
+    if break_system:
+        cmd.insert(5, "--break-system-packages")
+    subprocess.run(cmd, check=True)
 
-def _pip(*pkgs, allow_break_system_packages=False):
-    cmd = [sys.executable, "-m", "pip", "install", "-q"]
-    if _externally_managed():
-        if not allow_break_system_packages:
-            raise RuntimeError("目前是外部管理的 Python；請改用虛擬環境，或另行取得覆寫系統環境的明確授權。")
-        cmd.append("--break-system-packages")
-    subprocess.run([*cmd, *pkgs], check=True)
-
-def ensure_tools(spec=None, *, allow_install=False, allow_break_system_packages=False):
-    """先唯讀偵測；只有取得授權後才安裝缺少項目。"""
+def plan_tools(spec=None):
+    """唯讀偵測缺少項目，只回傳計畫，不安裝。"""
     need = []
     if importlib.util.find_spec("playwright") is None:
         need.append("playwright")
-    # 依 spec 用到的視覺型別決定要不要 rdkit／qrcode／pillow ...
+    return need
+
+def ensure_tools(spec=None, authorized=False, break_system=False):
+    """取得授權後才安裝；未授權只回報缺少項目。"""
+    need = plan_tools(spec)
+    if need and not authorized:
+        return {"ok": False, "missing": need, "needs_authorization": True}
     if need:
-        if not allow_install:
-            raise RuntimeError(f"缺少相依：{', '.join(need)}。取得使用者授權後再執行安裝。")
-        _pip(*need, allow_break_system_packages=allow_break_system_packages)
-    # chromium 等瀏覽器資產
-    # 同一份授權範圍包含瀏覽器資產時，才執行 playwright install chromium。
+        _pip(*need, break_system=break_system)
+    return {"ok": True, "missing": []}
 ```
 
-任何 setup 腳本都務必冪等：已備妥則秒過。呼叫端先列出套件、下載與寫入範圍；取得授權後才傳入安裝開關。優先使用既有虛擬環境或建立隔離環境，不把 `--break-system-packages` 當成預設值。
+shell 版（setup.sh）務必冪等：已備妥則秒過。會寫入環境或下載相依前，必須先列出影響範圍並取得使用者授權。
 
 ---
 
@@ -83,7 +80,7 @@ def ensure_tools(spec=None, *, allow_install=False, allow_break_system_packages=
 依 skill 性質剪裁。教學文件型：
 
 ```text
-（步驟 0，透明）先唯讀檢查環境；需要下載、安裝或越界寫入時，先說明範圍並取得授權，不要求使用者自行拼裝指令。
+（步驟 0，透明）靜默完成環境準備，不要求使用者手動跑指令。
 （必問，最先）輸出語言：中文／英文／雙語。
 （必問，次之）對象學齡或受眾層級。
 （依主線追問）方向與深度、範圍、風格。能從語意判斷的就不問。
@@ -168,41 +165,35 @@ sys.exit(0 if FAIL == 0 else 1)
 
 ## 8. 授權式 bootstrap（ensure 在 import 之前）
 
-每包一支 `scripts/bootstrap.py`，分顆粒 `ensure_*`。先偵測缺少項目；取得安裝授權後才補齊，裝過秒跳過：
+每包一支 `scripts/bootstrap.py`，分顆粒 `ensure_*`。先唯讀偵測，取得授權後才安裝，裝過秒跳過：
 
 ```python
-import importlib.util, os, pathlib, subprocess, sys, sysconfig
+import importlib.util, os, subprocess, sys
 def _have_py(m): return importlib.util.find_spec(m) is not None
 def _have_npm(p): return os.path.isdir(os.path.join(os.getcwd(), "node_modules", p))
-def _externally_managed():
-    marker = pathlib.Path(sysconfig.get_path("stdlib")) / "EXTERNALLY-MANAGED"
-    return sys.prefix == sys.base_prefix and marker.exists()
-def _require_install(allow_install, items):
-    if items and not allow_install:
-        raise RuntimeError(f"缺少相依：{', '.join(items)}。取得使用者授權後再安裝。")
-def _pip(*pkgs, allow_break_system_packages=False):
-    cmd = [sys.executable,"-m","pip","install","-q"]
-    if _externally_managed():
-        if not allow_break_system_packages:
-            raise RuntimeError("請使用虛擬環境，或另行取得使用 --break-system-packages 的明確授權。")
-        cmd.append("--break-system-packages")
-    subprocess.run([*cmd,*pkgs], check=True)
+def _pip(*pkgs, break_system=False):
+    cmd=[sys.executable,"-m","pip","install","-q",*pkgs]
+    if break_system: cmd.insert(5,"--break-system-packages")
+    subprocess.run(cmd, check=True)
 def _npm(*pkgs): subprocess.run(["npm","install","--silent",*pkgs], check=True)
 
-def ensure_export(log=print, *, allow_install=False, allow_break_system_packages=False):
-    need = []
-    if not _have_py("playwright"): need.append("playwright")
-    if not _have_py("PIL"): need.append("pillow")
-    _require_install(allow_install, need)
-    if not _have_py("playwright"):
-        log("[bootstrap] 安裝 playwright…"); _pip("playwright", allow_break_system_packages=allow_break_system_packages)
+def ensure_export(log=print, authorized=False, break_system=False):
+    missing=[]
+    if not _have_py("playwright"): missing.append("playwright")
+    if not _have_py("PIL"): missing.append("pillow")
+    if missing and not authorized:
+        return {"ok": False, "missing": missing, "needs_authorization": True}
+    if "playwright" in missing:
+        log("[bootstrap] 安裝 playwright…"); _pip("playwright", break_system=break_system)
         subprocess.run([sys.executable,"-m","playwright","install","chromium"], check=True)
-    if not _have_py("PIL"): _pip("pillow", allow_break_system_packages=allow_break_system_packages)
+    if "pillow" in missing: _pip("pillow", break_system=break_system)
+    return {"ok": True, "missing": []}
 
-def ensure_katex(log=print, *, allow_install=False):
-    need = [] if _have_npm("katex") else ["katex"]
-    _require_install(allow_install, need)
-    if need: log("[bootstrap] 安裝 katex…"); _npm("katex")
+def ensure_katex(log=print, authorized=False):
+    if not _have_npm("katex") and not authorized:
+        return {"ok": False, "missing": ["katex"], "needs_authorization": True}
+    if not _have_npm("katex"): log("[bootstrap] 安裝 katex…"); _npm("katex")
+    return {"ok": True, "missing": []}
 ```
 
 **關鍵接線**：頂層 `from playwright import …` 在套件缺席時會直接 ImportError，所以 ensure 要在 import 之前：
@@ -210,25 +201,23 @@ def ensure_katex(log=print, *, allow_install=False):
 ```python
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import bootstrap
-# Codex 先唯讀檢查並取得使用者授權，再把 allow_install 設為 True。
-bootstrap.ensure_export(allow_install=INSTALL_APPROVED)
+import bootstrap; bootstrap.ensure_export(authorized=True)   # 已取得授權後才補齊，再 import
 from playwright.sync_api import sync_playwright
 ```
 
-node 腳本（如 build_katex.js）先用 `require.resolve('katex')` 唯讀檢查。缺少時回報所需套件；取得使用者授權後，再由明確的安裝步驟執行 `npm install --silent katex`，並避免寫死絕對路徑。
+node 腳本（如 build_katex.js）內不得未授權自我安裝。`require.resolve('katex')` 失敗時先回報缺少項目；取得授權後才 `npm install --silent katex`，並避免寫死絕對路徑。
 
 ---
 
 ## 9. 自動驗證（回歸自測，不觸發真實安裝）
 
-`tests/test_*.py`，cornell 風格的 `check()` 計數，重點測四類：① 純邏輯 ② 凍結契約斷言 ③ 未授權時禁止安裝 ④ 已授權安裝邏輯（攔截 `_pip`／subprocess，只驗分支，不真的裝）：
+`tests/test_*.py`，cornell 風格的 `check()` 計數，重點測三類：① 純邏輯 ② 凍結契約斷言 ③ 自動安裝邏輯（攔截 `_pip`／subprocess，只驗分支，不真的裝）：
 
 ```python
 import types
 import bootstrap
 calls = []
-bootstrap._pip = lambda *p, **k: calls.append((p, k))             # 攔截，不真的 pip
+bootstrap._pip = lambda *p: calls.append(p)                       # 攔截，不真的 pip
 bootstrap.subprocess = types.SimpleNamespace(run=lambda *a, **k: None)  # 攔截 chromium 安裝
 
 bootstrap._have_py = lambda m: True
@@ -236,16 +225,8 @@ calls.clear(); bootstrap.ensure_export(log=lambda *a: None)
 check("相依已在 → 不重裝", calls == [])
 
 bootstrap._have_py = lambda m: False
-calls.clear()
-blocked = False
-try:
-    bootstrap.ensure_export(log=lambda *a: None)
-except RuntimeError:
-    blocked = True
-check("相依缺少且未授權 → 不安裝", blocked and calls == [])
-
-calls.clear(); bootstrap.ensure_export(log=lambda *a: None, allow_install=True)
-check("相依缺少且已授權 → 嘗試安裝", len(calls) >= 1)
+calls.clear(); bootstrap.ensure_export(log=lambda *a: None)
+check("相依缺少 → 嘗試安裝", len(calls) >= 1)
 
 # 凍結契約守門
 check("joan-coral bg 凍結值", SKINS["joan-coral"]["bg"] == "#E8856E")

@@ -1,7 +1,0 @@
-interface:
-  display_name: "Joan Skill Conventions Codex v1.0"
-  short_description: "套用 Joan 的 Skill 開發房規、驗證閘門與交付標準"
-  default_prompt: "使用 $joan-skill-conventions-codex-v1-0 建立或檢視一支符合 Joan 房規的 Codex skill。"
-
-policy:
-  allow_implicit_invocation: true

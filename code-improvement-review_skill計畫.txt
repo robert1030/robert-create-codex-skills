@@ -1,0 +1,103 @@
+可以，而且很適合設計成一個通用 skill。
+
+這段流程其實已經形成一個可重複的方法，不綁 Python，也不綁 TLS 專案。核心不是「怎麼寫 Python」，而是「如何在既有程式中安全地修功能、補缺失、查風險、再做低風險最佳化」。
+
+我會把它設計成類似：
+
+code-improvement-review 或 surgical-code-improvement
+
+適用範圍：
+
+Python / Go / Rust / JavaScript / C# 等都可以
+既有專案的 bug 修正
+policy / config driven 程式
+CLI 工具
+parser / report generator
+安全敏感程式
+需要先理解再修改的維護型任務
+這個 skill 的核心流程可以是：
+
+讀文件與入口
+
+先讀 README / docs / AGENTS / spec / config
+確認執行環境：Windows、WSL、Linux、容器
+分清楚使用說明、規格、policy/config、程式碼責任
+確認需求，不急著改
+
+把使用者的修正需求拆成可驗證條件
+明確指出不確定處
+如果涉及安全、輸入解析、檔案路徑、外部命令、序列化，就先定義威脅面
+用樣本重現
+
+找既有 test data / JSON / log / report
+比對「原始輸入」與「目前輸出」
+找到 bug 是 parser、policy、render 還是資料模型問題
+小範圍修正
+
+只改直接相關模組
+不重構無關區域
+不改 policy/config 值，除非需求明確要求
+保留既有輸出風格，避免修 bug 順手改 UI/report schema
+補邊界與安全
+
+檢查輸入長度、未知 enum、缺欄位、型別錯誤
+檢查 shell/subprocess、路徑 traversal、Markdown/HTML/CSV injection
+檢查大量輸出/記憶體風險
+檢查 policy/config 宣告和程式實作是否一致
+驗證
+
+語法檢查
+單元或合成資料檢查
+既有樣本回歸檢查
+對 config/policy 類檔案做 parsed-value hash 或 canonical diff，確認沒改到有效內容
+最佳化只做低風險項目
+
+移除死碼
+抽出重複但不新增抽象負擔
+限制外部輸出 capture
+避免大重構，除非有測試保護或使用者明確要求
+最後報告
+
+說清楚改了什麼
+說清楚驗證了什麼
+說清楚沒驗證什麼
+保留殘餘風險
+這個 skill 也應該內建幾條約束：
+
+不把「看起來比較乾淨」當成改動理由。
+不在沒有需求時改格式、報告樣式、public API。
+不用猜的修改安全或標準依據；要回到 spec、官方文件或既有測試樣本。
+對 config/policy 檔要區分「註解」和「有效值」。
+如果使用者要求確認，就用可重現檢查，而不是口頭保證。
+如果要做成 Codex skill，我建議名稱：
+
+maintenance-hardening
+
+描述可以是：
+
+A language-agnostic workflow for safely improving existing code: understand docs/specs, reproduce behavior from samples, make surgical fixes, check security and edge cases, apply low-risk optimizations, and verify with tests or structured comparisons.
+
+這會比叫 code-review 更準，因為它不只是 review，也包含修正、驗證和保守最佳化。
+
+
+
+
+實際抽出來做code-review的短版:
+Phase1, 是,你可以開始實作需求修改了,但
+只改直接相關模組
+不重構無關區域
+不改 policy/config 值，除非需求明確要求
+需求沒提到的,保留既有輸出風格，避免修 bug 順手改 UI/report schema
+
+Phase2 程式修改後檢驗,必須在確認Phase1完成後,才進入:
+檢查輸入長度、未知 enum、缺欄位、型別錯誤
+檢查 shell/subprocess、路徑 traversal、Markdown/HTML/CSV injection
+檢查大量輸出/記憶體風險
+檢查 policy/config 宣告和程式實作是否一致
+驗證
+
+語法檢查
+單元或合成資料檢查
+既有樣本回歸檢查
+對 config/policy 類檔案做 parsed-value hash 或 canonical diff，確認沒改到有效內容
+最後報告

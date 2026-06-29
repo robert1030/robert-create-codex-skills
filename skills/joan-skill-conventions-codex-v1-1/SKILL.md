@@ -1,17 +1,72 @@
 ---
-name: joan-skill-conventions-codex-v1-0
-description: "Joan（酒 Ann／vibe-expert.com）開發 Codex Skill 的內部房規與品味指南。當使用者要新開一支 skill、檢視／升級／重構既有 skill、為 skill 寫驗證器或回歸測試、或在討論 skill 的版型／驗證／交付架構時，立即讀此 skill，把以下七條房規套用上去：① 凍結契約＋另開新版（絕不就地改定版）② 驗證即閘門、絕不靠肉眼 ③ 全形標點＋禁破折號鐵則 ④ 引擎／皮膚／內容三層正交、跨學科通用 ⑤ 能力邊界誠實＋降級階梯不造假 ⑥ 取得授權後準備相依＋離線自包含交付 ⑦ 生成前強制對焦閘門。另含三種模式（套用／探索／模仿）、滿意度確認迴圈、多格式交付。觸發詞包含：開新 skill、做一個 skill、寫一支 skill、升級 skill、檢視 skill、重構 skill、skill 房規、skill 規範、驗證器、凍結契約、回歸測試、交付前檢查 等。即使只說『幫我做一個 XXX 的 skill』也應先讀此 skill 套用房規。注意：通用的 skill 製作流程（draft→test→iterate→package）仍走 skill-creator；本 skill 只在其上疊加 Joan 的房規與品味，兩者並用。"
+name: joan-skill-conventions-codex-v1-1
+description: "Joan（酒 Ann／vibe-expert.com）開發 Codex Skill 的內部房規與品味指南。當使用者要新開一支 skill、檢視／升級／重構既有 skill、為 skill 寫驗證器或回歸測試、或在討論 skill 的版型／驗證／交付架構時，立即讀此 skill，且必須套用七條房規。特別強制：凡是新建、檢視、升級或重構 skill，必須同步設計、建立或更新驗證器與回歸測試，至少包含 scripts/validate_punct.py、tests/test_*.py、凍結契約斷言、缺料降級測試、bootstrap ensure_* 測試；若使用者只要求檢視，仍必須檢查是否缺驗證器或回歸測試，並把缺口列為阻斷項或待修項。觸發詞包含：開新 skill、做一個 skill、寫一支 skill、升級 skill、檢視 skill、重構 skill、skill 房規、skill 規範、驗證器、凍結契約、回歸測試、交付前檢查。通用 skill 製作流程仍走 skill-creator；本 skill 疊加 Joan 房規與驗證測試閘門。"
 ---
+# Joan Skill Conventions Codex v1.1（Joan 的 skill 開發房規）
 
-# Joan Skill Conventions Codex v1.0（Joan 的 skill 開發房規）
-
+> **Codex v1.1｜2026-06-29**：修正 Codex v1.0 容易把驗證器與回歸測試視為建議清單的問題。新增「驗證測試強制流程」：新建、檢視、升級、重構 skill 時，必須同步設計、建立或更新驗證器與 `tests/test_*.py`，沒有測試即列為阻斷項，不得只交付 SKILL.md 或口頭建議。
 > **Codex v1.0｜2026-06-28**：基於 Joan 原版 v1.1 的 Codex 適配首版。改用 Codex 的交付與工具慣例；相依安裝增加明確授權及環境隔離閘門；保留原有觸發範圍、對焦流程、多格式交付與同步驗證器行為。
 > **v1.1｜2026-06-20**：把三個已落地的做法寫進房規：凍結可擴充版型庫（registry＋FROZEN＋FROZEN.md，房規一）、回歸自測即閘門（`tests/test_*.py`，房規二）、相依自動安裝 `bootstrap.ensure_*`（ensure 在 import 之前，房規六）。新增 `references/canonical-snippets.md` 第 8 至 10 段範式。
 > **v1.0｜2026-06-20**：從 cornell-notes-generator、constructivist-lesson-builder、knowledge-map-generator、knowledge-card-generator、dex-card-generator 五包抽取出的共用規範，由 Joan（酒 Ann）維護；附 `scripts/sync_validator.py` 一鍵同步驗證器正本到各包。
 
 這是一份**房規（house rules）**，疊加在 `skill-creator` 之上。`skill-creator` 教「怎麼做出一支 skill」（draft→test→iterate→package）；本 skill 教「Joan 的 skill 長什麼樣、守什麼規矩」。兩者並用：先依 skill-creator 的流程走，每一步用本房規把關品味與正確性。
 
-新開或升級任何一支 Joan 的 skill 前，先讀完本檔，再對照文末兩張檢查表動工。
+新開、檢視、升級或重構任何一支 Joan 的 skill 前，先讀完本檔，再執行下一節的「驗證測試強制流程」。不得只修改 `SKILL.md`、不得只給文字建議、不得把驗證器與回歸測試留到使用者提醒後才做。
+
+
+---
+
+## 驗證測試強制流程（Codex v1.1 必做）
+
+只要任務屬於「新建 skill」、「檢視既有 skill」、「升級 skill」、「重構 skill」、「為 skill 寫驗證器或回歸測試」、「討論交付架構或驗證架構」，必須先做以下流程。這是交付門檻，不是建議清單。
+
+```text
+使用者要求 skill 相關工作
+        ↓
+立即讀取本 skill 與 skill-creator
+        ↓
+盤點目標 skill 的檔案結構
+        ↓
+檢查是否已有 scripts/validate_punct.py、tests/test_*.py、FROZEN.md 或等價凍結契約
+        ↓
+依任務建立或更新驗證器與回歸測試
+        ↓
+執行可離線、可重現的測試
+        ↓
+測試通過才可交付；測試未過要先回報阻斷原因與修正方向
+```
+
+### 依任務類型的最低行為
+
+| 任務類型 | 必須做的事 | 不可接受的行為 |
+|---|---|---|
+| 新建 skill | 建立 `SKILL.md`、`agents/openai.yaml`，並同步建立 `scripts/validate_punct.py` 與至少一支 `tests/test_*.py`。測試至少涵蓋觸發條件、全形標點／禁破折號、凍結契約占位或實際斷言、能力邊界、降級階梯。 | 只寫 `SKILL.md`。 |
+| 檢視 skill | 檢查觸發條件、房規落實度、驗證器、回歸測試、凍結契約、bootstrap 授權式相依。缺任何一項都要列為缺口。 | 只評論文字品質，不檢查 tests。 |
+| 升級 skill | 另開新版或明確維持相容版號，更新指令後同步更新驗證器與回歸測試。新增規則必須有對應測試。 | 改規則但不改測試。 |
+| 重構 skill | 先凍結既有契約，再修改架構。重構前後都要跑回歸測試。 | 只重排檔案或改程式，不證明相容。 |
+| 只要求驗證器或回歸測試 | 直接補齊驗證器與 `tests/test_*.py`，並說明覆蓋範圍與尚未覆蓋的風險。 | 要求使用者再次提醒測試需求。 |
+
+### tests/test_*.py 最低覆蓋範圍
+
+每支 skill 至少放一支可離線執行的回歸測試。重相依可以 mock，不得因為 Playwright、RDKit、npm、瀏覽器資產缺席就完全不寫測試。
+
+最低測項：
+
+1. 讀取並檢查 `SKILL.md` frontmatter 的 `name` 與 `description`。
+2. 檢查 description 內含明確觸發條件。
+3. 檢查中文標點與禁破折號規則，或呼叫 `scripts/validate_punct.py`。
+4. 檢查凍結契約：有 `FROZEN.md`、`FROZEN` 常數，或測試中有明確待凍結斷言。
+5. 檢查能力邊界與降級階梯段落存在。
+6. 如有 `scripts/bootstrap.py`，mock `_pip`、`subprocess` 或安裝函式，驗證「已安裝不重裝、缺少會嘗試安裝、未授權不得安裝」。
+7. 如有版型、皮膚、座標、色票、schema 或 prompt contract，至少一項要有斷言守門。
+
+### 無法寫完整測試時的降級
+
+若缺少目標 skill 原始碼或執行環境，仍不得跳過測試設計。必須至少產出：
+
+1. `tests/test_contract.py`：檢查 `SKILL.md`、觸發條件、必要段落、禁止破折號。
+2. `tests/test_validation_inventory.py`：檢查驗證器、凍結契約、bootstrap、交付清單是否存在。
+3. 「尚無法覆蓋」清單：列出需要目標原始碼後才能補的測項。
 
 ---
 
@@ -26,15 +81,15 @@ description: "Joan（酒 Ann／vibe-expert.com）開發 Codex Skill 的內部房
 - **反例**：直接在原檔改色票／改座標「順手調一下」。這會讓既有產出無法重現，是大忌。
 
 ### 二、驗證即閘門，絕不靠肉眼
-每支 skill 的交付都要有**強制驗證器**，退出碼非 0 一律不准交付。正確性外包給程式，不信任目視。
+每支 skill 的交付都要有**強制驗證器與回歸測試**，退出碼非 0 一律不准交付。正確性外包給程式，不信任目視。新建、檢視、升級、重構 skill 時，必須主動建立或更新驗證器與 `tests/test_*.py`；不得等使用者再次提醒。
 
 - **標準驗證層（依 skill 需要疊加）**：
-  - `validate_punct.py`：全形標點＋禁破折號（見房規三，**共用資產**）。
+  - `validate_punct.py`：全形標點＋禁破折號（見房規三，**共用資產**）。新 skill 必須複製到 `scripts/validate_punct.py`，既有 skill 缺少時列為阻斷項。
   - 頁面截斷：列印模式逐頁量溢出（螢幕截圖看不出來的裁切），溢出 > 2px 即擋（參考 constructivist `check_pages.py`）。
   - 數理正確性：每題用 **SymPy 重算比對**宣稱答案，不符即擋（參考 constructivist `check_math.py`、cornell `verify_math.py`）。「答案絕不靠肉眼」。
   - KaTeX 渲染：無殘留佔位 token、無未渲染 `$$`／`\(`、無 katex-error（參考 `check_katex.py`）。
   - 領域正確性：如化學的碳骨架數、反應平衡、標籤對齊（cornell `verify_structures.py`），且**驗證先於繪圖**。
-  - **回歸自測（已實證做法）**：每支 skill 放 `tests/test_*.py`，把「能在沒裝重相依下跑的部分」全寫成測試：純邏輯函式、**凍結契約斷言**（守住色票／座標／registry）、缺料降級分支、以及**自動安裝邏輯**（攔截 `_pip`／subprocess，驗「裝過不重裝、缺了會嘗試裝」而不觸發真實安裝）。改動引擎後必跑、全 PASS 才算沒踩到既有契約。範式見 `references/canonical-snippets.md` 第 9 段。
+  - **回歸自測（已實證做法，必做）**：每支 skill 放 `tests/test_*.py`，新建、升級、重構時同步新增或更新。把「能在沒裝重相依下跑的部分」全寫成測試：純邏輯函式、**凍結契約斷言**（守住色票／座標／registry）、缺料降級分支、以及**自動安裝邏輯**（攔截 `_pip`／subprocess，驗「裝過不重裝、缺了會嘗試裝」而不觸發真實安裝）。改動引擎、SKILL.md、觸發條件、驗證器、bootstrap 或交付格式後必跑、全 PASS 才算沒踩到既有契約。範式見 `references/canonical-snippets.md` 第 9 段。
   - 版面量測：教學牆量各帶寬度補卡到差距 < 一張卡（kmap `measure_bands.py`）。
 - **反例**：「看起來對就交付」。尤其數值與頁面截斷，肉眼最常漏。
 
@@ -82,8 +137,8 @@ description: "Joan（酒 Ann／vibe-expert.com）開發 Codex Skill 的內部房
 ## 滿意度確認迴圈
 每次交付後**必問是否滿意**。視覺問題（配色、字體）→ 調參數重出；內容問題 → 修內容重跑驗證。重做不限次數。不要省略這一步。
 
-## 多格式交付（缺一不可，全部提供可點擊檔案連結）
-依 skill 決定，常見組合：HTML（單檔自包含）＋ PDF（列印就緒）＋ PNG（多頁打包成 zip）。教學文件再加 docx（使用 Codex 的 `documents` skill）。在 Codex Desktop 中以絕對路徑的 Markdown 連結交付所有檔案。
+## 多格式交付（缺一不可，全部 present_files）
+依 skill 決定，常見組合：HTML（單檔自包含）＋ PDF（列印就緒）＋ PNG（多頁打包成 zip）。教學文件再加 docx（走 `docx` skill）。
 
 ---
 
@@ -96,9 +151,9 @@ description: "Joan（酒 Ann／vibe-expert.com）開發 Codex Skill 的內部房
 3. **能力邊界**：界外是什麼？降級階梯怎麼排？
 4. **對焦閘門**：開場要停下來問哪幾關？哪些能從語意判斷不問？
 5. **驗證層**：要疊哪些驗證器（全形＋禁破折號是基本盤；含數理加 SymPy；含頁面加截斷量測）？
-6. **相依**：用到哪些重套件？bootstrap 怎麼自動裝？
+6. **相依**：用到哪些重套件？bootstrap 怎麼做授權式安裝與唯讀偵測？
 7. **交付格式**：哪幾種格式？
-8. **回歸測試**：純邏輯（不需重相依的部分）怎麼寫成 `tests/test_*.py`？凍結契約要不要寫成斷言守門？
+8. **回歸測試**：純邏輯（不需重相依的部分）怎麼寫成 `tests/test_*.py`？凍結契約、觸發條件、能力邊界、降級階梯、bootstrap 分支是否都有斷言守門？
 
 ## 交付前驗證清單
 
@@ -109,13 +164,14 @@ description: "Joan（酒 Ann／vibe-expert.com）開發 Codex Skill 的內部房
 5. [ ] 含領域結構（化學等）：先過結構／反應驗證再繪圖。
 6. [ ] 凍結契約沒被動到（跑 `tests/test_*.py` 回歸測試，凍結值斷言全綠）。
 7. [ ] 相依由 `bootstrap.ensure_*` 先唯讀檢查；需要安裝時已取得授權並優先使用隔離環境（ensure 在 import 之前）；字型／KaTeX 內嵌，離線可印。
-8. [ ] 多格式齊備，全部以 Codex 可點擊的絕對路徑連結交付。
-9. [ ] 交付後問使用者是否滿意。
+8. [ ] 新建、檢視、升級、重構 skill 時，已同步建立或更新 `tests/test_*.py`，並且測試結果可重現。
+9. [ ] 多格式齊備，全部以 Codex 可點擊的絕對路徑連結交付。
+10. [ ] 交付後問使用者是否滿意。
 
 ---
 
 ## 共用資產與參考
 - `assets/validate_punct.py`：**唯一正本**的全形＋禁破折號驗證器。新 skill 直接複製到自己的 `scripts/`，不要各寫一份分歧版本。
-- `scripts/sync_validator.py`：把上面的正本一鍵同步到各包的 `scripts/validate_punct.py`，避免分歧。`--check` 只檢查漂移不寫入（可接 CI）；不傳目標會自動探索同層含 `scripts/validate_punct.py` 的包。保留這項原有行為；Codex 在執行會寫入的同步前，必須先列出預計影響的範圍並取得使用者授權。
+- `scripts/sync_validator.py`：把上面的正本一鍵同步到各包的 `scripts/validate_punct.py`，避免分歧。`--check` 只檢查漂移不寫入（可接 CI）；不傳目標會自動探索同層含 `scripts/validate_punct.py` 的包。
 - `references/canonical-snippets.md`：可複製的標準片段（凍結契約寫法、bootstrap 授權式安裝、對焦閘門模板、能力邊界模板、回歸測試骨架、版號戳記格式）。
 - 通用 skill 製作流程（draft→test→iterate→package）見 `skill-creator`，本房規與它並用。

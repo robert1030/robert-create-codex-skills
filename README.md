@@ -46,9 +46,9 @@ $skill-installer install https://github.com/owner/robert-create-codex-skills/ski
 - `docs/docs-quality-gen-v1-1/runbook.htm`
 - `docs/docs-quality-gen-v1-1/SPEC.md`
 
-## joan-skill-conventions-codex-v1-0 (酒Ann老師的skill建構基礎,轉codex_v1-0)
+## joan-skill-conventions-codex-v1-1 (酒Ann老師的skill建構基礎,轉codex_v1-1)
 ```text
-$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/joan-skill-conventions-codex-v1-0
+$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/joan-skill-conventions-codex-v1-1
 或用zip檔叫Chatgpt直接安裝(Chatgpt商務版支援skill)
 或解壓縮zip後,整包,放到.codex/skills/內
 ```

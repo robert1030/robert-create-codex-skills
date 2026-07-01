@@ -1,0 +1,7 @@
+interface:
+  display_name: "Codex Skill Conventions"
+  short_description: "Joan 的 skill 房規與 Claude 到 Codex 轉換器"
+  default_prompt: "使用 $codex-skill-conventions 把這支 Claude skill 轉成 Codex 格式，並檢查房規"
+
+policy:
+  allow_implicit_invocation: true

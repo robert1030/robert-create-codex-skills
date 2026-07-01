@@ -1,5 +1,0 @@
-interface:
-  display_name: Joan Skill Conventions Codex v1.1
-  short_description: Joan 的 Codex skill 開發房規，強制同步驗證器與回歸測試。
-  icon: "📏"
-  brand_color: "#8B5E3C"

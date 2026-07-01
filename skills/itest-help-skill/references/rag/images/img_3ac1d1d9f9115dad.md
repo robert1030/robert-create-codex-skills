@@ -1,0 +1,41 @@
+---
+{
+  "image_chunk_id": "img_3ac1d1d9f9115dad",
+  "image_path": "topics/images/portForwarding.3.jpg",
+  "category": "screenshot",
+  "dimensions": [
+    429,
+    361
+  ],
+  "ocr_status": "ok",
+  "has_ocr_text": true,
+  "referenced_by": [
+    "topics/portForwarding.htm"
+  ],
+  "usage_count": 1
+}
+---
+
+# Image: topics/images/portForwarding.3.jpg
+
+- category: screenshot
+- dimensions: (429, 361)
+- ocr_status: ok
+- referenced_by: topics/portForwarding.htm
+
+此圖片分類為畫面截圖（screenshot），已使用 Tesseract OCR（英文語言包）擷取圖片內文字，內容如下（OCR 結果，非人工校對，可能含辨識誤差，尤其是低解析度或特殊字元）：
+
+```
+Start a New Session
+
+Confure reference seson profile or anew session profie
+‘Session Type
+
+Session type:
+
+[Clthe sesso profits tng Fo aot secon roe
+
+wed
+
+HITP credentials
+```

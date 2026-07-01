@@ -1,0 +1,62 @@
+---
+{
+  "chunk_id": "tgen_cmds_avalanche__command_reference_69c4f9b6a37d4376",
+  "source_file": "topics/tgen_cmds_avalanche.htm",
+  "source_original_path": "topics/tgen_cmds_avalanche.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Spirent Avalanche sessions",
+    "Spirent Avalanche command set"
+  ],
+  "heading_path": [
+    "Spirent Avalanche command set",
+    "Spirent Avalanche command set",
+    "Command reference"
+  ],
+  "anchor": "1178279",
+  "context_ids": [
+    "tgen_cmds_avalanche"
+  ],
+  "index_keywords": [
+    "Avalanche",
+    "command set"
+  ],
+  "index_keyword_paths": [
+    "Avalanche sessions > command set",
+    "Spirent Avalanche > command set",
+    "command reference > Avalanche"
+  ],
+  "related_links": [],
+  "images": [
+    "topics/images/spirent_avalanche_2.2.jpg",
+    "topics/images/spirent_avalanche.3.jpg"
+  ],
+  "content_hash": "69c4f9b6a37d4376",
+  "level": 2
+}
+---
+
+# Spirent Avalanche command set > Spirent Avalanche command set > Command reference
+
+Each button on the Avalanche session window correlates to a command.
+
+| abort | Ends the test immediately and does not return results. |
+| --- | --- |
+| clearFilter | Clears the Column filter and Row filter values and displays and returns the entire table of data. See filter. |
+| filter | Displays and returns the specified subset of table columns and/or rows. Specify rows and columns in the Step Properties section, Spirent Avalanche filter Properties > Filter Step Properties page. Column filter: Specify filter text to display a subset of table columns. You can use the * wildcard character. Use the Start row and Row count properties to limit the display to particular rows within the table data. You can use the * wildcard character. Start row: Specify the number of a particular row at which to start the data display. If no value is specified, then the display starts with the first row of data. Row count: Specify the number of rows to display. If no value is specified, then all rows are displayed. See clearFilter. |
+| getParameter | Returns the value of the specified parameter. Specify the parameter name in the Command property (Description cell). For example, WrTransactionProfile,Default,Description |
+| loadResults |  |
+| lockColumn | The lockColumn action corresponds to the First column is key check box on the dashboard, Set lockColumn to true to ensure that the first column of the table will always be visible when you use one of the page actions to move to another page in the table. |
+| pageFirst pageUp pageDown pageLast | Because Avalanche data sets are very large, iTest displays one “page” of data at a time (10 columns by 100 rows). Interactive dashboard equivalents (vertical paging) The buttons in the dashboard perform this group of commands. |
+| pageLeftMost pageLeft pageRight pageRightMost | Because Avalanche data sets are very large, iTest displays one “page” of data at a time (10 columns by 100 rows). Interactive dashboard equivalents (horizontal paging) The buttons in the dashboard perform this group of commands. |
+| selectTable | When you use the dashboard to select a node in the Data Files tree, iTest captures a selectTable action. Set the Command property to the path in the Results tree of the table to select. For example: merged/client/summary/Results Summary |
+| setParameter | The configuration settings for the current session are taken from the configuration script that was specified in the session profile or device (config.tcl). Use the setParameter action to change a parameter setting for the duration of the current session only — the configuration file is not modified. Specify the parameter to update and the new value in the Step Properties section, Spirent Avalanche setParameter Properties > setParameter Step Properties page. Parameter name: Type the name of the parameter to change. Parameter value: Type the new value for the parameter. |
+| start | Starts to generate traffic on specified ports and starts the Avalanche test. |
+| stop | Stops generating traffic on specified ports and starts the Avalanche test. |
+
+| Please send comments or suggestions on user documentation to iTest_documentation@spirent.com |
+| --- |
+
+![unknown](topics/images/spirent_avalanche_2.2.jpg) <!-- image_chunk: img_a4636a7876b960f8 -->
+
+![unknown](topics/images/spirent_avalanche.3.jpg) <!-- image_chunk: img_28a2e73c9c922327 -->

@@ -1,0 +1,48 @@
+---
+{
+  "chunk_id": "test_resport_itest_report_file_formats__xml_and_xml_raw_format_reports_5b3d340a8671a243",
+  "source_file": "topics/test_resport_itest_report_file_formats.htm",
+  "source_original_path": "topics/test_resport_itest_report_file_formats.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Test Reports",
+    "Sharing Test Reports",
+    "Test report file formats"
+  ],
+  "heading_path": [
+    "Test report file formats",
+    "Test report file formats",
+    "XML and XML_RAW format reports"
+  ],
+  "anchor": "1331321",
+  "context_ids": [
+    "test_resport_itest_report_file_formats"
+  ],
+  "index_keywords": [
+    "file formats",
+    "test reports"
+  ],
+  "index_keyword_paths": [
+    "formats > test reports",
+    "test reports > file formats"
+  ],
+  "related_links": [],
+  "images": [],
+  "content_hash": "5b3d340a8671a243",
+  "level": 3
+}
+---
+
+# Test report file formats > Test report file formats > XML and XML_RAW format reports
+
+The report is a single XML document containing all of the fragments in the context of an overall valid XML document.
+
+The XML test report also includes a copy of the entire test case document object under the testCaseDetails tag, but excludes the Procedures element. As a result, all general information about the test case is available, including parameters.
+
+One way to add runtime information into a test report is to create a parameter in the test case to hold the information. Add an eval step to the test case with a command of [gset parameters/param_name value] to update the value of that parameter at runtime.
+
+The predefined XSLT templates are stored in reports<version> folder in the resources project.
+
+To use report formats that you used with previous versions of Velocity iTest, copy the folders under the reports folder into the reports<version> folder.
+
+Advanced users: If you use a custom format for HTML files and have placed XSLT templates in the reports<version> folder under the resources project, then the format appears as an option in this list box.

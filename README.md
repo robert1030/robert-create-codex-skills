@@ -15,15 +15,15 @@ $skill-installer install https://github.com/owner/robert-create-codex-skills/ski
 - `docs/skill-packager/README.html`
 - `docs/skill-packager/SPEC.html`
 
-## itest-help
+## itest-help-skill
 
 Codex 安裝提示：
 
 ```text
-$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/itest-help
+$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/itest-help-skill
 ```
 
-目前基礎版本：iTest v25.4。
+目前基礎版本：iTest v26.2。
 
 文件：
 

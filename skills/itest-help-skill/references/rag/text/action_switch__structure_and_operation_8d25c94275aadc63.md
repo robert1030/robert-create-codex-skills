@@ -1,0 +1,50 @@
+---
+{
+  "chunk_id": "action_switch__structure_and_operation_8d25c94275aadc63",
+  "source_file": "topics/action_switch.htm",
+  "source_original_path": "topics/action_switch.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Controlling execution flow: Loops, If/Then, and Switch",
+    "Switch logic",
+    "The ‘switch’ action: Control execution flow based on the value of a variable or expression (Tcl)"
+  ],
+  "heading_path": [
+    "The ‘switch’ action: Control execution flow based on the value of a variable or expression (Tcl)",
+    "The ‘switch’ action: Control execution flow based on the value of a variable or expression (Tcl)",
+    "Structure and operation"
+  ],
+  "anchor": "1608033",
+  "context_ids": [
+    "action_switch"
+  ],
+  "index_keywords": [],
+  "index_keyword_paths": [],
+  "related_links": [],
+  "images": [],
+  "content_hash": "8d25c94275aadc63",
+  "level": 2
+}
+---
+
+# The ‘switch’ action: Control execution flow based on the value of a variable or expression (Tcl) > The ‘switch’ action: Control execution flow based on the value of a variable or expression (Tcl) > Structure and operation
+
+A legal switch construct is made up of a contiguous sequence of:
+
+One switch step
+
+iTest evaluates the control clause to determine the control value. That is, iTest evaluates the expression in the Description cell (the value of the Command property). In our example, the $i expression (the control clause) evaluates to 2
+
+One or more nested case steps
+
+The Description for each case step is the value of the variable or expression to compare to the control value. In our example, the values are 1, 2, and 3
+
+When a match occurs, then execution continues with the steps that are nested under the case step. When the last nested step finishes, then execution proceeds at the step after the switch construct. In our example, the steps nested under the ‘2’ case step are executed.
+
+Zero or one nested default step. The default step must be the last step in the construct.
+
+If the control value matches none of the case expressions, then execution switches to the steps that are nested under the default step. When the last nested step finishes, then execution proceeds at the step after the switch construct.
+
+If there is no default step, then execution proceeds at the step after the switch construct
+
+Comments are allowed at any point. Any other sequence is illegal.

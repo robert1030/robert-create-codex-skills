@@ -1,0 +1,26 @@
+---
+{
+  "image_chunk_id": "img_2e0fed0b670280dc",
+  "image_path": "topics/images/emulation_2.2.jpg",
+  "category": "inline_icon",
+  "dimensions": [
+    27,
+    27
+  ],
+  "ocr_status": "skipped_not_screenshot_or_diagram",
+  "has_ocr_text": false,
+  "referenced_by": [
+    "topics/emulation.6.htm"
+  ],
+  "usage_count": 1
+}
+---
+
+# Image: topics/images/emulation_2.2.jpg
+
+- category: inline_icon
+- dimensions: (27, 27)
+- ocr_status: skipped_not_screenshot_or_diagram
+- referenced_by: topics/emulation.6.htm
+
+此圖片分類為行內小圖示（inline_icon），未執行 OCR（非畫面截圖／示意圖類別）。

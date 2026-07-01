@@ -1,0 +1,38 @@
+---
+{
+  "chunk_id": "filtering_responses_1__overview_response_filtering_0b92cb082e311c9e",
+  "source_file": "topics/filtering_responses.1.htm",
+  "source_original_path": "topics/filtering_responses.1.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Filtering Unwanted Text from Responses",
+    "Overview: Response filtering"
+  ],
+  "heading_path": [
+    "Overview: Response filtering",
+    "Overview: Response filtering"
+  ],
+  "anchor": "1190843",
+  "context_ids": [],
+  "index_keywords": [],
+  "index_keyword_paths": [],
+  "related_links": [],
+  "images": [
+    "topics/images/filtering_responses.1.jpg"
+  ],
+  "content_hash": "0b92cb082e311c9e",
+  "level": 1
+}
+---
+
+# Overview: Response filtering > Overview: Response filtering
+
+You can use response filters to remove unwanted text from a response after a step has executed and before iTest applies analysis rules. The “filtered” response (the portion of the response that remains) is typically cleaner to read and easier to map and to understand. As a result, the sample responses that you use to create Response maps are simpler, and test reports are more readable.
+
+Filtering a response is also useful when an otherwise normal response is corrupted by extraneous text. In the following example, an autonomous log message from the terminal server is intermixed within the stream of the response from the system console (we highlighted the log message in the “unfiltered” response at the top). Because an unpredictable text string appears in a random location, a response that is normally easy to map cannot be mapped.
+
+A response filter can solve the problem. Because the log messages have a well-defined structure, you can design a regular expression that will match any message (perhaps matching the timestamp format). The regex and an associated “exclude lines with matching text” action can therefore act as a “filter” to remove all log message text from any response. The result is the “filtered” response at the bottom. Now the response map can do its job.
+
+> **Note:** Note The text that was discarded is not actually lost; it is simply not displayed in the Response view or in reports. You can click Filtered/Unfiltered response in the Response view to toggle the view between the filtered and the unfiltered response. In addition, you have the option to save any excluded text into the structured data for the step.
+
+![screenshot](topics/images/filtering_responses.1.jpg) <!-- image_chunk: img_5e2f2df5cb6c4561 -->

@@ -1,0 +1,41 @@
+---
+{
+  "chunk_id": "command_file_mkdir__response_0b1a0231dd49e5e6",
+  "source_file": "topics/command_file_mkdir.htm",
+  "source_original_path": "topics/command_file_mkdir.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "iTest Commands",
+    "File and directory management commands",
+    "file mkdir command: Add a directory"
+  ],
+  "heading_path": [
+    "file mkdir command: Add a directory",
+    "file mkdir command: Add a directory",
+    "Response"
+  ],
+  "anchor": "1755020",
+  "context_ids": [
+    "command_file_mkdir"
+  ],
+  "index_keywords": [
+    "creating",
+    "file mkdir",
+    "file mkdir command"
+  ],
+  "index_keyword_paths": [
+    "commands > file mkdir",
+    "directories > creating",
+    "file mkdir command",
+    "folders > creating"
+  ],
+  "related_links": [],
+  "images": [],
+  "content_hash": "0b1a0231dd49e5e6",
+  "level": 3
+}
+---
+
+# file mkdir command: Add a directory > file mkdir command: Add a directory > Response
+
+Returns empty result on success: ""

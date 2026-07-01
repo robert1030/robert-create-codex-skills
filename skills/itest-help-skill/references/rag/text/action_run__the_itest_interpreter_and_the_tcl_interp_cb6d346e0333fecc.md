@@ -1,0 +1,65 @@
+---
+{
+  "chunk_id": "action_run__the_itest_interpreter_and_the_tcl_interp_cb6d346e0333fecc",
+  "source_file": "topics/action_run.htm",
+  "source_original_path": "topics/action_run.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Actions",
+    "Actions for CLI session types",
+    "The ‘eval’ action: Evaluate an iTest interpreter command"
+  ],
+  "heading_path": [
+    "The ‘eval’ action: Evaluate an iTest interpreter command",
+    "The ‘eval’ action: Evaluate an iTest interpreter command",
+    "The iTest interpreter and the Tcl interpreter"
+  ],
+  "anchor": "1809409",
+  "context_ids": [
+    "action_eval",
+    "action_run"
+  ],
+  "index_keywords": [
+    "action",
+    "eval",
+    "evaluating in steps",
+    "in steps"
+  ],
+  "index_keyword_paths": [
+    "actions > eval",
+    "eval > action",
+    "evaluating expressions > in steps",
+    "expressions > evaluating in steps"
+  ],
+  "related_links": [],
+  "images": [],
+  "content_hash": "cb6d346e0333fecc",
+  "level": 2
+}
+---
+
+# The ‘eval’ action: Evaluate an iTest interpreter command > The ‘eval’ action: Evaluate an iTest interpreter command > The iTest interpreter and the Tcl interpreter
+
+
+
+Using special iTest actions to access the Tcl environment: scriptEval, scriptSet, and scriptGet
+
+The scriptEval action uses the Tcl interpreter. If you perform set i 0, then variable i is set only in the Tcl environment — the iTest environment does not know about the variable.
+
+> **Note:** Note Even though the variable that we just set is named i, it is a variable in the Tcl environment—a completely different and independent variable from the variable i that we earlier set in the iTest environment.
+
+You can continue to use scriptEval to, for example, source your own Tcl script that makes use of $i. The benefit of having scriptEval is that it supports all Tcl operations.
+
+To pass variables back and forth between the iTest interpreter and the Tcl interpreter, use scriptSet and scriptGet.
+
+> **Note:** Note scriptEval, scriptSet, and scriptGet are not applicable in Python.
+
+
+
+You can think of it as the “iTest world” and “Tcl world”:
+
+- When you use the scriptEval action, you are operating in the Tcl world.
+
+- When you use the eval action, you are operating in the iTest world.
+
+- You use the scriptSet and scriptGet actions to peek and poke variables between the Tcl world and the iTest world.

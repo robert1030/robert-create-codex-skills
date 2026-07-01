@@ -1,0 +1,26 @@
+---
+{
+  "image_chunk_id": "img_4f2c210ea18bcacc",
+  "image_path": "topics/images/test_cases.1.jpg",
+  "category": "unknown",
+  "dimensions": [
+    69,
+    19
+  ],
+  "ocr_status": "skipped_not_screenshot_or_diagram",
+  "has_ocr_text": false,
+  "referenced_by": [
+    "topics/test_cases_creating_by_capture.htm"
+  ],
+  "usage_count": 1
+}
+---
+
+# Image: topics/images/test_cases.1.jpg
+
+- category: unknown
+- dimensions: (69, 19)
+- ocr_status: skipped_not_screenshot_or_diagram
+- referenced_by: topics/test_cases_creating_by_capture.htm
+
+內容無法自動判讀，狀態標記為 unknown，未進行內容腦補。

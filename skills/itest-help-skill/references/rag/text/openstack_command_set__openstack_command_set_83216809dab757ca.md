@@ -1,0 +1,89 @@
+---
+{
+  "chunk_id": "openstack_command_set__openstack_command_set_83216809dab757ca",
+  "source_file": "topics/openstack_command_set.htm",
+  "source_original_path": "topics/openstack_command_set.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "OpenStack Neutron Session",
+    "OpenStack command set"
+  ],
+  "heading_path": [
+    "OpenStack command set",
+    "OpenStack command set",
+    "OpenStack command set"
+  ],
+  "anchor": "1269916",
+  "context_ids": [
+    "openstack_command_set"
+  ],
+  "index_keywords": [],
+  "index_keyword_paths": [],
+  "related_links": [],
+  "images": [],
+  "content_hash": "83216809dab757ca",
+  "level": 2
+}
+---
+
+# OpenStack command set > OpenStack command set > OpenStack command set
+
+| Command Name | Description | Arguments |
+| --- | --- | --- |
+| queryToken | Authenticates and generates a token. Must run this command at the beginning. | URL: The identity service URL. tenantName: The tenant name. username password |
+| listSecurityGroups | Lists all OpenStack Networking security groups to which the specified tenant has access. | URL: The neutron service URL. |
+| showSecurityGroup | Shows information for a specified security group. | URL: The neutron service URL. security_group_id: The unique identifier of the security group. |
+| createSecurityGroup | Create a specified security group. | URL: The neutron service URL. name: A symbolic name for the security group. Not required to be unique description: Describes the security group. |
+| deleteSecurityGroup | The unique identifier of the security group. | URL: The neutron service URL. security_group_id: The unique identifier of the security group. |
+| listSecurityGroupRules | Lists a summary of all OpenStack Neutron securitygroup rules that the specified tenant can access. | URL: The neutron service URL. |
+| showSecurityGroupRule | Shows detailed information for a specified security group rule. | URL: The neutron service URL. rules_security_groups_id: The unique identifier of the security group rule. |
+| createSecurityGroupRule | Creates an OpenStack Neutron security group rule. | URL: The neutron service URL. direction: Ingress or egress: The direction in which the security group rule is applied.For a compute instance,an ingress security group rule is applied to incoming (ingress) traffic for that instance.An egress rule is applied to traffic leaving the instance. ethertype: Must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules. security_group_id: The security group ID to associate with this security group rule. port_range_min: the protocol is TCP or UDP, this value must be less than or equal to the value of the port_range_max attribute. If the protocol is ICMP, this value must be an ICMP type. port_range_max: The maximum port number in the range that is matched by the security group rule. The port_range_min attribute constrains the port_range_max attribute. If the protocol is ICMP, this value must be an ICMP type. protocol: The protocol that is matched by the security group rule. Valid values are null, tcp, udp, and icmp. remote_group_id: The remote group ID to be associated with this security group rule. You can specify either remote_group_id or remote_ip_prefix in the request body. remote_ip_prefix: The remote IP prefix to be associated with this security group rule. You can specify either remote_group_id or remote_ip_prefix in the request body. This attribute matches the specified IP prefix as the source IP address of the IP packet. |
+| deleteSecurityGroupRule | Deletes a specified rule from a OpenStack Networking security group. | URL: The neutron service URL. rules_security_groups_id: The unique identifier of the security group rule. |
+| listNetworks | Lists networks that the tenant who submits the request can access. | URL: The neutron service URL. |
+| showNetwork | Shows information for a specified network. | URL: The neutron service URL. network_id: The UUID for the network of interest to you. |
+| createNetwork | Creates a network. | URL: The neutron service URL. name: The network name. admin_state_up: The administrative state of the network , which is up (true) or down (false). shared: Indicates whether this network is shared across all tenants.By default, only administrative users can change this value. router_external provider_physical_network: The name of the physical network over which the virtual network is implemented for flat and VLAN networks. provider_network_type: The physical mechanism by which the virtual network is implemented. Possible values are flat, vlan, local, and gre, corresponding to flat networks, VLAN networks, local networks, and GRE networks as defined above. provider_segmentation_id: For VLAN networks, the VLAN VID on the physical network that realizes the virtual network. Valid VLAN VIDs are 1 through 4094. For GRE networks, the tunnel ID. Valid tunnel IDs are any 32 bit unsigned integer. Not applicable to the flat or local network types. tenant_id: Admin-only. The UUID of the tenant that will own the network. This tenant can be different from the tenant that makes the create network request. |
+| updateNetwork | Updates a network | URL: The neutron service URL. network_id: The UUID for the network of interest to you. name: The network name. admin_state_up: The administrative state of the network , which is up (true) or down (false). shared: Admin-only. Indicates whether this network is shared across all tenants. |
+| deleteNetwork | Deletes a specified network and its associated resources. | URL: The neutron service URL. network_id: The UUID for the network of interest to you. |
+| listSubnets | Lists all subnets that are accessible to the tenant who submits the request. | URL: The neutron service URL. |
+| showSubnet | Gets information about a specified subnet. | URL: The neutron service URL. subnet_id: The UUID for the subnet of interest to you. |
+| createSubnet | Creates a subnet on the specified network. | URL: The neutron service URL. cidr: The CIDR. name: The subnet name. ip_version: The IP version, which is 4 or 6. allocation_pools_start: The start addresses for the allocation pools. allocation_pools_end: The end addresses for the allocation pools. gateway_ip: The gateway IP address. enable_dhcp: Set to true if DHCP is enabled and false if DHCP is disabled. network_id: The ID of the attached network. tenant_id: The ID of the tenant who owns the network. Only administrative users can specify a tenant ID other than their own. id: The ID of the subnet. |
+| updateSubnet | Updates the specified subnet. | URL: The neutron service URL. subnet_id: The UUID for the subnet of interest to you. name: The subnet name. gateway_ip: The gateway IP address. enable_dhcp: Set to true if DHCP is enabled and false if DHCP is disabled. |
+| deleteSubnet | deleteSubnet | URL: The neutron service URL. subnet_id: The UUID for the subnet of interest to you. |
+| listPorts | Lists ports to which the tenant has access. | URL: The neutron service URL. |
+| showPort | Shows information for a specified port. | URL: The neutron service URL. port_id: The UUID for the port of interest to you. |
+| createPort | Creates a port on a specified network. | URL: The neutron service URL. name: A symbolic name for the port. admin_state_up: The administrative status of the port, which is up (true) or down (false). fixed_ip_address: If you specify only a subnet ID, OpenStack Networking allocates an available IP from that subnet to the port. If you specify both a subnet ID and an IP address, OpenStack Networking tries to allocate the specified address to the port. fixed_subnet_id: The fixed subnet id. mac_address: The MAC address. If you do not specify a MAC address, OpenStack Networking tries to allocate one. security_groups: Security groups. Specify one or more security group IDs. device_id: The ID of the device that uses this port. For example, a virtual server. device_owner: The ID of the entity that uses this port.For example, a dhcp agent. network_id: The ID of the network. tenant_id: The ID of the tenant who owns the network. Only administrative users can specify a tenant ID other than their own. id: The ID of the port. |
+| updatePort | Updates a specified port. | URL: The neutron service URL. port_id: The UUID for the port of interest to you. name: A symbolic name for the port. admin_state_up: The administrative status of the port, which is up (true) or down (false). fixed_ip_address: Fixed IP address fixed_subnet_id: Fixed subnet id. security_groups: Security groups. Specify one or more security group IDs. device_id: The ID of the device that uses this port. For example, a virtual server. device_owner: The ID of the entity that uses this port. For example, a dhcp agent. |
+| deletePort | Removes a specified port from an OpenStack Neutron network. | URL: The neutron service URL. port_id: The UUID for the port of interest to you. |
+| createRouter | Creates a logical router | URL: The neutron service URL. name: The router name. admin_state_up: The administrative state of the router, which is up (true) or down (false). network_id: The network ID. tenant_id: The tenant ID. |
+| updateRouter | Updates a logical router. | URL: The neutron service URL. router_id: The UUID of the router. name: The router name. admin_state_up: The administrative state of the router, which is up (true) or down (false). network_id: The network ID. |
+| deleteRouter | Deletes a logical router and, if present, its external gateway interface. | URL: The neutron service URL. router_id: The UUID of the router. |
+| showRouter | Shows details for a specified router. | URL: The neutron service URL. router_id: The UUID of the router. |
+| listRouters | List routers that belong to a given tenant. | URL: The neutron service URL. |
+| addRouterInterface | Adds an internal interface to a logical router. | URL: The neutron service URL. router_id: The UUID of the router. subnet_id: The subnet ID. port_id: The UUID for the port. |
+| deleteRouterInterface | Removes an internal interface from a logical router. | URL: The neutron service URL. router_id: The UUID of the router. subnet_id: The subnet ID. port_id: The UUID for the port. |
+| createFloatingIp | Creates a floating IP, and, if you specify port information, associates the floating IP with an internal port. | URL: The neutron service URL. floating_network_id: The ID of the network associated with the floating IP. fixed_ip_address: The fixed IP address associated with the floating IP. port_id: The port ID. tenant_id: The tenant ID. |
+| associateFloatingIpWithPort | Updates a floating IP and its association with an internal port. | URL: The neutron service URL. floatingip_id: The UUID of the floating IP. port_id: The port ID. |
+| disassociateFloatingIpFromPort | To disassociate a floating IP from an internal port | URL: The neutron service URL. floatingip_id: The UUID of the floating IP. |
+| deleteFloatingIp | Deletes a floating IP and, if present, its associated port. | URL: The neutron service URL. floatingip_id: The UUID of the floating IP. |
+| showFloatingIp | Shows details for a specified floating IP. | URL: The neutron service URL. floatingip_id The UUID of the floating IP. |
+| createFirewall | Creates a firewall. | URL: The neutron service URL. firewall_policy_id: The firewall policy uuid that this firewall is associated with. name: Human readable name for the firewall (255 characters limit). description: Human readable description for the firewall (1024 characters limit). shared: When set to True makes this firewall rule visible to tenants other than its owner, and can be used in firewall policies not owned by its tenant. admin_state_up: The administrative state of the network, which is up (true) or down (false). tenant_id: The tenant ID. |
+| deleteFirewall | Deletes a firewall. | URL: The neutron service URL. firewall_id: Unique identifier for the firewall object. |
+| updateFirewall | Updates a firewall, provided status is not PENDING_*. | URL: The neutron service URL. firewall_id: Unique identifier for the firewall object. firewall_policy_id: The firewall policy uuid that this firewall is associated with. name: Human readable name for the firewall (255 characters limit). description: Human readable description for the firewall (1024 characters limit). admin_state_up: The administrative state of the network, which is up (true) or down (false). shared: When set to True makes this firewall rule visible to tenants other than its owner, and can be used in firewall policies not owned by its tenant. |
+| listFirewalls | Lists firewalls. | URL: The neutron service URL. |
+| showFirewall | Shows firewall details. | URL: The neutron service URL. firewall_id: Unique identifier for the firewall object. |
+| createFirewallRule | Creates a firewall rule. | URL: The neutron service URL. action_rule: Action to be performed on the traffic matching the rule. (allow, deny) destination_ip_address: Destination IP address or CIDR. destination_port: Destination port number or a range. enabled When set to False will disable this rule in the firewall policy. ip_version: IP Protocol Version. name: Human readable name for the firewall rule (255 characters limit). description: Human readable description for the firewall Rule (1024 characters limit). protocol: IP Protocol. shared: When set to True makes this firewall rule visible to tenants other than its owner, and can be used in firewall policies not owned by its tenant. source_ip_address: Source IP address or CIDR. source_port: Source port number or a range. tenant_id: The tenant ID. |
+| updateFirewallRule | Updates a firewall rule. | URL: The neutron service URL. firewall_rule_id: Unique identifier for the firewall rule object. action_rule: Action to be performed on the traffic matching the rule (allow, deny) destination_ip_address: Destination IP address or CIDR. destination_port: Destination port number or a range. enabled: When set to False will disable this rule in the firewall policy. ip_version: IP Protocol Version. name: Human readable name for the firewall rule (255 characters limit). description: Human readable description for the firewall Rule (1024 characters limit). protocol: IP Protocol. shared: When set to True makes this firewall rule visible to tenants other than its owner, and can be used in firewall policies not owned by its tenant. source_ip_address: Source IP address or CIDR. source_port: Source port number or a range. |
+| deleteFirewallRule | Deletes a firewall rule. | URL: The neutron service URL. firewall_rule_id: Unique identifier for the firewall rule object. |
+| listFirewallRules | Lists firewall rules. | URL: The neutron service URL. |
+| showFirewallRule | Shows firewall rule details. | URL: The neutron service URL. firewall_rule_id: Unique identifier for the firewall rule object. |
+| createFirewallPolicy | Creates a firewall policy. | URL: The neutron service URL. name: Human readable name for the firewall policy (255 characters limit). audited: When set to True by the policy owner indicates that the firewall policy has been audited. description: Human readable description for the firewall policy (1024 characters limit) firewall_rule_id: Unique identifier for the firewall rule object. shared: When set to True makes this firewall policy visible to tenants other than its owner. tenant_id: Owner of the firewall policy. Only admin users can specify a tenant identifier other than their own. |
+| updateFirewallPolicy | Updates a firewall policy. | URL: The neutron service URL. firewall_policy_id: Unique identifier for the firewall policy object. name: Human readable name for the firewall policy (255 characters limit). audited: When set to True by the policy owner indicates that the firewall policy has been audited. description: Human readable description for the firewall policy (1024 characters limit) firewall_rule_id: Unique identifier for the firewall rule object. shared: When set to True makes this firewall policy visible to tenants other than its owner. |
+| deleteFirewallPolicy | Deletes a firewall policy. | URL: The neutron service URL. firewall_policy_id: Unique identifier for the firewall policy object. |
+| listFirewallPolicies | Lists firewall policies. | URL: The neutron service URL. |
+| showFirewallPolicy | Shows firewall policy details. | URL: The neutron service URL. firewall_policy_id: Unique identifier for the firewall policy object. |
+| insertFirewallRuleToPolicy | Inserts a firewall rule in a firewall policy relative to the position of other rules. | URL: The neutron service URL. firewall_policy_id: Unique identifier for the firewall policy object. firewall_rule_id: Unique identifier for the firewall rule object. insert_after: insert_after parameter refer to firewall rule uuids already associated with the firewall policy. insert_before: insert_before parameter refer to firewall rule uuids already associated with the firewall policy. |
+| removeFirewallRuleFromPolicy | Removes a firewall rule from a firewall policy. | URL: The neutron service URL. firewall_policy_id: Unique identifier for the firewall policy object. firewall_rule_id: Unique identifier for the firewall rule object. |
+| listNetworksHostedByDHCPAgent | Lists networks that the specified DHCP agenthosts. | URL: The neutron service URL. agent_id: The agent ID. |
+| listDHCPAgentsHostedByNetwork | Lists DHCP agents that hosts a specified network. | URL: The neutron service URL. network_id: The network ID. |
+| scheduleNetworkToDHCPAgent | Schedules the network to that the specified DHCP agent. | URL: The neutron service URL. agent_id: The agent ID. network_id: The network ID. |
+| removeNetworkFromDHCPAgent | Removes the network from that the specified DHCP agent. | URL: The neutron service URL. agent_id: The agent ID. network_id: The network ID. |

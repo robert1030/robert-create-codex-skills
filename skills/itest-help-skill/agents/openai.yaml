@@ -1,0 +1,4 @@
+interface:
+  display_name: "iTest Help Skill"
+  short_description: "查詢 iTest 26.2 Help RAG chunk，協助撰寫與除錯 iTest 自動化內容。"
+  default_prompt: "使用 $itest-help-skill 查詢 iTest 26.2 help 並回答我的 iTest 問題"

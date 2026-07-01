@@ -1,0 +1,70 @@
+---
+{
+  "chunk_id": "new_job_wizard__recurring_cf6affacbe030a29",
+  "source_file": "topics/new_job_wizard.htm",
+  "source_original_path": "topics/new_job_wizard.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Scheduling Execution",
+    "Configuring a job: The Job wizard"
+  ],
+  "heading_path": [
+    "Configuring a job: The Job wizard",
+    "Configuring a job: The Job wizard",
+    "Recurring"
+  ],
+  "anchor": "1102791",
+  "context_ids": [
+    "new_job_wizard"
+  ],
+  "index_keywords": [
+    "Job wizard",
+    "scheduling",
+    "scheduling execution"
+  ],
+  "index_keyword_paths": [
+    "Job wizard",
+    "execution > scheduling",
+    "scheduling execution",
+    "wizards > Job wizard"
+  ],
+  "related_links": [],
+  "images": [],
+  "content_hash": "cf6affacbe030a29",
+  "level": 4
+}
+---
+
+# Configuring a job: The Job wizard > Configuring a job: The Job wizard > Recurring
+
+Select Recurring to run the job on an hourly basis or once per day every day or on specified days of the week over a specified time period.
+
+To execute a test case or test suite multiple times per day, create a job for each execution time.
+
+Specify the following settings:
+
+| Start at | Specify the time of day that the job should start. Click Noon or Midnight to set that time. Tip Click Noon or Midnight and then use the arrows to fine-tune the time. Note U.S. users: The start time will fail for the one hour during which the time changes due to daylight saving time. For example, between 2 AM and 3 AM on 14 March because the time does not exist. | Tip | Click Noon or Midnight and then use the arrows to fine-tune the time. | Note | U.S. users: The start time will fail for the one hour during which the time changes due to daylight saving time. For example, between 2 AM and 3 AM on 14 March because the time does not exist. |
+| --- | --- | --- | --- | --- | --- |
+| Tip | Click Noon or Midnight and then use the arrows to fine-tune the time. |  |  |  |  |
+| Note | U.S. users: The start time will fail for the one hour during which the time changes due to daylight saving time. For example, between 2 AM and 3 AM on 14 March because the time does not exist. |  |  |  |  |
+| Repeat every Hours:minutes | Check the box to execute on an hourly basis. Uncheck to execute on a daily or less frequent basis. Specify the time between executions. |  |  |  |  |
+| Stop repeating after | If you checked Repeat every, then specify the time when execution should stop. |  |  |  |  |
+| Days | Specify the days of the week that the runs should occur. Use the All and None links to check and clear all days. |  |  |  |  |
+| End date | Specify the date in the future that scheduled runs of the job should stop. |  |  |  |  |
+| Scheduled jobs | The table displays the first hundred scheduled runs as you have specified them using the property settings described here. The table auto-updates whenever you change a setting. |  |  |  |  |
+| Enforce time limit | To ensure that the job does not exceed a particular run time, check the box and specify the maximum time allowed for the job to finish its run. If a test is executing when the limit is reached, then iTest aborts execution and stops running the job. The Test case result is set to Aborted. The default setting of 00:00 mans that there is no time limit for the run. |  |  |  |  |
+
+1. 5
+
+1. If you specified Immediate run, then click Finish. The run will start in a moment.
+
+> **Note:** Note By default, the last page of the wizard enables the job to run as scheduled, so there is no need to continue past this wizard page for an immediate run.
+
+1. 6
+
+1. For jobs with start times other than Immediate: On the Enable Job page, you specify whether the job that you just defined should become an actively scheduled job or should wait to start its scheduled runs until you enable it at some later time.
+
+Check Enable this job to allow the job to run on the schedule that you just configured. This is the default setting.
+
+| Please send comments or suggestions on user documentation to iTest_documentation@spirent.com |
+| --- |

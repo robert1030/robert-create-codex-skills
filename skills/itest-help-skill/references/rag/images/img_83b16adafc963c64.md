@@ -1,0 +1,40 @@
+---
+{
+  "image_chunk_id": "img_83b16adafc963c64",
+  "image_path": "topics/images/ssh.4.jpg",
+  "category": "screenshot",
+  "dimensions": [
+    474,
+    146
+  ],
+  "ocr_status": "ok",
+  "has_ocr_text": true,
+  "referenced_by": [
+    "topics/sp_properties_ssh.htm"
+  ],
+  "usage_count": 2
+}
+---
+
+# Image: topics/images/ssh.4.jpg
+
+- category: screenshot
+- dimensions: (474, 146)
+- ocr_status: ok
+- referenced_by: topics/sp_properties_ssh.htm
+
+此圖片分類為畫面截圖（screenshot），已使用 Tesseract OCR（英文語言包）擷取圖片內文字，內容如下（OCR 結果，非人工校對，可能含辨識誤差，尤其是低解析度或特殊字元）：
+
+```
+Gone 2 BS Be B54 DUO
+
+Session ID ‘Action _| Description Te [a
+
+= be ‘ere Atte 30:
+2% sat open ‘tenet to dutisco3750:23 200;
+
+ap traftic
+S 2Weeks Ago
+
+1299157 cota, 3 Weeks Ago
+```

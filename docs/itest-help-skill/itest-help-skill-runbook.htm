@@ -1,350 +1,104 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>iTest Help Skill 更新流程 Runbook</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; margin: 32px auto; max-width: 980px; padding: 0 24px; color: #1f2933; background: #fff; }
-    h1, h2, h3 { line-height: 1.3; margin-top: 1.6em; }
-    h1 { border-bottom: 1px solid #d8dee4; padding-bottom: 0.3em; }
-    code { font-family: Consolas, "SFMono-Regular", monospace; background: #f6f8fa; padding: 0.1em 0.3em; border-radius: 4px; }
-    pre { background: #f6f8fa; border: 1px solid #d8dee4; border-radius: 6px; padding: 12px 14px; overflow: auto; }
-    pre code { background: transparent; padding: 0; }
-    li { margin: 0.25em 0; }
-  </style>
+<meta charset="utf-8">
+<title>iTest Help Skill Runbook</title>
+<style>
+body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; line-height: 1.6; max-width: 1000px; margin: 32px auto; padding: 0 24px; color: #1f2937; }
+h1, h2 { color: #111827; }
+code { background: #f3f4f6; padding: 0.1rem 0.25rem; border-radius: 4px; }
+pre { background: #f3f4f6; padding: 12px; overflow-x: auto; border-radius: 6px; }
+.warning { border-left: 4px solid #b45309; padding-left: 12px; }
+</style>
 </head>
 <body>
-<h1>iTest Help Skill 更新流程 Runbook</h1>
-<p>這份文件記錄如何從 Spirent iTest Automation help HTML 產生可攜式 <code>itest-help</code> Codex skill。下次更新到 iTest 26.5 或其他版本時，照這份流程替換版本路徑並重跑即可，不需要重新推導整個流程。</p>
+<h1>iTest Help Skill Runbook</h1>
+<p>這份 runbook 說明如何建立、驗證、安裝與打包目前的 <code>itest-help-skill</code>。本流程以 iTest Help 26.2.0 RAG chunk 為來源。</p>
+
 <h2>目標</h2>
-<p>產出一個可安裝到 Codex CLI / Codex Desktop 的 skill：</p>
-<pre><code>itest-help/
+<p>產出一個可安裝到 Codex 的本機 skill：</p>
+<pre><code>itest-help-skill/
   SKILL.md
   agents/openai.yaml
-  scripts/search_help.py
-  scripts/regression_search.py
-  scripts/apply_toc_metadata.py
-  references/help_pages.jsonl
-  references/search_index.json
-  references/search_index_summary.json
-  references/search_rules.json
-  references/property_index.jsonl
-  references/toc_index.json
-  references/help_index.json
-  references/contexts_index.json
-  references/interpreter-guide.md
-  references/analysis-rule-wizard-guide.md
-  references/regression-questions.md</code></pre>
-<p>重要原則：</p>
+  FROZEN.md
+  scripts/search_itest_help.py
+  scripts/inspect_chunk.py
+  scripts/validate_itest_help_skill.py
+  references/rag/</code></pre>
 <ul>
-<li>skill 必須自足，不依賴原始 <code>topics/</code> HTML 目錄。</li>
-<li>zip 檔名可以帶版本，例如 <code>itest-help_v25.4.zip</code>。</li>
-<li>zip 內部頂層資料夾必須仍是 <code>itest-help/</code>。</li>
-<li>解壓後必須是 <code>.codex/skills/itest-help/SKILL.md</code>。</li>
-<li><code>SKILL.md</code> frontmatter 的 <code>name</code> 必須是 <code>itest-help</code>。</li>
-<li><code>search_rules.json</code> 只能調整候選頁排序與召回，不可新增 help page text 沒有的產品行為。</li>
-<li><code>property_index.jsonl</code> 是小範圍 property POC，不是完整 property catalog。</li>
+<li>skill 必須自足，不依賴原始 RAG chunk 來源資料夾。</li>
+<li>zip 內部頂層資料夾必須是 <code>itest-help-skill/</code>。</li>
+<li>解壓或安裝後必須是 <code>.codex/skills/itest-help-skill/SKILL.md</code>。</li>
+<li><code>SKILL.md</code> frontmatter 的 <code>name</code> 必須是 <code>itest-help-skill</code>。</li>
+<li>不要把其他 iTest 版本的 chunk 混入這個 skill。</li>
 </ul>
+
 <h2>執行環境</h2>
-<p>這份 runbook 目前是 Windows PowerShell 流程。原因是目前的 iTest 25.4 help plugin、inventory 腳本與安裝路徑都使用 Windows 本機路徑，例如 <code>F:\MyCode\...</code> 與 <code>C:\Users\robert\...</code>。</p>
-<p>如果要在 Ubuntu、WSL 或其他機器更新新版 iTest help，請先把原始 <code>com.fnfr.svt.help_&lt;actual-version&gt;</code>、工作區路徑、Python 指令與安裝路徑改成該環境的實際路徑，再重跑 inventory、search index、TOC metadata 與驗證。不要直接把本文件中的 Windows 路徑當成 Linux 路徑使用。</p>
-<h2>目前 25.4 版本來源</h2>
-<p>原始 iTest help HTML：</p>
-<pre><code>F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\topics</code></pre>
-<p>原始 iTest Online Help 目錄：</p>
-<pre><code>F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\toc.xml
-F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\index.xml
-F:\MyCode\Java\iTest25.4\com.fnfr.svt.help_25.4.0.202512121840\contexts.xml</code></pre>
-<p>目前 25.4 中，<code>topics</code> 遞迴 <code>.htm</code> + <code>.html</code> 應為：</p>
-<pre><code>963</code></pre>
-<p>25.4 的分布：</p>
-<pre><code>topics                  761
-topics\popups           166
-topics\popups\arules     36</code></pre>
-<p>25.4 的 <code>toc.xml</code> 分布：</p>
-<pre><code>iTest Online Help top-level labels    76
-TOC topic nodes                       890
-TOC href entries                      749</code></pre>
-<p>25.4 的 <code>index.xml</code> 與 <code>contexts.xml</code> 分布：</p>
-<pre><code>Index topic refs                     1901
-Index referenced topic pages          444
-Index keyword paths                  1671
-Contexts                              645
-Context topic refs                    656
-Context referenced topic pages        620
-Context stale topic refs                1
-Contexts without topics                 3</code></pre>
-<p>工作區版 skill：</p>
-<pre><code>F:\MyCode\robert-create-codex-skills\skills\itest-help</code></pre>
-<p>已安裝版 skill：</p>
-<pre><code>C:\Users\robert\.codex\skills\itest-help</code></pre>
-<p>打包輸出：</p>
-<pre><code>F:\MyCode\robert-create-codex-skills\dist\itest-help.zip</code></pre>
-<p>目前維護狀態要分清楚：</p>
-<ul>
-<li>工作區版可以先完成程式與文件驗證。</li>
-<li>安裝版只有在 Step 5 同步後，才可以說已更新本機 Codex skill。</li>
-<li>zip 只有在 Step 6 和 Step 7 完成後，才可以說打包輸出已更新。</li>
-</ul>
-<p>不要把「workspace 已驗證」寫成「安裝版已驗證」或「zip 已更新」。</p>
-<h2>更新到新版本時的建議資料夾</h2>
-<p>以 iTest 26.5 為例，建議先整理成類似：</p>
-<pre><code>F:\MyCode\Java\iTest26.5\
-  com.fnfr.svt.help_&lt;actual-version&gt;\
-    topics\
-    toc.xml
-    index.xml
-    contexts.xml
-  itest_help_inventory\
-  itest_help_skill_data\
-  itest-help\</code></pre>
-<p><code>&lt;actual-version&gt;</code> 以實際解出的 help plugin 資料夾名稱為準。</p>
-<h2>Step 1: 建立 Inventory</h2>
-<p>目的：列出 <code>topics</code> 底下所有遞迴 <code>.htm/.html</code>，抽出檔名、相對路徑、title、H1、doc_set、可能分類。</p>
-<p>可重用 25.4 產生的腳本：</p>
-<pre><code>F:\MyCode\Java\iTest25.4\itest_help_inventory\build_inventory.ps1</code></pre>
-<p>對新版本執行時，帶入新路徑：</p>
-<pre><code>&amp; &quot;F:\MyCode\Java\iTest25.4\itest_help_inventory\build_inventory.ps1&quot; `
-  -SourceDir &quot;F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_&lt;actual-version&gt;\topics&quot; `
-  -OutputDir &quot;F:\MyCode\Java\iTest26.5\itest_help_inventory&quot;</code></pre>
-<p>預期輸出：</p>
-<pre><code>itest_help_inventory.csv
-itest_help_inventory.json
-category_summary.csv</code></pre>
-<p>驗證：</p>
-<pre><code>Import-Csv &quot;F:\MyCode\Java\iTest26.5\itest_help_inventory\itest_help_inventory.csv&quot; | Measure-Object
-Import-Csv &quot;F:\MyCode\Java\iTest26.5\itest_help_inventory\itest_help_inventory.csv&quot; | Where-Object { [string]::IsNullOrWhiteSpace($_.title) } | Measure-Object</code></pre>
-<p>確認：</p>
-<ul>
-<li>inventory 筆數等於新版本 <code>topics</code> 遞迴 <code>.htm/.html</code> 數量。</li>
-<li><code>relative_path</code> 必須保留子目錄，例如 <code>popups/query.html</code>，因為子目錄中可能有同名檔案。</li>
-<li>空白 title 可以存在於 popup 類短文件；先抽樣確認文字內容可用，不要只用空白 title 判定失敗。</li>
-</ul>
-<h2>Step 2: 建立純文字資料與搜尋索引</h2>
-<p>目的：把 HTML 轉成 skill 可查詢的資料。skill 後續查 <code>help_pages.jsonl</code> 與 <code>search_index.json</code>，不直接查原始 HTML。</p>
-<p>可重用 25.4 產生的腳本：</p>
-<pre><code>F:\MyCode\Java\iTest25.4\itest_help_skill_data\build_search_index.py
-F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py</code></pre>
-<p>對新版本執行：</p>
-<pre><code>python &quot;F:\MyCode\Java\iTest25.4\itest_help_skill_data\build_search_index.py&quot; `
-  --source-dir &quot;F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_&lt;actual-version&gt;\topics&quot; `
-  --inventory &quot;F:\MyCode\Java\iTest26.5\itest_help_inventory\itest_help_inventory.csv&quot; `
-  --output-dir &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data&quot;</code></pre>
-<p>預期輸出：</p>
-<pre><code>help_pages.jsonl
-search_index.json
-search_index_summary.json</code></pre>
-<p>驗證：</p>
-<pre><code>(Get-Content &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data\help_pages.jsonl&quot; | Measure-Object -Line).Lines
-python &quot;F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py&quot; &quot;parameter merging logic&quot; --data-dir &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data&quot; --top 3
-python &quot;F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py&quot; &quot;QuickCall arguments&quot; --data-dir &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data&quot; --top 3
-python &quot;F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py&quot; &quot;response map&quot; --data-dir &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data&quot; --top 3
-python &quot;F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py&quot; &quot;query&quot; --data-dir &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data&quot; --top 5
-python &quot;F:\MyCode\Java\iTest25.4\itest_help_skill_data\search_help.py&quot; --show-file &quot;topics/popups/query.html&quot; --data-dir &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data&quot; --text</code></pre>
-<p>確認：</p>
-<ul>
-<li><code>help_pages.jsonl</code> 行數等於 inventory 筆數。</li>
-<li>常用查詢能找回合理 help page。</li>
-<li>同名檔案必須用 <code>topics/...</code> 或 <code>relative_path</code> 查，例如 <code>topics/popups/query.html</code>；只查 <code>query.html</code> 可能會回報多筆相符。</li>
-</ul>
-<h2>Step 3: 建立或更新 Skill 資料夾</h2>
-<p>新版本可以複製目前維護中的 skill 當基底：</p>
-<pre><code>Copy-Item &quot;F:\MyCode\robert-create-codex-skills\skills\itest-help&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help&quot; -Recurse -Force</code></pre>
-<p>然後覆蓋 references：</p>
-<pre><code>Copy-Item &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data\help_pages.jsonl&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help\references\help_pages.jsonl&quot; -Force
-Copy-Item &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data\search_index.json&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help\references\search_index.json&quot; -Force
-Copy-Item &quot;F:\MyCode\Java\iTest26.5\itest_help_skill_data\search_index_summary.json&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help\references\search_index_summary.json&quot; -Force</code></pre>
-<p>如果既有 skill 已有 guardrail references，複製 skill 當基底時會一起保留：</p>
-<pre><code>references/interpreter-guide.md
-references/analysis-rule-wizard-guide.md
-references/regression-questions.md
-references/search_rules.json
-references/property_index.jsonl
-scripts/regression_search.py</code></pre>
-<p><code>search_rules.json</code> 是資料驅動搜尋規則。它用來保留高風險 phrase 的候選頁，例如 Custom Extractor、Custom Processor、Step Properties 與 Analysis Rule Properties。它不是產品行為資料。</p>
-<p><code>property_index.jsonl</code> 是 property sections / rows 的小範圍 POC。資料只能來自官方 help page text 或 table。更新新版本時，先確認 POC 來源頁仍存在，再決定是否保留、修正或暫時移除對應列。</p>
-<p>套用官方 iTest Online Help 目錄、index 與 context metadata：</p>
-<pre><code>python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\apply_toc_metadata.py&quot; `
-  --toc-xml &quot;F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_&lt;actual-version&gt;\toc.xml&quot; `
-  --index-xml &quot;F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_&lt;actual-version&gt;\index.xml&quot; `
-  --contexts-xml &quot;F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_&lt;actual-version&gt;\contexts.xml&quot; `
-  --references-dir &quot;F:\MyCode\Java\iTest26.5\itest-help\references&quot;</code></pre>
-<p>預期輸出會列出 <code>toc_root_label</code>、<code>toc_top_category_count</code>、<code>toc_href_entry_count</code>、<code>documents_with_toc</code>、<code>documents_with_index</code>、<code>documents_with_contexts</code>、<code>contexts_missing_source_ref_count</code> 和 <code>contexts_without_topic_count</code>。</p>
-<p>驗證官方 help metadata：</p>
-<pre><code>Get-Content &quot;F:\MyCode\Java\iTest26.5\itest-help\references\search_index_summary.json&quot; -Raw |
-  ConvertFrom-Json |
-  Select-Object document_count,toc_root_label,toc_top_category_count,toc_href_entry_count,documents_with_toc,documents_with_index,documents_with_contexts,help_index_topic_ref_count,help_index_referenced_source_count,contexts_count,contexts_missing_source_ref_count,contexts_without_topic_count
+<p>這份 runbook 使用 Windows PowerShell 路徑。下列路徑是目前本機環境事實。換到其他電腦時，請替換成該環境的實際路徑。</p>
+<pre><code>工作區 skill：F:\MyCode\robert-create-codex-skills\skills\itest-help-skill
+安裝版 skill：C:\Users\robert\.codex\skills\itest-help-skill
+文件資料夾：F:\MyCode\robert-create-codex-skills\docs\itest-help-skill
+打包輸出：F:\MyCode\robert-create-codex-skills\dist\itest-help-skill.zip
+原始 RAG chunk：F:\MyCode\Java\iTest26.2\com.fnfr.svt.help_26.2.0.202603260106_RAG\itest-help</code></pre>
+<p>不要把 Windows 路徑直接當成 Linux、WSL 或 Ubuntu 指令使用。</p>
 
-python -m py_compile &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\regression_search.py&quot;
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\regression_search.py&quot;
+<h2>Step 1: 檢查來源 RAG chunk</h2>
+<p>目的：確認來源資料是 iTest Help 26.2.0 的 RAG chunk，且轉換報告沒有 blocking issue。</p>
+<pre><code>Get-Content "F:\MyCode\Java\iTest26.2\com.fnfr.svt.help_26.2.0.202603260106_RAG\itest-help\manifest.md" -TotalCount 80
+Get-Content "F:\MyCode\Java\iTest26.2\com.fnfr.svt.help_26.2.0.202603260106_RAG\itest-help\validation_report.md" -TotalCount 80</code></pre>
+<p>預期結果：text chunk 數量是 <code>2891</code>，image chunk 數量是 <code>1221</code>，blocking issues 是 <code>0</code>。</p>
 
-python -c &quot;import json,pathlib; base=pathlib.Path(r'F:\MyCode\Java\iTest26.5\itest-help\references'); json.load(open(base/'search_rules.json', encoding='utf-8')); rows=[json.loads(line) for line in open(base/'property_index.jsonl', encoding='utf-8') if line.strip()]; print('property_index_rows', len(rows))&quot;
+<h2>Step 2: 建立或更新工作區 skill</h2>
+<p>目的：建立 Codex skill 外殼，並把 RAG chunk 放入 <code>references/rag</code>。</p>
+<pre><code>F:\MyCode\robert-create-codex-skills\skills\itest-help-skill</code></pre>
+<p>必要檔案包含 <code>SKILL.md</code>、<code>agents/openai.yaml</code>、<code>FROZEN.md</code>、三支 scripts，以及 <code>references/rag</code> 下的 manifest、index、inventory、text 與 images。</p>
+<p>注意：複製 <code>references/rag</code> 時，複製的是 RAG 內容，不是把整個原始來源資料夾變成巢狀資料夾。</p>
 
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Field Replacements&quot; --top 3
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;activitywiz_topo_edit_device_session&quot; --top 3
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; --list-scopes
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Custom Extractor Custom Process&quot; --top 6
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Step Properties Analysis Rule Properties&quot; --top 6
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;Step Properties Analysis Rule Properties&quot; --top 6 --scope analysis_rule_processor_properties
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;writeFile processor properties Encoding&quot; --top 2 --scope analysis_rule_processor_properties
-python &quot;F:\MyCode\Java\iTest26.5\itest-help\scripts\search_help.py&quot; &quot;tcl clock scan target_date 2049 time conversion&quot; --top 4</code></pre>
-<p>確認：</p>
-<ul>
-<li><code>toc_root_label</code> 應為 <code>iTest Online Help</code>，除非新版官方 help 已改名。</li>
-<li>章節類查詢應顯示 <code>toc:</code> 行，例如 <code>iTest Online Help &gt; Field Replacements &gt; ...</code>。</li>
-<li>context ID 類查詢可用來定位候選頁，但回答產品行為時仍必須讀取該頁 <code>text</code>。</li>
-<li><code>contexts_index.json</code> 應記錄 contexts without topics 與 missing/stale topic references。</li>
-<li>popup 或補充頁可以沒有 TOC path，但仍應可用 <code>source_ref</code> 查到。</li>
-<li><code>--list-scopes</code> 應列出可用的 UI scope，例如 <code>analysis_rule_wizard_page</code>、<code>analysis_rule_processor_properties</code>、<code>step_properties_section</code>。</li>
-<li>查詢輸出應顯示 <code>matches:</code> 與 <code>evidence:</code>，用來分辨 <code>page_text</code>、TOC、index metadata 與 context metadata。</li>
-<li>context ID 類查詢可以因 metadata exact match 找到候選頁，但 <code>evidence:</code> 必須提醒要用 page text 支撐產品行為。</li>
-<li><code>Custom Extractor Custom Process</code> 應顯示跨 UI scope 的 warning，且 top results 應保留 Custom Extractor、Custom Processor/Process、Custom Types 與 custom session type 的代表結果。回答時要分開說明 Analysis Rule Wizard、Analysis Rule Properties、custom session type 等不同位置。</li>
-<li><code>Step Properties Analysis Rule Properties</code> 應顯示 Step Properties 與 Analysis Rule Properties 是不同 UI scope。</li>
-<li><code>--scope</code> 只用來縮小候選頁；回答產品行為時仍必須讀取 help page <code>text</code>。</li>
-<li><code>--scope analysis_rule_processor_properties</code> 不應把 Step Properties 當成同類結果混入。</li>
-<li><code>property poc:</code> 只應在 POC 支援的來源頁或 popup action 頁出現，且不能被當成完整 property 清單。</li>
-<li>非 GUI 查詢，例如 Tcl clock scan，不應出現不必要的 mixed-scope warning。</li>
-</ul>
-<p>更新新版本時，請抽樣確認 guardrail 內列出的 source pages 在新版本仍存在；若檔名或行為改變，先更新 guardrail，再打包。</p>
-<p>特別注意 <code>interpreter-guide.md</code> 的 clock/time conversion guardrail。這個檔案記錄 25.4 使用時觀察到的風險。</p>
-<p><strong>問題</strong></p>
-<p>在 iTest interpreter 直接使用 <code>[clock scan ...]</code> 做時間轉換時，近期日期可能正常。但遇到 2038 以後，或更大的未來日期，結果可能變成錯誤的負秒數。</p>
-<p><strong>要驗證的情境</strong></p>
-<p>這個風險不只跟 certificate expiration 或 <code>notAfter</code> 有關。只要是在處理日期、時間、秒數或時間比較，都要重新驗證：</p>
-<ul>
-<li>date/time string 轉 epoch seconds，也就是把日期文字轉成秒數</li>
-<li>timestamp comparison，也就是比較兩個時間誰早誰晚</li>
-<li>time arithmetic，也就是時間加減</li>
-<li>clock scan / clock format，也就是時間讀取和格式轉換</li>
-<li>2041、2049 或其他 2038 以後日期</li>
-</ul>
-<p><strong>如果新版本行為不同</strong></p>
-<p>若新版本行為已改變，更新 <code>interpreter-guide.md</code> 與 <code>regression-questions.md</code>。請明確標示這是專案觀察到的行為，還是官方 help 已經明文寫出的行為。</p>
-<p>如果 <code>SKILL.md</code> description 要標明版本，可以把 <code>25.4</code> 改成 <code>26.5</code>，但 skill name 不要改：</p>
-<pre><code>name: itest-help</code></pre>
-<h2>Step 4: 清理可攜性</h2>
-<p>打包前，references 不應保留本機絕對路徑，例如 <code>F:\MyCode\...</code>。</p>
-<p>檢查：</p>
-<pre><code>python -c &quot;import json,pathlib; base=pathlib.Path(r'F:\MyCode\Java\iTest26.5\itest-help\references'); json.load(open(base/'search_rules.json', encoding='utf-8')); [json.loads(line) for line in open(base/'property_index.jsonl', encoding='utf-8') if line.strip()]; print('json ok')&quot;
-Select-String -Path &quot;F:\MyCode\Java\iTest26.5\itest-help\references\*.json*&quot; -Pattern &quot;F:\\MyCode|C:\\Users\\|com.fnfr.svt.help_[0-9]&quot; | Measure-Object</code></pre>
-<p>第一行應顯示 <code>json ok</code>。第二行的 <code>Count</code> 應為 <code>0</code>。</p>
-<p>若有殘留，將 <code>source_path</code> 或 Eclipse help link 改成邏輯來源：</p>
-<pre><code>source_ref: topics/&lt;relative_path&gt;</code></pre>
-<p><code>toc_index.json</code>、<code>help_index.json</code> 與 <code>contexts_index.json</code> 可以保留邏輯來源 <code>com.fnfr.svt.help/toc.xml</code>、<code>com.fnfr.svt.help/index.xml</code> 和 <code>com.fnfr.svt.help/contexts.xml</code>，但不能保留實際本機 plugin 版本資料夾路徑。</p>
-<p>25.4 時已採用這個格式。查詢結果應該看到：</p>
-<pre><code>source_ref: topics/quickcalls_arguments_in_quickcall_steps.htm
-source_ref: topics/popups/arules/query.html</code></pre>
-<h2>Step 5: 安裝到本機 Codex Skills</h2>
-<p>同步工作區版到本機 skills：</p>
-<pre><code>$source = &quot;F:\MyCode\Java\iTest26.5\itest-help&quot;
-$target = &quot;C:\Users\robert\.codex\skills\itest-help&quot;
-New-Item -ItemType Directory -Path $target -Force | Out-Null
-Copy-Item &quot;$source\*&quot; $target -Recurse -Force</code></pre>
-<p>注意：這裡複製的是 <code>itest-help</code> 裡面的內容，不是把整個 <code>itest-help</code> 資料夾再放進目標資料夾。完成後應該看到 <code>C:\Users\robert\.codex\skills\itest-help\SKILL.md</code>，不要變成 <code>C:\Users\robert\.codex\skills\itest-help\itest-help\SKILL.md</code>。</p>
-<p>驗證安裝版：</p>
-<pre><code>python -m py_compile &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;C:\Users\robert\.codex\skills\itest-help\scripts\regression_search.py&quot;
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\regression_search.py&quot;
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;parameter merging logic&quot; --top 2
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Field Replacements&quot; --top 3
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; --show-file &quot;topics/popups/query.html&quot; --text
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;tcl clock scan target_date 2049 time conversion&quot; --top 4
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Custom Extractor Custom Process&quot; --top 6
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Step Properties Analysis Rule Properties&quot; --top 6
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;Step Properties Analysis Rule Properties&quot; --top 6 --scope analysis_rule_processor_properties
-python &quot;C:\Users\robert\.codex\skills\itest-help\scripts\search_help.py&quot; &quot;writeFile processor properties Encoding&quot; --top 2 --scope analysis_rule_processor_properties
-(Get-Content &quot;C:\Users\robert\.codex\skills\itest-help\references\help_pages.jsonl&quot; | Measure-Object -Line).Lines</code></pre>
-<p>安裝版的 <code>regression_search.py</code> 必須通過，且關鍵查詢的 scope、matches、evidence 與 property POC 輸出應與工作區版一致。不要只驗證工作區版就打包。</p>
+<h2>Step 3: 驗證工作區 skill</h2>
+<pre><code>python "C:\Users\robert\.codex\skills\.system\skill-creator\scripts\quick_validate.py" "F:\MyCode\robert-create-codex-skills\skills\itest-help-skill"
+python "F:\MyCode\robert-create-codex-skills\skills\itest-help-skill\scripts\validate_itest_help_skill.py"
+python "F:\MyCode\robert-create-codex-skills\skills\itest-help-skill\scripts\search_itest_help.py" "QuickCall topology" --limit 3
+python "F:\MyCode\robert-create-codex-skills\skills\itest-help-skill\scripts\search_itest_help.py" "response map XPath" --limit 3
+python "F:\MyCode\robert-create-codex-skills\skills\itest-help-skill\scripts\search_itest_help.py" "Spirent TestCenter command reference" --limit 3</code></pre>
+<p>預期結果：skill 格式有效，資料契約顯示 <code>text_chunks=2891 image_chunks=1221</code>，三個搜尋命令都有相關結果。</p>
+
+<h2>Step 4: 安裝到本機 Codex Skills</h2>
+<pre><code>$source = "F:\MyCode\robert-create-codex-skills\skills\itest-help-skill"
+$target = "C:\Users\robert\.codex\skills\itest-help-skill"
+Copy-Item -Path $source -Destination $target -Recurse</code></pre>
+<p>正確結果必須是：</p>
+<pre><code>C:\Users\robert\.codex\skills\itest-help-skill\SKILL.md</code></pre>
+<p class="warning">不要把資料夾複製成 <code>C:\Users\robert\.codex\skills\itest-help-skill\itest-help-skill\SKILL.md</code>。</p>
+
+<h2>Step 5: 驗證安裝版</h2>
+<pre><code>python "C:\Users\robert\.codex\skills\.system\skill-creator\scripts\quick_validate.py" "C:\Users\robert\.codex\skills\itest-help-skill"
+python "C:\Users\robert\.codex\skills\itest-help-skill\scripts\validate_itest_help_skill.py"
+python "C:\Users\robert\.codex\skills\itest-help-skill\scripts\search_itest_help.py" "Spirent TestCenter command reference" --limit 2</code></pre>
+<p>不要只驗證工作區版就打包或宣稱安裝完成。</p>
+
 <h2>Step 6: 打包</h2>
-<p>使用 <code>$skill-packager</code>：</p>
-<pre><code>python &quot;C:\Users\robert\.codex\skills\skill-packager\scripts\package_skill.py&quot; `
-  &quot;C:\Users\robert\.codex\skills\itest-help&quot; `
-  &quot;F:\MyCode\robert-create-codex-skills\dist&quot;</code></pre>
-<p>預設輸出：</p>
-<pre><code>F:\MyCode\robert-create-codex-skills\dist\itest-help.zip</code></pre>
-<p>如果要版本化 zip 檔名，可以打包後重新命名：</p>
-<pre><code>Rename-Item `
-  &quot;F:\MyCode\robert-create-codex-skills\dist\itest-help.zip&quot; `
-  &quot;itest-help_v26.5.zip&quot;</code></pre>
-<p>注意：只改 zip 檔名，不要改 zip 內部的 <code>itest-help/</code> 資料夾名稱。</p>
-<h2>Step 7: 驗證 Zip</h2>
-<p>下面的範例使用版本化檔名 <code>itest-help_v26.5.zip</code>。如果 Step 6 沒有重新命名，請把下面指令中的 <code>itest-help_v26.5.zip</code> 改成 <code>itest-help.zip</code>。</p>
-<p>檢查 zip 內容：</p>
-<pre><code>Add-Type -AssemblyName System.IO.Compression.FileSystem
-$zip = [System.IO.Compression.ZipFile]::OpenRead(&quot;F:\MyCode\robert-create-codex-skills\dist\itest-help_v26.5.zip&quot;)
-$zip.Entries | Select-Object FullName,Length | Format-Table -AutoSize
-$zip.Dispose()</code></pre>
-<p>必須包含：</p>
-<pre><code>itest-help/SKILL.md
-itest-help/agents/openai.yaml
-itest-help/scripts/search_help.py
-itest-help/scripts/regression_search.py
-itest-help/scripts/apply_toc_metadata.py
-itest-help/references/help_pages.jsonl
-itest-help/references/search_index.json
-itest-help/references/search_index_summary.json
-itest-help/references/search_rules.json
-itest-help/references/property_index.jsonl
-itest-help/references/toc_index.json
-itest-help/references/help_index.json
-itest-help/references/contexts_index.json
-itest-help/references/interpreter-guide.md
-itest-help/references/analysis-rule-wizard-guide.md
-itest-help/references/regression-questions.md</code></pre>
-<p>檢查 zip 展開後沒有本機絕對路徑：</p>
-<pre><code>$tmp = Join-Path $env:TEMP &quot;itest-help-zip-check&quot;
-if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
-Expand-Archive &quot;F:\MyCode\robert-create-codex-skills\dist\itest-help_v26.5.zip&quot; -DestinationPath $tmp -Force
-Select-String -Path (Join-Path $tmp &quot;itest-help\references\*.json*&quot;) -Pattern &quot;F:\\MyCode|C:\\Users\\|com.fnfr.svt.help_[0-9]&quot; | Measure-Object
-Remove-Item $tmp -Recurse -Force</code></pre>
-<p>結果應為：</p>
-<pre><code>0</code></pre>
-<h2>搬到別台機器</h2>
-<p>把 zip 複製到目標機器後，解壓到該機器的 Codex user skills 目錄，結果必須是：</p>
-<pre><code>C:\Users\&lt;user&gt;\.codex\skills\itest-help\SKILL.md</code></pre>
-<p>不要變成：</p>
-<pre><code>C:\Users\&lt;user&gt;\.codex\skills\itest-help_v26.5\SKILL.md</code></pre>
-<p>否則資料夾名稱會和 skill name 不一致。</p>
-<h2>下次請 Codex 接手時可以貼的提示</h2>
-<p>最簡單版：</p>
-<pre><code>請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill\itest-help-skill-runbook.md
-把 iTest Help skill 更新到 iTest 26.5。
-新的 help topics 目錄是：&lt;新路徑&gt;</code></pre>
-<p>使用時，把 <code>&lt;新路徑&gt;</code> 換成實際的 <code>topics</code> 資料夾路徑。不要保留 <code>&lt;</code> 和 <code>&gt;</code>。</p>
-<p>例如：</p>
-<pre><code>請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill\itest-help-skill-runbook.md
-把 iTest Help skill 更新到 iTest 26.5。
-新的 help topics 目錄是：F:\MyCode\Java\iTest26.5\com.fnfr.svt.help_26.5.0.xxxxxxxxxxxx\topics</code></pre>
-<p>完整任務版：</p>
-<pre><code>請依照 F:\MyCode\robert-create-codex-skills\docs\itest-help-skill\itest-help-skill-runbook.md
-把 iTest Help skill 更新到 iTest &lt;version&gt;。
+<pre><code>New-Item -ItemType Directory -Force -Path "F:\MyCode\robert-create-codex-skills\dist" | Out-Null
+python "C:\Users\robert\.codex\skills\skill-packager\scripts\package_skill.py" `
+  "F:\MyCode\robert-create-codex-skills\skills\itest-help-skill" `
+  "F:\MyCode\robert-create-codex-skills\dist"</code></pre>
+<p>預期輸出：</p>
+<pre><code>F:\MyCode\robert-create-codex-skills\dist\itest-help-skill.zip</code></pre>
 
-新的 help topics 目錄是：
-&lt;貼上新版本 topics 路徑&gt;
+<h2>Step 7: 驗證 zip</h2>
+<pre><code>python -c "import zipfile, pathlib; p=pathlib.Path(r'F:\MyCode\robert-create-codex-skills\dist\itest-help-skill.zip'); z=zipfile.ZipFile(p); names=z.namelist(); print('entries', len(names)); print('has_skill_md', 'itest-help-skill/SKILL.md' in names); print('top_levels', sorted(set(n.split('/')[0] for n in names))[:5])"</code></pre>
+<p>預期結果：<code>has_skill_md True</code>，top-level folder 是 <code>itest-help-skill</code>。</p>
 
-請完成 inventory、search index、可攜 skill 更新、安裝到本機 skills、
-保留或更新 search_rules.json、property_index.jsonl 與 regression_search.py，
-通過 workspace 與安裝版關鍵查詢後，用 skill-packager 打包成 itest-help_v&lt;version&gt;.zip。</code></pre>
+<h2>Step 8: 使用方式</h2>
+<pre><code>使用 $itest-help-skill 查詢 iTest 26.2 help，說明 QuickCall 如何和 topology device 關聯。</code></pre>
+<p>回答應根據搜尋到的 chunks，並引用 <code>source_file</code>、<code>toc_path</code> 或 <code>heading_path</code>。</p>
+
 <h2>常見風險</h2>
 <ul>
-<li>只改 zip 檔名可以，不能改 skill 資料夾名稱。</li>
-<li><code>SKILL.md</code> 的 <code>name</code> 必須維持 <code>itest-help</code>。</li>
-<li>references 裡不能留下本機絕對路徑。</li>
-<li>更新 help data 後要重新套用 <code>toc.xml</code>、<code>index.xml</code> 與 <code>contexts.xml</code>，否則查詢結果會缺少官方 iTest Online Help 章節、index 與 context metadata。</li>
-<li><code>index.xml</code> 與 <code>contexts.xml</code> 只能用來幫助找頁、定位或記錄官方 metadata；回答產品行為時仍必須以 help page 文字為證據。</li>
-<li><code>ui_scope</code>、<code>ui_surface</code>、<code>scope_summary</code>、<code>surface_summary</code> 與 <code>mixed_scope_warning</code> 只能幫助分辨 UI 位置與候選頁，不能單獨證明產品行為。</li>
-<li><code>matches:</code>、<code>evidence:</code>、<code>metadata_only_match</code> 與 <code>metadata_exact_match</code> 用來判斷證據強度。metadata-only 結果只能定位候選頁，不能支撐產品行為答案。</li>
-<li><code>search_rules.json</code> 的 boost 是搜尋導覽設定，不是官方產品規格。調整後一定要跑 regression harness。</li>
-<li><code>property_index.jsonl</code> 只能放官方 help page text 或 table 明確出現的 property section / row。不要從 index keyword、context ID 或 UI scope 推論 property row。</li>
-<li>不要把 <code>Custom Extractor</code> / <code>Custom Processor</code> 與 <code>Custom Types</code>、custom session type、custom parsers 或報表客製化混在一起。</li>
-<li>不要把 <code>Step Properties</code> 與 <code>Analysis Rule Properties</code> 混在一起。Step Properties 是 Test Case Editor 中 step 層級的設定；Analysis Rule Properties 是 analysis rule 內 extractor、processor 或 action 層級的設定。</li>
-<li>不要把 context ID 當成官方章節分類。</li>
-<li>官方 help 的 examples、lists 和 tables 不一定是完整清單。不要把正向範例反推成未列項目不支援，也不要把反向範例反推成未列項目都支援，除非 help 明確說它是完整或排他的規則。</li>
-<li><code>probable_category</code> 是推測分類；回答章節或分類問題時，優先使用 <code>toc_paths</code>。</li>
-<li>子目錄納入後會有同名檔案；搜尋結果與引用要使用 <code>source_ref</code> / <code>relative_path</code>，不要只依賴 <code>file_name</code>。</li>
-<li>clock/time conversion guardrail 不只適用 certificate expiration。只要有日期文字轉秒數、時間比較、時間加減，或 <code>clock scan</code> / <code>clock format</code>，而且日期在 2038 以後，都要重新驗證。</li>
-<li>原始 HTML 可以不打包；目前 skill 查的是清理後的 <code>help_pages.jsonl</code> 與 <code>search_index.json</code>。</li>
-<li>如果新版本 help 結構大改，先抽樣檢查 title/H1/doc_set 是否仍能正確抽出。</li>
+<li>不要把其他 iTest 版本的 chunk 混進 <code>references/rag</code>。</li>
+<li>不要只改 zip 檔名，卻改壞 zip 內部頂層資料夾。</li>
+<li>不要把 OCR 文字當成人工校對過的內容。</li>
+<li>不要把原始 RAG 來源路徑寫成跨機器都必須存在的要求。</li>
+<li>不要用舊的搜尋架構檢查這個 skill；目前使用的是 <code>search_itest_help.py</code> 與 <code>chunk_manifest.jsonl</code>。</li>
 </ul>
 </body>
 </html>

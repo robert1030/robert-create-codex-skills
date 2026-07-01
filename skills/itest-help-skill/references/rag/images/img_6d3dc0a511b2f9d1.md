@@ -1,0 +1,73 @@
+---
+{
+  "image_chunk_id": "img_6d3dc0a511b2f9d1",
+  "image_path": "topics/images/velo_topo_reservations_edit_emulation.png",
+  "category": "screenshot",
+  "dimensions": [
+    863,
+    590
+  ],
+  "ocr_status": "ok",
+  "has_ocr_text": true,
+  "referenced_by": [
+    "topics/reserve_topology_dialog.htm"
+  ],
+  "usage_count": 1
+}
+---
+
+# Image: topics/images/velo_topo_reservations_edit_emulation.png
+
+- category: screenshot
+- dimensions: (863, 590)
+- ocr_status: ok
+- referenced_by: topics/reserve_topology_dialog.htm
+
+此圖片分類為畫面截圖（screenshot），已使用 Tesseract OCR（英文語言包）擷取圖片內文字，內容如下（OCR 結果，非人工校對，可能含辨識誤差，尤其是低解析度或特殊字元）：
+
+```
+(5 > Reservations > Reservation of Test-Topology
+
+Offline
+
+Description
+
+Device has
+no
+connections
+
+Properties Po!
+
+Emulation
+
+Use T... ¥
+
+Sharing
+Shared
+
+Resolving
+time
+Immediate
+Resolving
+status
+Active
+
+oe
+
+PC-10ports
+Physical resource
+
+PC2
+Physical resource
+
+PC1
+Physical resource
+
+Use Test C.
+
+Always
+
+Never
+
+Use Test Ca... v
+```

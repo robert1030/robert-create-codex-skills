@@ -1,0 +1,49 @@
+---
+{
+  "chunk_id": "sp_properties_netconf__spirent_netconf_d4f2abef4cf42329",
+  "source_file": "topics/sp_properties_netconf.htm",
+  "source_original_path": "topics/sp_properties_netconf.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "NetConf Sessions",
+    "Session profile property settings for NetConf sessions"
+  ],
+  "heading_path": [
+    "Session profile property settings for NetConf sessions",
+    "Session profile property settings for NetConf sessions",
+    "Spirent NetConf"
+  ],
+  "anchor": "1255911",
+  "context_ids": [
+    "sp_properties_netconf"
+  ],
+  "index_keywords": [
+    "NetConf sessions",
+    "configuring",
+    "session profile property settings for"
+  ],
+  "index_keyword_paths": [
+    "NetConf sessions > configuring",
+    "NetConf sessions > session profile property settings for",
+    "configuring > NetConf sessions",
+    "session profile property settings > NetConf sessions"
+  ],
+  "related_links": [],
+  "images": [],
+  "content_hash": "d4f2abef4cf42329",
+  "level": 2
+}
+---
+
+# Session profile property settings for NetConf sessions > Session profile property settings for NetConf sessions > Spirent NetConf
+
+| IP address | Required. Specify the IP address or hostname for the session with the remote host. |
+| --- | --- |
+| Port | Required. Specify the port for the session (number between 1 and 65535). Default: 22 |
+| User | Required. Specify the username used to connect to the remote host. |
+| NetConf service | Specify the name of the NetConf service to start as subsystem. For example: Cisco Nexus 5000 uses xmlagent Juniper MX240 uses netconf |
+| SSH version | Required. Specify the SSH version. You must further specify authentication settings on the SSH authentication property pages. Default: Auto Auto: When iTest connects to the SSH server, they negotiate to determine the SSH version that they both support SSHv1: SSH Version 1 (not recommended) SSHv2: SSH Version 2 |
+| NetConf version | Required. Default: 1.0 Select the NetConf version with which you required to work. iTest provides you with two options of NetConf version for your use. Options: 1.0 and 1.1 iTest parses the “hello” message from server (DUT) to determine which NETCONF capabilities are supported by the NETCONF server. If DUT supports 1.0 only and you select NETCONF version 1.1 in the session profile, an error will be shown in open step's response saying that NETCONF server does not support :base:1.1 capability. If DUT supports 1.1 only and you select NETCONF version 1.0 in the session profile, an error will be shown in open step's response saying that NETCONF server does not support :base:1.0 capability. |
+|  | If DUT supports 1.0 only and you select NETCONF version 1.1 in the session profile, an error will be shown in open step's response saying that NETCONF server does not support :base:1.1 capability. |
+|  | If DUT supports 1.1 only and you select NETCONF version 1.0 in the session profile, an error will be shown in open step's response saying that NETCONF server does not support :base:1.0 capability. |
+| SSH authentication | Required. Specify the type of authentication that the server allows. When you specify an authentication type, you must specify further authentication settings, as described in the following tables. Password (SSHv1 or SSHv2) (default) KeyboardInteractive (SSHv2) PublicKey (SSHv2) HostBased (SSHv1 or SSHv2) ChallengeResponse (SSHv1) |

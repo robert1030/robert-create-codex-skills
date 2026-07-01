@@ -1,0 +1,50 @@
+---
+{
+  "chunk_id": "prompts_teaching__teaching_itest_the_prompts_to_expect_dur_d524ec48c714b6d6",
+  "source_file": "topics/prompts_teaching.htm",
+  "source_original_path": "topics/prompts_teaching.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Prompts (in CLI sessions)",
+    "Teaching iTest the prompts to expect during execution"
+  ],
+  "heading_path": [
+    "Teaching iTest the prompts to expect during execution",
+    "Teaching iTest the prompts to expect during execution"
+  ],
+  "anchor": "1272986",
+  "context_ids": [
+    "prompts_teaching"
+  ],
+  "index_keywords": [],
+  "index_keyword_paths": [],
+  "related_links": [
+    "prompts.4.htm#1273954"
+  ],
+  "images": [],
+  "content_hash": "d524ec48c714b6d6",
+  "level": 1
+}
+---
+
+# Teaching iTest the prompts to expect during execution > Teaching iTest the prompts to expect during execution
+
+iTest distinguishes response text from prompt text by checking whether text on the command line matches with anything in its list of known prompts (just like you do during manual testing).
+
+The following describes how iTest responds to a known prompt (either a built‑in prompt or a prompt that you have defined). During execution, if the following conditions are met, then iTest treats the text as a prompt:
+
+- The criteria specified by the Completion properties are met. The most important default setting is “the session channel is idle longer than the time specified by the Idle channel interval property for the session” (default value 100 msec).
+
+- The last line of the response matches one of the prompt text strings specified for the session profile or device (the string can be wildcard text or a regular expression)
+
+In contrast, either of the following conditions might cause an executing step to fail:
+
+No text appears at the command line for an extended period
+
+This situation is avoided by telling iTest how to determine when a step is complete. You do this by configuring the Completion properties appropriately, as discussed in Preparing for missing or unknown prompts during automated execution: Completion properties.
+
+or
+
+1. Unexpected text followed by a delay (silence on the session channel)
+
+This situation is avoided by ‘teaching’ iTest that the text represents a prompt (when appropriate).

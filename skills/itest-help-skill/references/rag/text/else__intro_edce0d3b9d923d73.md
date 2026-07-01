@@ -1,0 +1,37 @@
+---
+{
+  "chunk_id": "else__intro_edce0d3b9d923d73",
+  "source_file": "topics/popups/else.html",
+  "source_original_path": "topics/popups/else.html",
+  "toc_path": null,
+  "heading_path": [
+    "else.html"
+  ],
+  "anchor": null,
+  "context_ids": [],
+  "index_keywords": [],
+  "index_keyword_paths": [],
+  "related_links": [
+    "help::/com.fnfr.svt.help/topics/wrap.html"
+  ],
+  "images": [
+    "images/if_then_else_example.jpg"
+  ],
+  "content_hash": "edce0d3b9d923d73",
+  "level": 0
+}
+---
+
+# else.html
+
+An optional EXEC else step is a part of an if-then-elseif-else construct.
+
+An else step is similar to elseif, but it must come last in the sequence of steps associated with the if construct.
+
+If the assertion associated with the else is True, then its nested steps will be executed as long as no previous associated if or elseif has been actioned
+
+Note: A legal contiguous sequence of if, then, elseif, and else steps will have one if step, followed by one then step, followed by zero or more elseif steps followed by zero or one else step. Any other sequence is illegal. No other types of steps within the scope can be interleaved in these sequences.
+
+See the online help for tips on adding if-then constructs.
+
+![screenshot](images/if_then_else_example.jpg) <!-- image_chunk: img_d209f9cbdb80e244 -->

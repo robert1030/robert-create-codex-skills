@@ -1,0 +1,31 @@
+---
+{
+  "chunk_id": "ui_perspective_overview__itest_session_and_snmp_perspectives_b22157661562f4b3",
+  "source_file": "topics/ui_perspective_overview.htm",
+  "source_original_path": "topics/ui_perspective_overview.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "About the iTest Window",
+    "Overviews of the default iTest perspectives"
+  ],
+  "heading_path": [
+    "Overviews of the default iTest perspectives",
+    "Overviews of the default iTest perspectives",
+    "iTest Session and SNMP perspectives"
+  ],
+  "anchor": "1697432",
+  "context_ids": [
+    "ui_perspective_overview"
+  ],
+  "index_keywords": [],
+  "index_keyword_paths": [],
+  "related_links": [],
+  "images": [],
+  "content_hash": "b22157661562f4b3",
+  "level": 2
+}
+---
+
+# Overviews of the default iTest perspectives > Overviews of the default iTest perspectives > iTest Session and SNMP perspectives
+
+iTest Session perspectives open in a new window when you start a manual (interactive) session or iTest executes a test case. For CLI sessions, the perspective closely resembles a terminal client. The iTest SNMP Session perspective is an examples of a specialized perspective that opens an appropriate browser.

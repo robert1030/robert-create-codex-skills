@@ -1,0 +1,71 @@
+---
+{
+  "chunk_id": "prompts_5__example_linux_7d58f74831a244e9",
+  "source_file": "topics/prompts.5.htm",
+  "source_original_path": "topics/prompts.5.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Prompts (in CLI sessions)",
+    "Editing prompt definitions"
+  ],
+  "heading_path": [
+    "Editing prompt definitions",
+    "Editing prompt definitions",
+    "Example: Linux"
+  ],
+  "anchor": "1120860",
+  "context_ids": [],
+  "index_keywords": [],
+  "index_keyword_paths": [],
+  "related_links": [],
+  "images": [],
+  "content_hash": "7d58f74831a244e9",
+  "level": 2
+}
+---
+
+# Editing prompt definitions > Editing prompt definitions > Example: Linux
+
+When you start a new CLI session, you typically need to log in to the device. On a Linux device, login might look like this:
+
+Red Hat Enterprise Linux WS release 4 (Nahant Update 2)
+
+Kernel 2.6.9-22.EL on an i686
+
+login:
+
+The text login: tells you that a session has been established with the device and you can now provide the login information. We call this built-in prompt the login prompt. Similarly, after you enter the login information and press Enter, you receive the next prompt for providing the password (the built-in password prompt).
+
+Red Hat Enterprise Linux WS release 4 (Nahant Update 2)
+
+Kernel 2.6.9-22.EL on an i686
+
+login: user01
+
+Password:
+
+Note, however, that the login and password prompts can vary for different devices.
+
+After entering the password and pressing Return, another prompt appears:
+
+[user01@fflinux1 ~]$
+
+Let’s call this the normal0 prompt (it's the prompt that a user is most likely to see).
+
+Red Hat Enterprise Linux WS release 4 (Nahant Update 2)
+
+Kernel 2.6.9-22.EL on an i686
+
+login: user01
+
+Password:
+
+Last login: Wed Jun 20 07:39:05 from officevpn
+
+[user01@fflinux1 ~]$
+
+In this example, the device's normal0 prompt contains information that is specific to the particular device. It contains the username, the hostname, and the current working directory. If we change to a different directory using the cd command, you can see that the prompt changes:
+
+[user01@fflinux1 ~]$ cd testplans
+
+[user01@fflinux1 testplans]$

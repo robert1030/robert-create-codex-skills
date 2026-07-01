@@ -1,0 +1,51 @@
+---
+{
+  "chunk_id": "arw_assertion_page__actions_d7604f53fe15368a",
+  "source_file": "topics/arw_assertion_page.htm",
+  "source_original_path": "topics/arw_assertion_page.htm",
+  "toc_path": [
+    "iTest Online Help",
+    "Analysis Rules: Validating Responses",
+    "Analysis Rule Wizard: Actions page"
+  ],
+  "heading_path": [
+    "Analysis Rule Wizard: Actions page",
+    "Analysis Rule Wizard: Actions page",
+    "Actions"
+  ],
+  "anchor": "1194369",
+  "context_ids": [
+    "arw_assertion_page"
+  ],
+  "index_keywords": [
+    "Actions page",
+    "Analysis Rule wizard"
+  ],
+  "index_keyword_paths": [
+    "Actions page > Analysis Rule wizard",
+    "Analysis Rule wizard > Actions page"
+  ],
+  "related_links": [
+    "deferred_actions.htm#1733621",
+    "procedure_calling.htm#1291793"
+  ],
+  "images": [
+    "topics/images/analysis_rules.7.jpg"
+  ],
+  "content_hash": "d7604f53fe15368a",
+  "level": 2
+}
+---
+
+# Analysis Rule Wizard: Actions page > Analysis Rule Wizard: Actions page > Actions
+
+| Modify test result | Note: Upon test case completion, the last Pass/Fail flag result applies. Pass the test if it has not already failed: (default setting for WhenTrue) If no preceding step set the Fail flag for the test case, then set a Pass flag. Pass the test: Even if a preceding step set the Fail flag for the test case, then set a Pass flag. Fail the test: (default setting for WhenFalse) Even if a preceding step set the Pass flag for the test case, set a Fail flag. |
+| --- | --- |
+| Generate an execution message | Check the box to display an execution message that should appear in the Execution view and Test Report editor as a result of this analysis rule. Severity specifies the severity of the execution issue to associate with the execution message that is displayed in the Execution view, the Step Issues view, and in test reports: OK Error Warning Information Message Use auto-generated message / Message Checked: The text in the Message box becomes dim and read-only. The box displays the message that will be generated as a plain language sentence (for example, “Extracted valuee is equal to “Up”). The message will appear in the When True and When False property pages for Analysis rules. In the resulting analysis rule as viewed in the Test Case editor, the text appears as {auto_message_true} and {auto_message_false}, as shown in this example: Unchecked: The text in the Message box becomes read-write. You can change the message as needed. Default: Checked About the predefined variables iTest populates predefined variables while processing an analysis rule: $value is a iTest interpreter variable that stores the data that is extracted by the extractor. $value is created in the heap. For string comparisons, $value is 1 (True, the string matches) or 0 (zero, False) For regex, $value is the extracted value For queries, $value is the result of the query $values is a iTest interpreter variable that stores all of the extracted values in a space-separated list. If a value in the list includes spaces, then it is wrapped in double quotes (“). Note that the list is not a pure Tcl list because any quotes within a value are not escaped. $index: When the extractor extracts multiple items and the processor is invoked for each item, then $index holds the index of each value. For example, you would use a value's index to chart each extracted value on a separate line or series. $itest_value is a Tcl interpreter variable that stores the data that is extracted by the extractor. |
+| Change execution flow | Because any action that you specify here alters the flow of execution, the action is deferred (not executed) until all other actions for the step are executed. See About deferred actions. Break: Perform the EXEC break action that breaks from a for, foreach, or while loop. The break action stops executing the loop and exits to the step after the loop. (Generates a Break action.) Continue: (default setting for both WhenTrue and WhenFalse) Continue execution at the next step in execution order. (Generates a Continue action.) Abort the test: Abort the test case immediately. Analysis occurs after step execution. (Generates an AbortExecution action.) Exit the procedure: Finish executing the current step and then exit the test case. If the current step is in a called procedure, then return to the calling procedure. (Generates an ExitProcedure action.) Repeat the step: Continue execution at the current step. This setting is useful for remaining at a particular point in the test until a condition is met. For example, after a DUT restart, the step could repeat until the text “System Ready” appears in the response. See Max Repeat Count. (Generates a RepeatStep action.) Call a procedure: Call the specified procedure (local or foreign). iTest provides interactive support for specifying the procedure. See Calling a procedure in a test case step or in a property setting. (Generates a CallProcedure action.) Specify the procedure name followed by argument values if appropriate. For example, SetupDevice deviceNumber 3. |
+| Skip remaining analysis rules for this step | Check the box to cause iTest not to perform any further Analysis rules associated with the current step. For example, you might set this property so that when an analysis rule concludes that something has gone wrong and there is no point in performing additional analysis, then skip further analysis. |
+
+| Please send comments or suggestions on user documentation to iTest_documentation@spirent.com |
+| --- |
+
+![screenshot](topics/images/analysis_rules.7.jpg) <!-- image_chunk: img_2fde201103f236e2 -->

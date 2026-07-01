@@ -1,0 +1,26 @@
+---
+{
+  "image_chunk_id": "img_7b195ff1fb4f73f1",
+  "image_path": "topics/images/ui_concepts.01.jpg",
+  "category": "inline_icon",
+  "dimensions": [
+    36,
+    24
+  ],
+  "ocr_status": "skipped_not_screenshot_or_diagram",
+  "has_ocr_text": false,
+  "referenced_by": [
+    "topics/ui_toolbars_itest.htm"
+  ],
+  "usage_count": 1
+}
+---
+
+# Image: topics/images/ui_concepts.01.jpg
+
+- category: inline_icon
+- dimensions: (36, 24)
+- ocr_status: skipped_not_screenshot_or_diagram
+- referenced_by: topics/ui_toolbars_itest.htm
+
+此圖片分類為行內小圖示（inline_icon），未執行 OCR（非畫面截圖／示意圖類別）。

@@ -46,13 +46,13 @@ $skill-installer install https://github.com/owner/robert-create-codex-skills/ski
 - `docs/docs-quality-gen-v1-1/runbook.htm`
 - `docs/docs-quality-gen-v1-1/SPEC.md`
 
-## codex-skill-conventions-v1-1 (基於酒Ann老師的skill建構基礎,轉換的codex-skill-conventions-vl-1)
+## codex-skill-conventions-v1-2-1 (基於酒Ann老師的skill建構基礎,轉換的codex-skill-conventions-v1-2-1)
 ```text
-version:1.1
+version:1.2.1
 限制: codex使用,chatgpt 結構不一樣,好像不能混用,從chatgpt的skill-creator skill.md 兩者內容不完全一樣,可能還不能通用
 目的: 作為建立,升級,檢視 skill 的基本工具, 也能把claude ai (WebGUI)的skill 轉換成相容codex(仍須測試成效)
-$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/codex-skill-conventions-v1-1
-或解壓縮zip後,整包,放到.codex/skills/內
+$skill-installer install https://github.com/owner/robert-create-codex-skills/skills/codex-skill-conventions
+或解壓縮zip後,整包,放到.codex/skills/內 -> /使用者家目錄/.codex/skills/codex-skill-conventions
 ```
 
 文件:

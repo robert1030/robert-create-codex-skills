@@ -1,6 +1,6 @@
 # 標準片段（可直接複製到新 skill）
 
-每段都是從 `joan-skill-conventions` 移植過來、依 Codex 平台調整過的範式。各段和 Claude 版邏輯相同，第三、第六、第八、第九段是 Codex 改寫版；第十一段是 Codex 新增的外殼模板。複製後依該 skill 調整命名即可。
+每段都是從 `joan-skill-conventions` 移植過來、依 Codex 平台調整過的範式。前七段和 Claude 版邏輯相同，第三、第六、第八、第九段是 Codex 改寫版；第十一段是 Codex 新增的外殼模板。複製後依該 skill 調整命名即可。
 
 ---
 

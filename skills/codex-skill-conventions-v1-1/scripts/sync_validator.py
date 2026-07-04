@@ -34,8 +34,8 @@ def _target_file(skill_dir):
 
 
 def discover(start):
-    """從 start 上層往下找已含 scripts/validate_punct.py 的包（深度 1 與 2），排除自己。"""
-    base = os.path.normpath(os.path.join(start, ".."))
+    """從「所有 skill 的共同上層」往下找已含 scripts/validate_punct.py 的兄弟包，排除自己。"""
+    base = os.path.normpath(os.path.join(start, "..", ".."))  # v1.1 修正：start 是 scripts 目錄，需上兩層才到各 skill 的共同上層
     found = []
     for root, dirs, files in os.walk(base):
         depth = root[len(base):].count(os.sep)

@@ -32,7 +32,8 @@ ALLOWED_FRONTMATTER_KEYS = {"name", "description", "license", "allowed-tools", "
 
 # 疑似 Claude 專屬指涉的樣式，只偵測、不代寫。
 CLAUDE_SPECIFIC_PATTERNS = [
-    r"另一個\s*Claude\s*(實例|讀者)?",
+    r"另一個\s*Claude",
+    r"Claude\s*讀者",
     r"讓\s*Claude\s*知道",
     r"Claude\s*實例",
     r"claude\.ai",
@@ -43,7 +44,7 @@ CLAUDE_SPECIFIC_PATTERNS = [
 
 
 def read_frontmatter(skill_md: Path):
-    """回傳 (frontmatter dict 或 None, frontmatter 原始文字, 內文)。"""
+    """回傳（frontmatter dict 或 None、frontmatter 原始文字、內文）。"""
     text = skill_md.read_text(encoding="utf-8")
     m = re.match(r"^---\n(.*?)\n---\n?(.*)$", text, re.DOTALL)
     if not m:
@@ -160,7 +161,7 @@ def convert(src: Path, dst: Path) -> int:
 
     print("\n[步驟四　環境相依重寫提示]")
     if "--break-system-packages" in body:
-        print("  偵測到寫死的 --break-system-packages，建議改用 scripts/bootstrap.py 的環境偵測版 ensure()。")
+        print("  偵測到寫死的 --break-system-packages，建議改用 scripts/bootstrap.py 的環境偵測版 ensure 函式。")
     else:
         print("  沒有偵測到寫死的安裝旗標。")
 
@@ -182,7 +183,7 @@ def convert(src: Path, dst: Path) -> int:
 
 def main():
     if len(sys.argv) != 3:
-        print("用法: python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出目錄>")
+        print("用法：python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出目錄>")
         sys.exit(2)
     sys.exit(convert(Path(sys.argv[1]), Path(sys.argv[2])))
 

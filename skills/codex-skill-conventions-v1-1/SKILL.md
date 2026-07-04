@@ -1,19 +1,20 @@
 ---
 name: codex-skill-conventions
-description: "Joan（酒 Ann／vibe-expert.com）在 Codex 平台上開發 skill 的房規與轉換器。當使用者在 Codex 環境要新開一支 skill、把既有的 Claude skill（尤其是套用 joan-skill-conventions 房規的包）移植到 Codex、檢視或升級既有 Codex skill、為 skill 補齊 agents/openai.yaml、寫驗證器或回歸測試、或討論 skill 的版型／驗證／交付架構時，立即讀此 skill，套用以下八條房規：①凍結契約＋另開新版（絕不就地改定版）②驗證即閘門、絕不靠肉眼③全形標點＋禁破折號鐵則④引擎／皮膚／內容三層正交、跨學科通用⑤能力邊界誠實＋降級階梯不造假⑥透明自動安裝、偵測執行環境不寫死旗標⑦生成前強制對焦閘門⑧Codex 外殼契約，agents/openai.yaml 與 name／description frontmatter 不可省。內含可執行的轉換器 scripts/convert_from_claude_skill.py，能讀取一支 Claude skill 資料夾，自動產生 agents/openai.yaml 草稿、掃出需要人工改寫的 Claude 專屬用語、並跑 frontmatter 格式檢查。觸發詞包含：開新 skill、做一個 skill、寫一支 skill、升級 skill、檢視 skill、重構 skill、skill 房規、skill 規範、驗證器、凍結契約、回歸測試、交付前檢查、移植到 Codex、轉成 Codex skill、agents openai yaml 等。即使只說『幫我把這支 skill 弄到 Codex 上』也應先讀此 skill 套用房規。通用的 skill 製作流程（draft→test→iterate→package）仍走 Codex 自帶的 skill-creator；本 skill 只在其上疊加房規、品味與轉換工具，兩者並用。"
+description: "Joan（酒 Ann／vibe-expert.com）在 Codex 平台上開發 skill 的房規與轉換器。當使用者在 Codex 環境要新開一支 skill、把既有的 Claude skill（尤其是套用 joan-skill-conventions 房規的包）移植到 Codex、檢視或升級既有 Codex skill、為 skill 補齊 agents/openai.yaml、寫驗證器或回歸測試、或討論 skill 的版型／驗證／交付架構時，立即讀此 skill，套用以下十條房規：①凍結契約＋另開新版（絕不就地改定版）②驗證即閘門、絕不靠肉眼③全形標點＋禁破折號鐵則④引擎／皮膚／內容三層正交、跨學科通用⑤能力邊界誠實＋降級階梯不造假⑥透明自動安裝、偵測執行環境不寫死旗標⑦生成前強制對焦閘門⑧重試上限三輪、超過就升級回報⑨驗收不自驗（fresh-context 驗收）⑩Codex 外殼契約，agents/openai.yaml 與 name／description frontmatter 不可省。內含可執行的轉換器 scripts/convert_from_claude_skill.py，能讀取一支 Claude skill 資料夾，自動產生 agents/openai.yaml 草稿、掃出需要人工改寫的 Claude 專屬用語、並跑 frontmatter 格式檢查。觸發詞包含：開新 skill、做一個 skill、寫一支 skill、升級 skill、檢視 skill、重構 skill、skill 房規、skill 規範、驗證器、凍結契約、回歸測試、交付前檢查、移植到 Codex、轉成 Codex skill、agents openai yaml 等。即使只說『幫我把這支 skill 弄到 Codex 上』也應先讀此 skill 套用房規。通用的 skill 製作流程（draft→test→iterate→package）仍走 Codex 自帶的 skill-creator；本 skill 只在其上疊加房規、品味與轉換工具，兩者並用。"
 ---
 
 # Codex Skill Conventions（Joan 房規．Codex 版）
 
-> **v1.1｜2026-07-01**：把 `joan-skill-conventions`（Claude 版房規）移植到 Codex skill 格式。七條房規原則保留，第六條改寫成環境偵測版；新增第八條「Codex 外殼契約」；明確補上 Codex 對焦閘門不依賴特定互動式 UI，以及開工檢查表是交付閘門、不是建議清單；附一支可執行轉換器 `scripts/convert_from_claude_skill.py`，能把任何遵守 Joan 房規的 Claude skill 轉成 Codex skill 骨架。
+> **v1.1｜2026-07-04**：對齊上游 `joan-skill-conventions` v1.2。驗證器換成 v2.1 正本（自我合規＋補四個偵測盲區：半形句號、半形雙引號、半形單引號、緊鄰中文的雙連字號）；`sync_validator.py` 自動探索路徑修正（原本少上一層，永遠找不到兄弟包）；新增本包自己的 `tests/test_validate_punct.py`（十一項回歸）；新增房規八（重試上限三輪）、房規九（驗收不自驗），原「Codex 外殼契約」改列房規十；新增維護協議與 `LESSONS.md` 教訓帳本；修正 `convert_from_claude_skill.py` 內文四處標點違規。
+> **v1.0｜2026-07-01**：把 `joan-skill-conventions`（Claude 版房規）移植到 Codex skill 格式。七條房規原則保留，第六條改寫成環境偵測版；新增「Codex 外殼契約」；附一支可執行轉換器 `scripts/convert_from_claude_skill.py`，能把任何遵守 Joan 房規的 Claude skill 轉成 Codex skill 骨架。
 
 這是一份**房規（house rules）**，疊加在 Codex 自帶的 `skill-creator` 之上。Codex 的 `skill-creator` 教「怎麼在 Codex 上做出一支 skill」（`init_skill.py`→編輯→`quick_validate.py`→迭代）；本 skill 教「Joan 的 skill 在 Codex 上長什麼樣、守什麼規矩」。兩者並用：先依 Codex `skill-creator` 的流程走，每一步用本房規把關品味與正確性。
 
-本 skill 的知識內容（八條房規、三種模式、驗證清單）和 `joan-skill-conventions` 完全一致，因為房規本身跟執行 skill 的模型無關；差異只在**外殼結構**（Codex 需要 `agents/openai.yaml`）和**少數幾句預設讀者是 Claude 的用語**。若你手上的來源是一支 Claude skill，直接用本 skill 的轉換器（見下）處理外殼，房規內文照搬。
+本 skill 的知識內容（十條房規、三種模式、驗證清單、維護協議）和 `joan-skill-conventions` v1.2 完全一致，因為房規本身跟執行 skill 的模型無關；差異只在**外殼結構**（Codex 需要 `agents/openai.yaml`）和**少數幾句預設讀者是 Claude 的用語**。若你手上的來源是一支 Claude skill，直接用本 skill 的轉換器（見下）處理外殼，房規內文照搬。
 
 ---
 
-## 八條房規（前七條沿用 joan-skill-conventions，第八條為 Codex 新增）
+## 十條房規（一至九沿用 joan-skill-conventions v1.2，第十條為 Codex 新增）
 
 ### 一、凍結契約，另開新版，絕不就地改定版
 一旦某個版型／座標／色票／皮膚定版，就**寫死成凍結契約**，之後要改一律另開新版本，不動凍結版。
@@ -66,11 +67,25 @@ description: "Joan（酒 Ann／vibe-expert.com）在 Codex 平台上開發 skill
 **嚴禁拿到主題就直接生。** 開場先停下來，把結構與規格對焦清楚，得到同意才動工。
 
 - **怎麼落實**：依 skill 性質設一道必須停下的閘門。能從語意判斷的就不問，問得少、問得準。
-- **Codex 表面差異**：對焦閘門不依賴特定 UI。Codex 不保證像 Claude AI 一樣跳出互動式選擇對話框；若目前環境沒有互動式選項工具，必須改用一般對話提出最少必要問題。若問題可由上下文判斷，必須明列假設再繼續，不得因為沒有互動式對話框就跳過對焦閘門。
 - **轉換器也守這條**：轉換器只產生草稿與報告，**不自動覆蓋房規知識本身的判斷**，人工確認 `agents/openai.yaml` 字數與用詞、改寫疑似 Claude 用語之後才算轉換完成。
 - **反例**：拿到「分數加法」就直接生一份，沒問是國小三年級還是國中補救，深度全錯、整份重做。
 
-### 八、Codex 外殼契約，`agents/openai.yaml` 不可省（Codex 新增）
+### 八、重試上限三輪，超過就升級回報
+任何「修正→重跑驗證」的迴圈，**同一個失敗原因最多重試三輪**。第三輪仍紅燈，停止修改，向使用者回報，回報必含三件事：失敗的驗證器名稱與完整輸出、三輪各改了什麼、你猜測的根因。
+
+- **判準**：「同一個失敗原因」以驗證器輸出的錯誤類別認定（例：同樣是頁面溢出就算同一原因，即使溢出的頁碼不同）。換了失敗原因，計數歸零重算。
+- **與滿意度迴圈的分界**：使用者主動要求重做，不受三輪限制（那是需求變更，不是失敗重試）。三輪限制只管「模型自己修自己的錯」。
+- **反例**：驗證器連紅七輪還在原地換寫法硬試，燒光額度又交不了差。
+
+### 九、驗收不自驗（fresh-context 驗收）
+寫的人不能自己宣布通過。驗收一律交給「沒看過生成過程的檢查者」。
+
+- **程式碼**：跑 `tests/test_*.py` 與各驗證器（本來就是外部程序，符合本條）。
+- **文件類產出**（SKILL.md、FROZEN.md、教材文字）：交付前開一個 fresh-context 子任務（在 Codex 上就是開一個乾淨的新工作階段或子代理），只給它「檔案本身＋驗收條件清單」，要它逐條回報通過／不通過與證據行號。不給它生成過程的任何脈絡。
+- **高風險判斷**（動到凍結契約、刪除既有功能、改共用正本）：除上述外，再加第二意見。作法：用相同輸入產生兩個獨立答案，列出分歧點，分歧處回報使用者裁決，不自行擇一。
+- **反例**：改完自己讀一遍說「看起來沒問題」就交付。這是房規二「絕不靠肉眼」的文件版。
+
+### 十、Codex 外殼契約，`agents/openai.yaml` 不可省（Codex 新增）
 Codex 只認 `SKILL.md` frontmatter 裡的 `name`／`description`（其餘允許欄位：`license`／`allowed-tools`／`metadata`），任何 UI 中繼資料一律移到 `agents/openai.yaml`，不准塞進 frontmatter。
 
 - **命名規則**：`name` 只能小寫字母、數字、連字號，六十四字以內，不可開頭結尾連字號或連續連字號；資料夾名稱必須和 `name` 完全一致。
@@ -116,8 +131,6 @@ python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出
 
 ## 新 skill 開工檢查表
 
-以下檢查表是**交付閘門**，不是建議清單。建立、移植、升級或審查 skill 時，除非使用者明確要求只做草稿，否則每一項都必須回答並落實；缺少任一必要項時，不得宣稱完成，必須列為阻擋項或明確說明不適用原因。
-
 開一支新 Codex skill 前，先回答：
 
 1. **定位**：和既有包的分工？會不會重疊（重疊就不要新開，去升級那支）。
@@ -128,7 +141,8 @@ python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出
 6. **相依**：用到哪些重套件？`scripts/bootstrap.py` 的 `ensure()` 要傳哪些模組名？
 7. **交付格式**：哪幾種格式？
 8. **回歸測試**：純邏輯怎麼寫成 `tests/test_*.py`？凍結契約要不要寫成斷言守門？
-9. **Codex 外殼**：`name`／資料夾名一致嗎？`agents/openai.yaml` 三個必填欄位都填了嗎？`default_prompt` 有沒有帶 `$skill-name`？
+9. **回報紀律**：驗證失敗怎麼計「同一原因」？三輪紅燈的升級回報格式備好了嗎？
+10. **Codex 外殼**：`name`／資料夾名一致嗎？`agents/openai.yaml` 三個必填欄位都填了嗎？`default_prompt` 有沒有帶 `$skill-name`？
 
 ## 交付前驗證清單
 
@@ -143,7 +157,44 @@ python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出
 9. [ ] `agents/openai.yaml` 三個必填欄位齊全，`default_prompt` 含 `$skill-name`。
 10. [ ] 跑過 Codex 自帶的 `quick_validate.py`，退出碼零。
 11. [ ] 多格式齊備，全部交付給使用者。
-12. [ ] 交付後問使用者是否滿意。
+12. [ ] 文件類產出（含 SKILL.md 更新）過 fresh-context read-back 驗收（房規九）。
+13. [ ] 交付後問使用者是否滿意。
+
+---
+
+## 維護協議（給未來每一個 session 的模型）
+
+### 一、可以自行改的（改完必跑 `tests/test_validate_punct.py`，全綠才算改完）
+- 往 registry 加新皮膚／新版型（不動 `FROZEN` 集合內的項目）。
+- 在 `LESSONS.md` 追加教訓（格式見下）。
+- 補新的回歸測試案例（只准加，不准刪、不准放寬既有斷言）。
+- 修正錯字、補範例，且改動範圍不觸及任何「怎麼落實」的規則語意。
+
+### 二、動之前必須先問使用者的
+- `FROZEN` 集合內任何值、`FROZEN.md` 既有條目。
+- `assets/validate_punct.py` 正本的偵測邏輯（訊息文字可自改，規則不行）。
+- 刪除或放寬任何驗證器、任何測試斷言。
+- 房規一至十本身的語意。
+- 版號進 major 的任何變更。
+
+### 三、踩坑教訓寫回哪裡、用什麼格式
+每次「驗證器抓到問題」或「三輪重試失敗」後，在本 skill 根目錄的 `LESSONS.md` 追加一條，固定四欄，一條不超過四行：
+
+```markdown
+## YYYY-MM-DD｜<一句話標題>
+- 現象：<驗證器輸出的關鍵一行，或使用者指出的錯>
+- 根因：<一句話>
+- 對策：<改了哪個檔的哪條規則，或加了哪個測試>
+- 已固化：<測試檔名或房規條號；寫「否」表示尚未固化，下次優先處理>
+```
+
+判準：**能寫成測試的教訓，一律寫成測試**，`LESSONS.md` 只留「還沒固化」與「無法測試化」的。
+
+### 四、累積多長要精簡
+`LESSONS.md` 超過 30 條，或「已固化」的條目超過半數時：把已固化條目濃縮成一行移到檔尾的「已固化索引」區，正文只留未固化條目。精簡屬於「可自行改」，但精簡前先跑一次 fresh-context read-back，確認沒有把未固化教訓誤刪。
+
+### 五、上游同步義務
+本包是 `joan-skill-conventions`（Claude 版）的 Codex 鏡像。上游改版時，房規知識內容照搬、外殼差異照「Codex 改寫版」條目處理；`assets/validate_punct.py` 一律以上游正本為準，用 `scripts/sync_validator.py` 同步，不要在本包自行分岔。更新交付一律是可直接安裝的完整包，不是要使用者手動合併的補丁。
 
 ---
 
@@ -154,4 +205,6 @@ python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出
 - `scripts/convert_from_claude_skill.py`：把 Claude skill 轉成 Codex skill 骨架的可執行轉換器，見上方「轉換器」一節。
 - `references/canonical-snippets.md`：可複製的標準片段（凍結契約寫法、Codex 版 bootstrap、對焦閘門模板、能力邊界模板、回歸測試骨架、`agents/openai.yaml` 模板、版號戳記格式）。
 - `references/claude-vs-codex-diff.md`：Claude Skill 與 Codex Skill 的完整格式差異對照表，轉換遇到不確定的地方先查這份。
+- `tests/test_validate_punct.py`：本包自己的十一項回歸（正本自我合規、四類盲區必抓、指令列長參數不誤殺、sync 自動探索找得到兄弟包）。改動引擎後必跑，全 PASS 才算沒踩到既有契約。
+- `LESSONS.md`：教訓帳本，格式見維護協議第三節。
 - 通用 skill 製作流程（`init_skill.py`→編輯→`quick_validate.py`→迭代）見 Codex 自帶的 `skill-creator`，本房規與它並用。

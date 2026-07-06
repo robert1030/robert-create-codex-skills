@@ -1,52 +1,41 @@
-# iTest Help → RAG Markdown 轉換清單（manifest.md）
+# itest-help RAG 切片 manifest（全量版）
 
-- 產生時間：2026-07-01T04:18:16.270929
-- 來源壓縮檔：help_26_2_0.zip
-- 輸出根目錄：itest-help/
+## 來源
+help_26_2_0.zip（Spirent iTest 26.2.0 線上說明文件，7004 個檔案，已通過 zip-slip 防護安全解壓縮）
 
-## 輸出結構
+## 處理範圍
+- topics/*.htm（頂層，765 個檔案，主要說明文件內容）
+- popups/**/*.html（318 個檔案，含 popups/arules 子目錄，彈出式輔助說明）
+- toc.xml（738 個節點，建立 TOC 邏輯階層）
+- contexts.xml（633 個 context）
+- index.xml（1672 筆巢狀 keyword，保留完整 keyword_path）
+- cheatsheets/*.xml（15 份，全數解析成功）
 
-```
-itest-help/
-  manifest.md
-  validation_report.md
-  chunk_manifest.jsonl
-  inventory.json
-  index_manifest.jsonl
-  text/          # 文字 RAG chunk（*.md）
-  images/        # 圖片 RAG chunk（*.md）
-```
+不含：topics/Formats、topics/Reports、topics/Logs、topics/META-INF、topics/css、
+topics/scripts、topics/images、topics/Files、topics/popups（與頂層 popups 重複的build產物）
+等範本／資源子目錄，以及 .class／.vbs／.asp／.js 等已安全解壓但不執行的危險副檔名檔案。
 
-## 統計
-- text chunk 數量：2891
-- image chunk 數量：1221
-- Blocking issues：0
-- Warnings：7
+## 產出檔案
+- inventory.json：全 ZIP 安全解壓縮清冊（7004 個檔案，跳過 9 個危險副檔名項目，皆已記錄）
+- index_manifest.jsonl：index.xml 巢狀 keyword → topic/anchor 對應（1900 行，保留完整 keyword_path）
+- chunk_manifest.jsonl：3012 個文字 chunk 的完整中繼資料
+  （source_file / source_original_path / toc_path / heading_path / breadcrumb / anchor /
+    context_ids / index_keywords / index_keyword_paths / related_links / images /
+    has_table / has_step_list / content_hash / char_count / chunk_part / chunk_total_parts /
+    is_heading_only / is_popup / toc_path_synthetic）
+- text/*.md：3012 個文字 chunk（breadcrumb 標題格式：# Top Level > ... > Current Heading）
+- images/*.md：1799 個圖片 chunk（已排除 3 個 decorative 重複性項目符號圖示）
+- validation_report.md：完整驗證報告（Blocking issue 數：0）
 
-## Chain 執行摘要
-- Chain 00：初始化任務資料夾。✅
-- Chain 01：安全解壓縮（zip-slip 防護），建立 inventory.json。✅ 7004 個檔案，0 筆被阻擋。
-- Chain 02：解析 toc.xml（875 節點）、contexts.xml（633 個 context）、index.xml（1900 筆 keyword→topic 對應，巢狀路徑完整保留）、cheatsheets/*.xml（15 份）。✅
-- Chain 03：解析 topics/*.htm(l)、popups/*.html，共 1285 個檔案，0 筆解析失敗。✅
-- Chain 04：整併 TOC／Context／Index／HTML，建立 source graph，記錄 orphan／broken 連結。✅
-- Chain 05：圖片分類（decorative／inline_icon／screenshot／diagram／unknown），共 1748 張已引用圖片。✅
-- Chain 06：依 TOC／heading／語意區塊切分 chunk，不跨 topic、不跨 toc_path、不跨不相關 heading_path。✅
-- Chain 07：輸出 text/、images/、chunk_manifest.jsonl、index_manifest.jsonl、manifest.md、inventory.json。✅
-- Chain 08：產生 validation_report.md。✅ 0 筆 blocking issue。
-- Chain 09：blocking issue 為 0，無需修復輪次。✅
-- Chain 10：本文件，最終交付報告。✅
+## 已知限制（詳見 validation_report.md）
+- 45 個過大 chunk（單一術語–定義表格本身超過門檻，依規則不可攔腰拆開）
+- 307 張圖片分類為 unknown（尺寸較大但 OCR 文字量低，不腦補是截圖還是示意圖，供人工抽樣覆核）
+- 491 筆 broken internal href（來源文件本身的失效連結，已排除 URL 編碼等假陽性）
+- 16 個 chunk 內容完全重複（來源文件本身的設計性重複頁面，例如 toc.xml 中同一標籤指向兩個實體檔案）
+- popups（318 個）與 29 個 topics 沒有 toc.xml 對應，已給予合成 toc_path 並標記 toc_path_synthetic=True
 
-## 剩餘已知問題（非 blocking，詳見 validation_report.md）
-- TOC 中有 href 指向不存在檔案的項目：2 筆
-- contexts.xml 中 href／anchor 無法對應到實際內容：16 筆
-- index.xml 有 294 筆 keyword 的 anchor 在對應 topic 中找不到（unresolved_index_anchor），topic 層級對應仍成立，僅 anchor 層級精度受影響。
-- topic 內文中 730 個內部連結指向不存在的檔案（broken_href，多為文件本身既有的失效連結，非本次轉換造成）。
-- HTML 中引用但實際檔案遺失／無法解析的圖片參照：5 筆（missing_image）。
-- 發現 1 組同檔案內容雜湊重複的 chunk（可能為重複段落）。
-- 有 46 個 chunk 超過 6000 字元（過大 chunk），建議人工檢視是否需要再切分。
-
-## 匯入 RAG 建議
-- 本次輸出結構已將文字與圖片 chunk 分離，且每個 text chunk 皆帶有 toc_path、heading_path、breadcrumb 標題、context_ids、index_keywords 等 metadata，可直接依 chunk_manifest.jsonl 匯入向量資料庫。
-- 46 個超過 6000 字元的 chunk 建議先人工抽查是否需要再拆分（多半是內容本來就很長的參考頁，例如動作參數總表），是否切分可依下游 embedding 模型的 context window 需求決定。
-- 730 筆內文中的失效連結（broken_href）是原始文件本身既有的問題（例如指向已移除的 topic），建議匯入 RAG 前不需修復，但下游若要做『相關文件跳轉』功能時應過濾這批連結。
-- unresolved_index_anchor（294 筆）僅影響錨點層級的精確度，topic 層級的對應仍然有效，不影響以 topic 為單位的檢索品質。
+## 匯入建議
+Blocking issue 為 0，適合直接匯入 RAG 索引。建議匯入前：
+1. 抽樣覆核 unknown 分類圖片（images/ 目錄中 classification: unknown 的項目）
+2. 視需求決定是否對 16 個內容完全重複的 chunk 做去重
+3. 參考 broken_href 清單，評估是否需要修正來源文件

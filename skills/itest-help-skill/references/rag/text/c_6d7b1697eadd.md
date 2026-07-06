@@ -1,0 +1,29 @@
+# 未分類（無 TOC 對應） > To add steps by capturing (start sessions with devices and save the captured ... > To add steps by capturing (start sessions with devices and save the captured steps into a test case) > 第2段
+
+- By default, the Close open sessions check box is checked; you can uncheck it to allow the sessions to remain active after you complete the process of adding the steps into the test case.
+
+![*](bullet_blue.jpg) <!-- image_ref -->
+
+- When you click Finish, the steps are added to the test case.
+
+
+
+To execute a test case
+
+1. 1 After opening or creating the test case, on the Develop a test case activity page, click Execute test case. The Execute Test Case activity page opens.
+
+1. 2 The current test case is identified at the top of the page. If a topology file or parameters file is associated with the test case, then they are also identified.
+
+![*](bullet_blue.jpg) <!-- image_ref -->
+
+- Click the filename to open the file in the appropriate editor
+
+![*](bullet_blue.jpg) <!-- image_ref -->
+
+- Click the button next to the filename to change to a different file
+
+![](images/activity_pages.05.jpg) <!-- image_ref -->
+
+1. 3 To start execution, click . Use the following tools to control execution — you will find full details in Debugging: Executing procedures, Pausing, stopping, and single-stepping and Single-stepping through a test.
+
+![](images/activities_developing_a_test_case.png) <!-- image_ref -->

@@ -1,171 +1,152 @@
-#!/usr/bin/env python3
-"""Search packaged iTest 26.2 help RAG chunks without external dependencies."""
+#!/usr/bin/env python
+"""Search bundled iTest Help 26.2.0 RAG chunks."""
+
 from __future__ import annotations
 
 import argparse
 import json
 import re
 import sys
-from dataclasses import dataclass
+import textwrap
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-RAG_ROOT = ROOT / "references" / "rag"
-CHUNK_MANIFEST = RAG_ROOT / "chunk_manifest.jsonl"
 
-TOKEN_RE = re.compile(r"[A-Za-z0-9_.$:-]+")
+DEFAULT_RAG_PATH = Path(__file__).resolve().parents[1] / "references" / "rag"
 
 
-@dataclass
-class Result:
-    score: int
-    record: dict
-    snippet: str
+def tokenize(query: str) -> list[str]:
+    return [part.lower() for part in re.findall(r"[A-Za-z0-9_./#-]+", query) if len(part) > 1]
 
 
-def tokenize(text: str) -> list[str]:
-    return [t.lower() for t in TOKEN_RE.findall(text or "") if len(t) > 1]
+def load_manifest(rag_path: Path) -> list[dict]:
+    rows: list[dict] = []
+    manifest_path = rag_path / "chunk_manifest.jsonl"
+    with manifest_path.open("r", encoding="utf-8") as raw:
+        for line in raw:
+            line_text = line.strip()
+            if line_text:
+                rows.append(json.loads(line_text))
+    return rows
 
 
-def load_records() -> list[dict]:
-    if not CHUNK_MANIFEST.exists():
-        raise SystemExit(f"Missing manifest: {CHUNK_MANIFEST}")
-    records = []
-    with CHUNK_MANIFEST.open("r", encoding="utf-8") as fh:
-        for line in fh:
-            if line.strip():
-                records.append(json.loads(line))
-    return records
-
-
-def chunk_path(record: dict) -> Path:
-    if record.get("kind") == "text":
-        return RAG_ROOT / "text" / f"{record['chunk_id']}.md"
-    return RAG_ROOT / "images" / f"{record['image_chunk_id']}.md"
-
-
-def read_body(path: Path, max_chars: int = 20000) -> str:
-    text = path.read_text(encoding="utf-8", errors="replace")
-    if text.startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            text = parts[2]
-    return text[:max_chars]
-
-
-def compact(value) -> str:
-    if value is None:
-        return ""
-    if isinstance(value, list):
-        return " > ".join(str(v) for v in value)
-    return str(value)
-
-
-def score_record(record: dict, query_tokens: list[str], phrase: str, include_images: bool) -> Result | None:
-    if record.get("kind") == "image" and not include_images:
-        return None
-
-    path = chunk_path(record)
-    if not path.exists():
-        return None
-
-    title_fields = " ".join([
-        compact(record.get("heading_path")),
-        compact(record.get("toc_path")),
-        compact(record.get("index_keywords")),
-        compact(record.get("index_keyword_paths")),
-        compact(record.get("context_ids")),
-        record.get("source_file", ""),
-        record.get("source_original_path", ""),
-    ]).lower()
-    body = read_body(path)
-    body_lower = body.lower()
-
-    score = 0
-    if phrase and phrase in title_fields:
-        score += 80
-    if phrase and phrase in body_lower:
-        score += 25
-    for token in query_tokens:
-        if token in title_fields:
-            score += 12
-        if token in body_lower:
-            score += 3
-    if record.get("kind") == "text":
-        score += 3
-    if record.get("index_keywords"):
-        score += 2
-    if record.get("context_ids"):
-        score += 2
-
-    if score <= 0:
-        return None
-
-    snippet = make_snippet(body, query_tokens)
-    return Result(score=score, record=record, snippet=snippet)
-
-
-def make_snippet(body: str, query_tokens: list[str]) -> str:
-    plain = re.sub(r"\s+", " ", body).strip()
-    lower = plain.lower()
-    pos = -1
-    for token in query_tokens:
-        pos = lower.find(token)
-        if pos >= 0:
-            break
-    if pos < 0:
-        return plain[:280]
-    start = max(0, pos - 100)
-    end = min(len(plain), pos + 220)
-    prefix = "..." if start else ""
-    suffix = "..." if end < len(plain) else ""
-    return prefix + plain[start:end] + suffix
-
-
-def format_result(index: int, result: Result) -> str:
-    r = result.record
-    chunk_id = r.get("chunk_id") or r.get("image_chunk_id")
-    lines = [
-        f"[{index}] score={result.score} kind={r.get('kind')} id={chunk_id}",
-        f"source_file: {r.get('source_file') or r.get('image_path')}",
-        f"toc_path: {compact(r.get('toc_path')) or '<none>'}",
-        f"heading_path: {compact(r.get('heading_path')) or '<none>'}",
+def metadata_text(row: dict) -> str:
+    fields = [
+        row.get("chunk_id", ""),
+        row.get("source_original_path", ""),
+        " ".join(row.get("toc_path") or []),
+        " ".join(row.get("heading_path") or []),
+        row.get("breadcrumb", ""),
+        " ".join(row.get("context_ids") or []),
+        " ".join(row.get("index_keywords") or []),
+        " ".join(" > ".join(path) for path in (row.get("index_keyword_paths") or [])),
     ]
-    if r.get("index_keywords"):
-        lines.append(f"index_keywords: {compact(r.get('index_keywords'))}")
-    if r.get("category"):
-        lines.append(f"image_category: {r.get('category')} ocr_status={r.get('ocr_status')} has_ocr_text={r.get('has_ocr_text')}")
-    lines.append(f"snippet: {result.snippet}")
-    return "\n".join(lines)
+    return " ".join(str(field) for field in fields if field)
 
 
-def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(description="Search packaged iTest 26.2 help chunks.")
-    parser.add_argument("query", help="Search query")
-    parser.add_argument("--limit", type=int, default=8, help="Maximum results")
-    parser.add_argument("--include-images", action="store_true", help="Include image OCR chunks")
+def score_row(query: str, terms: list[str], row: dict, body: str) -> int:
+    query_lower = query.lower()
+    body_lower = body.lower()
+    meta_lower = metadata_text(row).lower()
+    score = 0
+    if query_lower and query_lower in body_lower:
+        score += 80
+    if query_lower and query_lower in meta_lower:
+        score += 120
+    for term in terms:
+        body_hits = body_lower.count(term)
+        meta_hits = meta_lower.count(term)
+        score += min(body_hits, 8) * 8
+        score += min(meta_hits, 5) * 20
+    if row.get("index_keywords"):
+        score += 4
+    if row.get("context_ids"):
+        score += 3
+    return score
+
+
+def compact_preview(text: str, query_terms: list[str], width: int = 420) -> str:
+    collapsed = re.sub(r"\s+", " ", text).strip()
+    lower = collapsed.lower()
+    start = 0
+    for term in query_terms:
+        idx = lower.find(term)
+        if idx >= 0:
+            start = max(0, idx - 120)
+            break
+    preview = collapsed[start : start + width]
+    return textwrap.shorten(preview, width=width, placeholder=" ...")
+
+
+def search(query: str, rag_path: Path, limit: int) -> list[dict]:
+    terms = tokenize(query)
+    if not terms:
+        raise ValueError("Query must contain at least one searchable term.")
+    if not rag_path.exists():
+        raise FileNotFoundError(f"RAG path not found: {rag_path}")
+    if not rag_path.is_dir():
+        raise ValueError(f"RAG path must be an extracted directory: {rag_path}")
+
+    results: list[dict] = []
+    for row in load_manifest(rag_path):
+        source_file = row.get("source_file")
+        if not source_file:
+            continue
+        body_path = rag_path / "text" / source_file
+        if not body_path.exists():
+            continue
+        body = body_path.read_text(encoding="utf-8", errors="replace")
+        score = score_row(query, terms, row, body)
+        if score <= 0:
+            continue
+        results.append(
+            {
+                "score": score,
+                "chunk_id": row.get("chunk_id"),
+                "source_original_path": row.get("source_original_path"),
+                "toc_path": row.get("toc_path") or [],
+                "heading_path": row.get("heading_path") or [],
+                "char_count": row.get("char_count"),
+                "preview": compact_preview(body, terms),
+            }
+        )
+    results.sort(key=lambda item: item["score"], reverse=True)
+    return results[:limit]
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("query", help="Search query, for example: itest python driver")
+    parser.add_argument("--rag-path", type=Path, default=DEFAULT_RAG_PATH)
+    parser.add_argument("--limit", type=int, default=8)
+    parser.add_argument("--json", action="store_true", help="Emit JSON instead of text.")
     args = parser.parse_args(argv)
 
-    query_tokens = tokenize(args.query)
-    phrase = args.query.lower().strip()
-    if not query_tokens:
-        raise SystemExit("Query must contain at least one searchable token.")
+    try:
+        results = search(args.query, args.rag_path, args.limit)
+    except Exception as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
-    results = []
-    for record in load_records():
-        result = score_record(record, query_tokens, phrase, args.include_images)
-        if result:
-            results.append(result)
+    if args.json:
+        print(json.dumps(results, ensure_ascii=False, indent=2))
+        return 0 if results else 1
 
-    results.sort(key=lambda item: item.score, reverse=True)
-    for idx, result in enumerate(results[: max(0, args.limit)], 1):
-        print(format_result(idx, result))
-        print()
     if not results:
-        print("No matching iTest help chunks found.")
+        print("No local iTest Help RAG results found.")
+        print("Next step: use external lookup if tools are available, and label the source as External source.")
         return 1
+
+    for idx, item in enumerate(results, 1):
+        toc = " > ".join(item["toc_path"])
+        heading = " > ".join(item["heading_path"])
+        print(f"[{idx}] score={item['score']} chunk_id={item['chunk_id']}")
+        print(f"source_original_path: {item['source_original_path']}")
+        print(f"toc_path: {toc}")
+        print(f"heading_path: {heading}")
+        print(f"preview: {item['preview']}")
+        print()
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(main())

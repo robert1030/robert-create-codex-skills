@@ -1,0 +1,6 @@
+# 圖片：view_refresh_icon.png
+
+- 分類：inline_icon
+- 判斷依據：尺寸小(23x20)，判定為行內功能圖示
+- 尺寸：23x20
+- 引用來源 chunk：c_685b86043164（topics/views.07.htm）

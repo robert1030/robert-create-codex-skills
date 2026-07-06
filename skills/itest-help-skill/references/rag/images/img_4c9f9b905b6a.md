@@ -1,0 +1,6 @@
+# 圖片：ps_add%20to%20python%20wizard.png
+
+- 分類：unknown
+- 判斷依據：file_not_found
+- 尺寸：?x?
+- 引用來源 chunk：c_36ff6a55e0b5（topics/python_script_generation_from_capture_steps.htm）

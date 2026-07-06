@@ -1,0 +1,7 @@
+# Serial Sessions > Session profile property settings for Serial sessions > Terminal > Prompts > 第1段
+
+For an overview on how prompts work, see Overview: Prompts in iTest.
+
+For instructions on using the properties in this group to define prompts, see Editing prompt definitions.
+
+For related prompt properties, see Terminal > Replay > Step Defaults > Completion.

@@ -1,0 +1,6 @@
+# Spirent Avalanche sessions > Avalanche API Commands > av_reserve > Parameters
+
+| 欄位1 | 欄位2 | 欄位3 |
+| --- | --- | --- |
+| Name | Type | Description |
+| portAddress | string | Port address is specified in the form ip-address/slot/port, for example: 10.20.30.40/1/2. Both slot and port numbers are 1-based. |

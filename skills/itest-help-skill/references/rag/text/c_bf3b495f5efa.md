@@ -1,0 +1,5 @@
+# Serial Sessions > Session profile property settings for Serial sessions > For the Alt key, iTest captures only the last key pressed. For example, Alt+q is recorded as “q”. Function keys are not recorded. Terminal > Font
+
+| 欄位1 | 欄位2 |
+| --- | --- |
+| Use standard text font | Check the box to use the fixed width font that appears in terminal windows on the computer that is running iTest. Click Change to open the Fonts dialog box to specify the font. You can specify the font size, style, type and other effects. Default: Courier New, 10 point, Normal |

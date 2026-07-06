@@ -1,0 +1,6 @@
+# 圖片：using_help.16.jpg
+
+- 分類：inline_icon
+- 判斷依據：尺寸小(19x19)，判定為行內功能圖示
+- 尺寸：19x19
+- 引用來源 chunk：c_bbdbd19a4f9d（topics/help_topics_navigating.htm）

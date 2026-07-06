@@ -1,0 +1,3 @@
+# iTest Topology Editor > General Local Topology Operations > Control emulation for devices in a topology
+
+You can control how emulation is used for any device in a topology in any test case that uses the device. For details, see Controlling emulation for devices in a topology.

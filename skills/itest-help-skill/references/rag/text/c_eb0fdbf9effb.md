@@ -1,0 +1,3 @@
+# Capturing Manual (Interactive) Sessions > Overview: Creating a test case by capturing interactive sessions > Replaying captured items > 第2段
+
+QuickCalls will save you a lot of time setting up and tearing down, and, for example, can quickly perform the 20 steps that you usually have to type to bring the device into the proper state for that single crucial test step. When you save a QuickCall to a test case, iTest saves it as a single step, regardless of how many steps the QuickCall executed (this makes the test case more modular and easier to read). See “QuickCalls: Defining and using a library of custom actions”.

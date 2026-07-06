@@ -1,0 +1,5 @@
+# Tcl Shell Sessions > Session profile property settings for Tcl Shell sessions > Tcl Interpreter > Terminal > Terminal > Color
+
+| 欄位1 | 欄位2 |
+| --- | --- |
+| Color scheme | Check White background to display black text on a white background. Check Black background to display white text on a black background. Default: White background |

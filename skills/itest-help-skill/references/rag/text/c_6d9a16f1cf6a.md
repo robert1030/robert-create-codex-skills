@@ -1,0 +1,3 @@
+# 未分類（無 TOC 對應） > To add steps by capturing (start sessions with devices and save the captured ... > To add steps by capturing (start sessions with devices and save the captured steps into a test case) > To edit an analysis rule
+
+Select the step in the Analysis Rules table and then click Edit. The Analysis Rule wizard opens to a page that enables you to modify the rule as needed. See About the Analysis Rule wizard.

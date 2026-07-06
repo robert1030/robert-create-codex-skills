@@ -1,0 +1,6 @@
+# 圖片：session_windows_2.1.jpg
+
+- 分類：inline_icon
+- 判斷依據：尺寸小(24x24)，判定為行內功能圖示
+- 尺寸：24x24
+- 引用來源 chunk：c_9bfce9405bc8（topics/session_windows_working_with.htm）

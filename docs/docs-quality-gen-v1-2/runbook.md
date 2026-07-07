@@ -7,10 +7,12 @@
 產生或維護 `docs-quality-gen` 的文件時，結果應該包含：
 
 ```text
-docs-quality-gen/
+docs-quality-gen-v1-2/
   SPEC.md
   runbook.md
   runbook.htm
+  FROZEN.md
+  LESSONS.md
 ```
 
 這三份文件的分工：
@@ -18,6 +20,8 @@ docs-quality-gen/
 - `SPEC.md` 說明 `docs-quality-gen` 必須做到什麼。
 - `runbook.md` 說明如何操作與檢查文件。
 - `runbook.htm` 是 `runbook.md` 的 HTML 同步版本，文字意思必須一致，也可以有基礎文件樣式。
+- `FROZEN.md` 記錄 v1.2 凍結契約與變更政策。
+- `LESSONS.md` 記錄驗證失敗、契約漂移與維護教訓。
 
 ## 目前環境範例
 
@@ -25,16 +29,16 @@ docs-quality-gen/
 
 ```text
 Windows skill 位置:
-C:\Users\robert\.codex\skills\docs-quality-gen
+C:\Users\robert\.codex\skills\docs-quality-gen-v1-2
 
 Windows 文件位置:
-F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen
+F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2
 
 Ubuntu Bash 原生文件位置範例:
-<workspace>/robert-create-codex-skills/docs/docs-quality-gen
+<workspace>/robert-create-codex-skills/docs/docs-quality-gen-v1-2
 
 WSL 對應目前 Windows F: 磁碟的文件位置範例:
-/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen
+/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen-v1-2
 ```
 
 本 runbook 的指令分成 Windows PowerShell 與 Ubuntu Bash/sh。不要把 PowerShell 語法混進 Bash 區塊，也不要把 Bash 語法混進 PowerShell 區塊。`/mnt/f/...` 是 WSL 範例，不是原生 Ubuntu 的通用路徑。
@@ -48,18 +52,18 @@ WSL 對應目前 Windows F: 磁碟的文件位置範例:
 Windows PowerShell：
 
 ```powershell
-Get-ChildItem -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen"
+Get-ChildItem -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2"
 ```
 
 Ubuntu Bash/sh：
 
 ```bash
 # Native Ubuntu example: replace <workspace> with the actual workspace path.
-DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen"
+DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen-v1-2"
 ls -la "$DOCS_DIR"
 
 # WSL example for the current Windows F: drive:
-DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen"
+DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen-v1-2"
 ls -la "$DOCS_DIR"
 ```
 
@@ -85,13 +89,13 @@ runbook.htm
 
 ```text
 Windows:
-C:\Users\robert\.codex\skills\docs-quality-gen\references
+C:\Users\robert\.codex\skills\docs-quality-gen-v1-2\references
 
 Ubuntu Bash native example:
-<home>/.codex/skills/docs-quality-gen/references
+<home>/.codex/skills/docs-quality-gen-v1-2/references
 
 WSL example for this Windows user profile:
-/mnt/c/Users/robert/.codex/skills/docs-quality-gen/references
+/mnt/c/Users/robert/.codex/skills/docs-quality-gen-v1-2/references
 ```
 
 依文件類型讀取：
@@ -106,8 +110,9 @@ WSL example for this Windows user profile:
 驗證方式：
 
 - 本次文件類型有對應 reference。
-- 沒有把 iTest、公開通用風格指南或完整 HTML 視覺設計規則加入 v1.1。
+- 沒有把 iTest、公開通用風格指南或完整 HTML 視覺設計規則加入 v1.2。
 - 如果要處理 Word `.doc` 或 `.docx`，已讀取 `word-doc-quality.md`。
+- 如果要升級或 release 這支 skill，已讀取 `FROZEN.md` 與 `LESSONS.md`。
 
 ## Step 3: 修改前確認成功標準
 
@@ -183,18 +188,18 @@ WSL example for this Windows user profile:
 Windows PowerShell：
 
 ```powershell
-Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.htm" -Pattern "Word","iTest","runbook.htm","七年級","PowerShell","word-doc-quality.md","docx"
+Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2\runbook.htm" -Pattern "Word","iTest","runbook.htm","七年級","PowerShell","word-doc-quality.md","docx"
 ```
 
 Ubuntu Bash/sh：
 
 ```bash
 # Native Ubuntu example: replace <workspace> with the actual workspace path.
-DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen"
+DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen-v1-2"
 grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|word-doc-quality\\.md|docx" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 
 # WSL example for the current Windows F: drive:
-DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen"
+DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen-v1-2"
 grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|word-doc-quality\\.md|docx" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 ```
 
@@ -248,14 +253,14 @@ grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|word-doc-quality\\.md|
 
 動作：
 
-1. 先執行 `skills/docs-quality-gen/scripts/validate_docs_quality_gen.py`。
+1. 先執行 `skills/docs-quality-gen-v1-2/scripts/validate_docs_quality_gen.py`。
 2. 如果已經產生 zip，傳入 `--package` 檢查封裝內容。
 3. 再做人工的格式、流程、內容與可讀性回顧。
 
 檢查清單：
 
 - 格式一致：標題層級、清單格式與 code block 合理。
-- 自我驗證通過：v1.1 契約、Word 驗證層級、mirrored docs 與可選 zip 結構都通過 Python script。
+- 自我驗證通過：v1.2 契約、Word 驗證層級、`FROZEN.md`、`LESSONS.md`、mirrored docs 與可選 zip 結構都通過 Python script。
 - Word 文件品質一致：最高驗證層級、內容、結構、視覺 render QA 或 fallback 檢查有交代。
 - 流程一致：前置條件、步驟順序、檔名與驗證方式一致。
 - 內容一致：SPEC、runbook、Markdown/HTML 沒有互相打架。
@@ -267,23 +272,23 @@ grep -RInE "Word|iTest|runbook\\.htm|七年級|PowerShell|word-doc-quality\\.md|
 Windows PowerShell：
 
 ```powershell
-python skills\docs-quality-gen\scripts\validate_docs_quality_gen.py
-Get-ChildItem -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen" | Select-Object Name,Length
-Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\SPEC.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen\runbook.htm" -Pattern "docx","iTest","public","generic","Word","word-doc-quality","PowerShell"
+python skills\docs-quality-gen-v1-2\scripts\validate_docs_quality_gen.py
+Get-ChildItem -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2" | Select-Object Name,Length
+Select-String -Path "F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2\SPEC.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2\runbook.md","F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2\runbook.htm" -Pattern "docx","iTest","public","generic","Word","word-doc-quality","PowerShell"
 ```
 
 Ubuntu Bash/sh：
 
 ```bash
 # Native Ubuntu example: replace <workspace> with the actual workspace path.
-DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen"
-python "$DOCS_DIR/../../skills/docs-quality-gen/scripts/validate_docs_quality_gen.py"
+DOCS_DIR="<workspace>/robert-create-codex-skills/docs/docs-quality-gen-v1-2"
+python "$DOCS_DIR/../../skills/docs-quality-gen-v1-2/scripts/validate_docs_quality_gen.py"
 find "$DOCS_DIR" -maxdepth 1 -type f -printf '%f %s bytes\n'
 grep -RInE "docx|iTest|public|generic|Word|word-doc-quality|PowerShell" "$DOCS_DIR/SPEC.md" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 
 # WSL example for the current Windows F: drive:
-DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen"
-python "$DOCS_DIR/../../skills/docs-quality-gen/scripts/validate_docs_quality_gen.py"
+DOCS_DIR="/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen-v1-2"
+python "$DOCS_DIR/../../skills/docs-quality-gen-v1-2/scripts/validate_docs_quality_gen.py"
 find "$DOCS_DIR" -maxdepth 1 -type f -printf '%f %s bytes\n'
 grep -RInE "docx|iTest|public|generic|Word|word-doc-quality|PowerShell" "$DOCS_DIR/SPEC.md" "$DOCS_DIR/runbook.md" "$DOCS_DIR/runbook.htm"
 ```
@@ -291,8 +296,9 @@ grep -RInE "docx|iTest|public|generic|Word|word-doc-quality|PowerShell" "$DOCS_D
 預期結果：
 
 - 三份文件存在。
-- Python 自我驗證輸出 `[OK] docs-quality-gen v1.1 contract validated`。
-- `docx` 出現在 v1.1 Word 支援與品質檢查說明中。
+- Python 自我驗證輸出 `[OK] docs-quality-gen v1.2 contract validated`。
+- `docx` 出現在 v1.2 Word 支援與品質檢查說明中。
+- `FROZEN.md` 與 `LESSONS.md` 出現在 skill 契約與 release 檢查說明中。
 - `iTest` 只出現在「不加入專案專屬規則」的限制中。
 - `public` 與 `generic` 只出現在「不是公開通用規格或泛用助手」的限制中。
 - `word-doc-quality` 出現在 reference 對照或檢查說明中。

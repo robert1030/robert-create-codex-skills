@@ -39,6 +39,9 @@ Use this checklist before final delivery of robert's personal documentation chan
 
 ## 5. Honest Delivery
 
+- Check the frozen contract before changing released skill behavior.
+- Update `LESSONS.md` when a validator failure, contract drift, or repeated documentation mistake shaped the fix.
+- Run release validation with `scripts/validate_docs_quality_gen.py` before packaging this skill, and run it again with `--package <zip-path>` after packaging.
 - State which files changed.
 - State what was verified.
 - For Word documents, state the highest verification level reached and whether content re-read, structural checks, visual render QA, and accessibility or document-audit checks were run.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Quality Gen"
+  short_description: "robert personal document quality gate"
+  default_prompt: "Use $docs-quality-gen-v1-2 to produce, synchronize, or review robert's SPEC, runbook, README, Markdown/HTML, and Word DOC/DOCX documents with consistency, readability, verification-level, frozen contract, release validation, and final delivery checks."

@@ -6,7 +6,7 @@ This document defines the expected behavior, boundaries, and acceptance criteria
 
 ## Purpose（目的）
 
-中文說明：`docs-quality-gen` 是 robert 個人的文件品質 gate。它用來產生、同步、檢查 SPEC、runbook、README、成對的 Markdown/HTML 文件，以及 Word `.doc` 和 `.docx` 文件。v1.1 加入 Word 文件品質檢查。
+中文說明：`docs-quality-gen` 是 robert 個人的文件品質 gate。它用來產生、同步、檢查 SPEC、runbook、README、成對的 Markdown/HTML 文件，以及 Word `.doc` 和 `.docx` 文件。v1.2 加入凍結契約、維護紀錄、release validation 與更明確的房規。
 
 `docs-quality-gen` must help Codex produce, update, synchronize, and review robert's personal documentation artifacts with these goals:
 
@@ -21,9 +21,9 @@ This document defines the expected behavior, boundaries, and acceptance criteria
 
 ## Scope（範圍）
 
-中文說明：這段定義 v1.1 支援哪些文件。這不是公開通用文件標準，也不是泛用寫作助手。
+中文說明：這段定義 v1.2 支援哪些文件。這不是公開通用文件標準，也不是泛用寫作助手。
 
-In v1.1, the skill applies to these documentation artifacts:
+In v1.2, the skill applies to these documentation artifacts:
 
 - `SPEC.md`
 - `runbook.md`
@@ -41,9 +41,9 @@ Word files must meet the same quality bar as Markdown and HTML files. This inclu
 
 ## Out of Scope（非範圍）
 
-中文說明：這些項目不屬於 v1.1。除非使用者明確要求，skill 不應主動做文件以外的交付動作。
+中文說明：這些項目不屬於 v1.2。除非使用者明確要求，skill 不應主動做文件以外的交付動作。
 
-The v1.1 skill must not define rules for:
+The v1.2 skill must not define rules for:
 
 - Project-specific knowledge, such as iTest help rules
 - Full HTML visual design, brand design, interactive UI, or marketing-page layout
@@ -59,25 +59,27 @@ If the user explicitly asks for a non-document delivery action, Codex may perfor
 The skill folder must be named:
 
 ```text
-docs-quality-gen
+docs-quality-gen-v1-2
 ```
 
 The required skill entry file is:
 
 ```text
-docs-quality-gen/SKILL.md
+docs-quality-gen-v1-2/SKILL.md
 ```
 
-The v1.1 reference files are:
+The v1.2 reference files are:
 
 ```text
-docs-quality-gen/references/spec-rules.md
-docs-quality-gen/references/runbook-rules.md
-docs-quality-gen/references/markdown-html-sync.md
-docs-quality-gen/references/word-doc-quality.md
-docs-quality-gen/references/readability-grade7.md
-docs-quality-gen/references/final-review-checklist.md
-docs-quality-gen/scripts/validate_docs_quality_gen.py
+docs-quality-gen-v1-2/references/spec-rules.md
+docs-quality-gen-v1-2/references/runbook-rules.md
+docs-quality-gen-v1-2/references/markdown-html-sync.md
+docs-quality-gen-v1-2/references/word-doc-quality.md
+docs-quality-gen-v1-2/references/readability-grade7.md
+docs-quality-gen-v1-2/references/final-review-checklist.md
+docs-quality-gen-v1-2/FROZEN.md
+docs-quality-gen-v1-2/LESSONS.md
+docs-quality-gen-v1-2/scripts/validate_docs_quality_gen.py
 ```
 
 `SKILL.md` must stay concise and act as the entry point. Detailed rules should live in the matching reference file so Codex only loads the context needed for the current task.
@@ -111,7 +113,7 @@ When a Markdown file and an HTML file represent the same document:
 
 ## Word Document Quality Requirements（Word 文件品質要求）
 
-中文說明：v1.1 支援 Word `.doc` 和 `.docx` 文件品質檢查。Word 文件的標準要和 Markdown、HTML 一樣，不能只確認檔案可開啟或可儲存。
+中文說明：v1.2 支援 Word `.doc` 和 `.docx` 文件品質檢查。Word 文件的標準要和 Markdown、HTML 一樣，不能只確認檔案可開啟或可儲存。
 
 For Word `.doc` and `.docx` documents, quality checks must include:
 
@@ -140,8 +142,8 @@ The skill must not treat local paths, user names, drive letters, tool install lo
 Current-environment examples may be documented, such as:
 
 ```text
-C:\Users\robert\.codex\skills\docs-quality-gen
-F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen
+C:\Users\robert\.codex\skills\docs-quality-gen-v1-2
+F:\MyCode\robert-create-codex-skills\docs\docs-quality-gen-v1-2
 ```
 
 These paths are examples from the current Windows environment. On another computer, replace them with the actual user profile, drive letter, workspace path, and skill location.
@@ -149,32 +151,34 @@ These paths are examples from the current Windows environment. On another comput
 Ubuntu examples should use placeholders or native paths such as:
 
 ```text
-<workspace>/robert-create-codex-skills/docs/docs-quality-gen
+<workspace>/robert-create-codex-skills/docs/docs-quality-gen-v1-2
 ```
 
 For WSL only, the current Windows `F:` drive may appear as:
 
 ```text
-/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen
+/mnt/f/MyCode/robert-create-codex-skills/docs/docs-quality-gen-v1-2
 ```
 
 The `/mnt/f/...` path is a WSL example, not a native Linux requirement.
 
 ## Acceptance Criteria（驗收條件）
 
-中文說明：符合這些條件，才算 `docs-quality-gen` 文件品質 gate 的 v1.1 行為可接受。
+中文說明：符合這些條件，才算 `docs-quality-gen` 文件品質 gate 的 v1.2 行為可接受。
 
 The skill is acceptable when:
 
-- `SKILL.md` explains the purpose, supported file types, v1.1 exclusions, basic workflow, and hard rules.
-- Each v1.1 reference file exists and has a single clear responsibility.
+- `SKILL.md` explains the purpose, supported file types, v1.2 exclusions, basic workflow, and hard rules.
+- Each v1.2 reference file exists and has a single clear responsibility.
 - SPEC rules do not become runbook steps.
 - Runbook rules describe step-by-step operation quality.
 - Markdown/HTML sync rules require paired files to carry the same meaning.
 - Word document quality rules require explicit verification levels, content, structure, visual render QA when available, and honest fallback reporting when render QA is not available.
 - Grade-7 readability rules improve clarity without reducing technical correctness.
 - Final review rules require format, flow, content, readability, and honest delivery checks.
+- `FROZEN.md` records the v1.2 frozen contract and change policy.
+- `LESSONS.md` records validation failures, contract drift, and repair lessons.
 - `scripts/validate_docs_quality_gen.py` passes before packaging or release.
-- Word `.doc` and `.docx` behavior is included for v1.1 document quality checks.
+- Word `.doc` and `.docx` behavior is included for v1.2 document quality checks.
 - iTest or other project-specific knowledge is not included.
 - The skill remains robert's personal documentation quality gate, not a public generic standard.

@@ -1,159 +1,242 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""回歸測試：codex-skill-conventions 自身。
-執行方式依平台：Linux／macOS 用 python3，Windows 用 py 或 python，指令為 <啟動器> tests/test_validate_punct.py。
-測試內部子程序一律走 sys.executable，與啟動器名稱無關。
-守五件事：① 驗證器正本自我合規（掃遍本包全部文件與腳本，tests 除外）
-② 四類盲區必抓、指令列長參數不誤殺 ③ sync 自動探索能找到兄弟包
-④ bootstrap 旗標邏輯（不觸發真實安裝） ⑤ 轉換器 frontmatter 檢查與 yaml 草稿。
-任何一項 FAIL 都不准交付或同步。"""
-import os
+"""Regression tests for codex-skill-conventions.
+
+These tests are pytest-compatible and directly executable with：
+
+    python tests/test_validate_punct.py
+"""
+from __future__ import annotations
+
+import contextlib
+import importlib.util
+import io
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.normpath(os.path.join(HERE, ".."))
-VP = os.path.join(ROOT, "assets", "validate_punct.py")
-sys.path.insert(0, os.path.join(ROOT, "scripts"))
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS = ROOT / "scripts"
+VP = SCRIPTS / "validate_punct.py"
+sys.path.insert(0, str(SCRIPTS))
 
-PASS = 0
-FAIL = 0
-
-
-def check(name, cond):
-    global PASS, FAIL
-    if cond:
-        PASS += 1
-        print(f"  [PASS] {name}")
-    else:
-        FAIL += 1
-        print(f"  [FAIL] {name}")
+_spec = importlib.util.spec_from_file_location("validate_punct", VP)
+_validator = importlib.util.module_from_spec(_spec)
+assert _spec is not None and _spec.loader is not None
+_spec.loader.exec_module(_validator)
 
 
-def run_vp(target):
-    r = subprocess.run([sys.executable, VP, target], capture_output=True, text=True)
-    return r.returncode, r.stdout
+def run_vp(target: Path) -> tuple[int, str]:
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _validator.check(str(target))
+    return code, buf.getvalue()
 
 
-# ① 正本自我合規：掃遍本包全部文件與腳本（tests 目錄除外，因測試內含故意的髒樣本字串）
-scan_targets = [VP, os.path.join(ROOT, "SKILL.md")]
-for sub in ("references", "scripts", "agents"):
-    d = os.path.join(ROOT, sub)
-    if os.path.isdir(d):
-        for fn in sorted(os.listdir(d)):
-            if fn.endswith((".md", ".py", ".yaml")):
-                scan_targets.append(os.path.join(d, fn))
-lessons = os.path.join(ROOT, "LESSONS.md")
-if os.path.exists(lessons):
-    scan_targets.append(lessons)
-for tgt in scan_targets:
-    code, out = run_vp(tgt)
-    check(f"掃 {os.path.relpath(tgt, ROOT)} exit=0", code == 0)
-
-# ② 盲區樣本：半形句號、雙引號、單引號、緊鄰中文的雙連字號，全部要抓；
-#    指令列長參數（兩側非中文）不得誤殺
-with tempfile.TemporaryDirectory() as td:
-    bad = os.path.join(td, "bad.html")
-    with open(bad, "w", encoding="utf-8") as f:
-        f.write("這句用半形句號.繼續\n連字號--當破折號\n他說\"引號\"包中文\n再用'單引號'包中文\n破折號—在此\n")
-    code, out = run_vp(bad)
-    check("髒樣本 exit=1", code == 1)
-    check("抓到半形句號", "「.」" in out)
-    check("抓到半形雙引號", '「"」' in out)
-    check("抓到半形單引號", "「'」" in out)
-    check("抓到雙連字號破折號", "「--」" in out)
-    check("抓到 em dash", "「—」" in out)
-
-    ok = os.path.join(td, "ok.html")
-    with open(ok, "w", encoding="utf-8") as f:
-        f.write("全形標點，正常。安裝時請帶 --break-system-packages 參數，小數 3.14 與網址 example.com 不受影響。\n")
-    code, out = run_vp(ok)
-    check("乾淨樣本 exit=0（長參數、小數、網址不誤殺）", code == 0)
-
-# ③ sync 自動探索：在暫存環境擺兩個兄弟包，必須被找到並回報漂移，同步後一致
-with tempfile.TemporaryDirectory() as td:
-    for name in ("pkg-a", "pkg-b"):
-        os.makedirs(os.path.join(td, name, "scripts"))
-        with open(os.path.join(td, name, "scripts", "validate_punct.py"), "w") as f:
-            f.write("OLD\n")
-    me = os.path.join(td, "codex-skill-conventions")
-    shutil.copytree(ROOT, me)
-    r = subprocess.run([sys.executable, os.path.join(me, "scripts", "sync_validator.py"), "--check"],
-                       capture_output=True, text=True)
-    check("自動探索找到 2 個兄弟包", "2 個包" in r.stdout and r.returncode == 1)
-    subprocess.run([sys.executable, os.path.join(me, "scripts", "sync_validator.py")],
-                   capture_output=True, text=True)
-    r2 = subprocess.run([sys.executable, os.path.join(me, "scripts", "sync_validator.py"), "--check"],
-                        capture_output=True, text=True)
-    check("同步後再查全數一致", r2.returncode == 0)
-
-# ④ bootstrap 旗標邏輯：攔截 subprocess，不觸發真實安裝
-import bootstrap
-
-calls = []
-_orig_run = bootstrap.subprocess.run
+def yaml_value(raw: str, key: str) -> str:
+    m = re.search(rf"^\s*{re.escape(key)}:\s*(.*?)\s*$", raw, re.M)
+    if not m:
+        return ""
+    value = m.group(1).strip()
+    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+        value = value[1:-1]
+    return value
 
 
-def _fake_run(cmd, *a, **k):
-    calls.append(list(cmd))
-    class R:
-        returncode = 0
-    return R()
+def scan_targets() -> list[Path]:
+    targets = [
+        VP,
+        ROOT / "SKILL.md",
+        ROOT / "FROZEN.md",
+        ROOT / "LESSONS.md",
+        ROOT / "agents" / "openai.yaml",
+    ]
+    for sub in ("references", "scripts"):
+        folder = ROOT / sub
+        if folder.is_dir():
+            targets.extend(
+                sorted(
+                    p for p in folder.iterdir()
+                    if p.is_file() and p.suffix in {".md", ".py", ".yaml", ".yml", ".txt"}
+                )
+            )
+    return targets
 
 
-bootstrap.subprocess.run = _fake_run
-try:
-    check("已裝模組不重裝（ensure 回 True 且不呼叫 pip）",
-          bootstrap.ensure("json") is True and not calls)
+def test_validator_scans_main_package_files_successfully():
+    failures = []
+    for target in scan_targets():
+        code, out = run_vp(target)
+        if code != 0:
+            failures.append(f"{target.relative_to(ROOT)}\n{out}")
+    assert not failures, "\n\n".join(failures)
 
-    _em, _venv = bootstrap._is_externally_managed, bootstrap._in_virtualenv
-    bootstrap._is_externally_managed = lambda: True
-    bootstrap._in_virtualenv = lambda: False
-    bootstrap.ensure("this_module_never_exists_xyz", log=lambda *a: None)
-    check("外部管理且非 venv：帶 --break-system-packages",
-          calls and "--break-system-packages" in calls[-1])
 
-    calls.clear()
-    bootstrap._is_externally_managed = lambda: False
-    bootstrap.ensure("this_module_never_exists_xyz", log=lambda *a: None)
-    check("非外部管理：不帶 --break-system-packages",
-          calls and "--break-system-packages" not in calls[-1])
+def test_dirty_sample_is_rejected_and_reports_expected_tokens():
+    with tempfile.TemporaryDirectory(prefix="codex-skill-test-") as td:
+        bad = Path(td) / "bad.html"
+        bad.write_text(
+            "這句用半形句號.繼續\n"
+            "連字號--當破折號\n"
+            "他說\"引號\"包中文\n"
+            "再用'單引號'包中文\n"
+            "破折號—在此\n",
+            encoding="utf-8",
+        )
+        code, out = run_vp(bad)
+    assert code == 1, out
+    assert "「.」" in out
+    assert '「\"」' in out
+    assert "「'」" in out
+    assert "「--」" in out
+    assert "「—」" in out
 
-    calls.clear()
-    bootstrap._is_externally_managed = lambda: True
-    bootstrap._in_virtualenv = lambda: True
-    bootstrap.ensure("this_module_never_exists_xyz", log=lambda *a: None)
-    check("在 venv 內：不帶 --break-system-packages",
-          calls and "--break-system-packages" not in calls[-1])
 
-    check("pip_names 對映生效（PIL 對映 pillow）",
-          (calls.clear() or bootstrap.ensure("this_module_never_exists_xyz",
-                                             pip_names={"this_module_never_exists_xyz": "pillow"},
-                                             log=lambda *a: None) or True) and "pillow" in calls[-1])
-finally:
-    bootstrap.subprocess.run = _orig_run
-    bootstrap._is_externally_managed = _em
-    bootstrap._in_virtualenv = _venv
+def test_clean_sample_allows_command_flags_decimals_and_urls():
+    with tempfile.TemporaryDirectory(prefix="codex-skill-test-") as td:
+        ok = Path(td) / "ok.html"
+        ok.write_text(
+            "全形標點，正常。安裝時請帶 --break-system-packages 參數，"
+            "小數 3.14 與網址 example.com 不受影響。\n",
+            encoding="utf-8",
+        )
+        code, out = run_vp(ok)
+    assert code == 0, out
 
-# ⑤ 轉換器 frontmatter 檢查與 yaml 草稿
-import convert_from_claude_skill as conv
 
-check("合法 frontmatter 無問題",
-      conv.validate_frontmatter({"name": "good-name", "description": "x" * 30}) == [])
-check("抓到大寫 name",
-      any("不符合" in p for p in conv.validate_frontmatter({"name": "BadName", "description": "x"})))
-check("抓到連續連字號",
-      any("連續連字號" in p for p in conv.validate_frontmatter({"name": "a--b", "description": "x"})))
-check("抓到 description 超過上限",
-      any("超過" in p for p in conv.validate_frontmatter({"name": "ok", "description": "x" * 1025})))
-check("抓到多餘欄位",
-      any("不認得的欄位" in p for p in conv.validate_frontmatter({"name": "ok", "description": "x", "version": 1})))
-_short = conv.guess_short_description("這是一段夠長的描述句，用來測試截取邏輯是否落在合理長度之內，並且不會超過上限。後面還有第二句。")
-check("short_description 草稿落在二十五至六十四字", 25 <= len(_short) <= 64)
-_yaml = conv.build_openai_yaml("my-skill", "描述文字，測試用的一段夠長的描述文字，超過二十五個字以便通過檢查。")
-check("yaml 草稿 default_prompt 含 $skill-name", "$my-skill" in _yaml)
+def test_sync_validator_auto_discovers_and_synchronizes_sibling_packages():
+    with tempfile.TemporaryDirectory(prefix="codex-skill-test-") as td:
+        base = Path(td)
+        for name in ("pkg-a", "pkg-b"):
+            scripts_dir = base / name / "scripts"
+            scripts_dir.mkdir(parents=True)
+            (scripts_dir / "validate_punct.py").write_text("OLD\n", encoding="utf-8")
 
-print(f"\n結果：{PASS} passed, {FAIL} failed")
-sys.exit(0 if FAIL == 0 else 1)
+        me = base / "codex-skill-conventions"
+        ignore = shutil.ignore_patterns("__pycache__", ".pytest_cache", "pytest-cache-files-*")
+        shutil.copytree(ROOT, me, ignore=ignore)
+        sync = me / "scripts" / "sync_validator.py"
+
+        first = subprocess.run([sys.executable, str(sync), "--check"], capture_output=True, text=True)
+        assert first.returncode == 1, first.stdout + first.stderr
+        assert "2 個包" in first.stdout
+
+        subprocess.run([sys.executable, str(sync)], capture_output=True, text=True, check=False)
+        second = subprocess.run([sys.executable, str(sync), "--check"], capture_output=True, text=True)
+        assert second.returncode == 0, second.stdout + second.stderr
+
+
+def test_bootstrap_flag_logic_without_real_installation():
+    import bootstrap
+
+    calls: list[list[str]] = []
+    original_run = bootstrap.subprocess.run
+    original_external = bootstrap._is_externally_managed
+    original_venv = bootstrap._in_virtualenv
+
+    def fake_run(cmd, *args, **kwargs):
+        calls.append(list(cmd))
+
+        class Result:
+            returncode = 0
+
+        return Result()
+
+    bootstrap.subprocess.run = fake_run
+    try:
+        assert bootstrap.ensure("json") is True
+        assert calls == []
+
+        bootstrap._is_externally_managed = lambda: True
+        bootstrap._in_virtualenv = lambda: False
+        assert bootstrap.ensure("this_module_never_exists_xyz", log=lambda *a: None) is True
+        assert "--break-system-packages" in calls[-1]
+
+        calls.clear()
+        bootstrap._is_externally_managed = lambda: False
+        assert bootstrap.ensure("this_module_never_exists_xyz", log=lambda *a: None) is True
+        assert "--break-system-packages" not in calls[-1]
+
+        calls.clear()
+        bootstrap._is_externally_managed = lambda: True
+        bootstrap._in_virtualenv = lambda: True
+        assert bootstrap.ensure("this_module_never_exists_xyz", log=lambda *a: None) is True
+        assert "--break-system-packages" not in calls[-1]
+
+        calls.clear()
+        bootstrap._is_externally_managed = lambda: False
+        bootstrap._in_virtualenv = lambda: False
+        assert bootstrap.ensure(
+            "this_module_never_exists_xyz",
+            pip_names={"this_module_never_exists_xyz": "pillow"},
+            log=lambda *a: None,
+        ) is True
+        assert "pillow" in calls[-1]
+    finally:
+        bootstrap.subprocess.run = original_run
+        bootstrap._is_externally_managed = original_external
+        bootstrap._in_virtualenv = original_venv
+
+
+def test_converter_frontmatter_and_metadata_helpers():
+    import convert_from_claude_skill as conv
+
+    assert conv.validate_frontmatter({"name": "good-name", "description": "x" * 30}) == []
+    assert any("不符合" in p for p in conv.validate_frontmatter({"name": "BadName", "description": "x"}))
+    assert any("連續連字號" in p or "不可開頭結尾" in p for p in conv.validate_frontmatter({"name": "a--b", "description": "x"}))
+    assert any("超過" in p for p in conv.validate_frontmatter({"name": "ok", "description": "x" * 1025}))
+    assert any("不接受" in p for p in conv.validate_frontmatter({"name": "ok", "description": "x", "metadata": {}}))
+
+    short = conv.guess_short_description("這是一段夠長的描述句，用來測試截取邏輯是否落在合理長度之內，並且不會超過上限。後面還有第二句。")
+    assert 25 <= len(short) <= 64
+    yaml = conv.build_openai_yaml("my-skill", "描述文字，測試用的一段夠長的描述文字，超過二十五個字以便通過檢查。")
+    assert "$my-skill" in yaml
+
+
+def test_skill_frontmatter_and_agents_metadata_contract():
+    skill_text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    front = re.match(r"^---\n(.*?)\n---", skill_text, re.S).group(1)
+    keys = [
+        re.match(r"^([A-Za-z0-9_-]+):", line).group(1)
+        for line in front.splitlines()
+        if re.match(r"^([A-Za-z0-9_-]+):", line)
+    ]
+    assert set(keys) == {"name", "description"} and len(keys) == 2
+    assert "gpt-to-codex" in front and "claude-to-codex" in front
+    assert "gpt-skill-conventions v1.6.1" in front
+
+    agents = (ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
+    short = yaml_value(agents, "short_description")
+    prompt = yaml_value(agents, "default_prompt")
+    assert 10 <= len(short) <= 64
+    assert "$codex-skill-conventions" in prompt
+    assert re.search(r"allow_implicit_invocation:\s*true", agents)
+
+
+def _run_direct() -> int:
+    tests = [
+        test_validator_scans_main_package_files_successfully,
+        test_dirty_sample_is_rejected_and_reports_expected_tokens,
+        test_clean_sample_allows_command_flags_decimals_and_urls,
+        test_sync_validator_auto_discovers_and_synchronizes_sibling_packages,
+        test_bootstrap_flag_logic_without_real_installation,
+        test_converter_frontmatter_and_metadata_helpers,
+        test_skill_frontmatter_and_agents_metadata_contract,
+    ]
+    failures = []
+    for test in tests:
+        try:
+            test()
+            print(f"[PASS] {test.__name__}")
+        except Exception as exc:
+            failures.append((test.__name__, exc))
+            print(f"[FAIL] {test.__name__}: {exc}")
+    print(f"結果：{len(tests) - len(failures)} passed, {len(failures)} failed")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(_run_direct())

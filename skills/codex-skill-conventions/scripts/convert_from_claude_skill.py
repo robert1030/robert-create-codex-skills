@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-把一支遵守 joan-skill-conventions 房規的 Claude skill，轉換成 Codex skill 骨架。
+把一支遵守 Joan／GPT Skill 房規的 Claude-era 或 GPT-era skill，轉換成 Codex skill 骨架。
 
 用法：
-    python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出目錄>
+    python scripts/convert_from_claude_skill.py <來源 skill 目錄> <輸出目錄>
 
 做的事（只動外殼，不碰房規知識本身，見 SKILL.md「轉換器」一節的五步驟）：
   步驟一　結構補件：複製 SKILL.md／scripts／references／assets 到輸出目錄
           （這三個資源夾在 Claude 版與 Codex 版定義完全相同，不用重整）。
   步驟二　frontmatter 對齊：檢查 name 命名規則、description 一千零二十四字
-          上限、以及 Codex 不認得的多餘欄位。
-  步驟三　語意與用語轉換：掃描內文，列出疑似「Claude 專屬指涉」的行號與
+          上限、以及本治理契約不接受的多餘欄位。
+  步驟三　語意與用語轉換：掃描內文，列出疑似「來源平台專屬指涉」的行號與
           原句，供人工改寫（不自動代寫，避免語意失真，呼應房規五、七）。
   步驟四　環境相依重寫提示：偵測到寫死的 --break-system-packages 就提醒
           改用本 skill 的 scripts/bootstrap.py 環境偵測範式。
@@ -28,9 +28,9 @@ from pathlib import Path
 MAX_NAME_LEN = 64
 MAX_DESC_LEN = 1024
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
-ALLOWED_FRONTMATTER_KEYS = {"name", "description", "license", "allowed-tools", "metadata"}
+ALLOWED_FRONTMATTER_KEYS = {"name", "description"}
 
-# 疑似 Claude 專屬指涉的樣式，只偵測、不代寫。
+# 疑似來源平台專屬指涉的樣式，只偵測、不代寫。
 CLAUDE_SPECIFIC_PATTERNS = [
     r"另一個\s*Claude",
     r"讓\s*Claude\s*知道",
@@ -38,6 +38,8 @@ CLAUDE_SPECIFIC_PATTERNS = [
     r"claude\.ai",
     r"Claude\s*Code",
     r"Claude\s*讀到",
+    r"ChatGPT\s*Web",
+    r"gpt-skill-conventions",
     r"/mnt/skills",
 ]
 
@@ -121,7 +123,7 @@ def validate_frontmatter(fm):
         problems.append(f"description 超過 {MAX_DESC_LEN} 字（目前 {len(desc)} 字），會被 quick_validate.py 擋下")
     extra = set(fm.keys()) - ALLOWED_FRONTMATTER_KEYS
     if extra:
-        problems.append(f"frontmatter 含 Codex 不認得的欄位：{', '.join(sorted(extra))}（要移到 agents/openai.yaml 或刪除）")
+        problems.append(f"frontmatter 含本治理契約不接受的欄位：{', '.join(sorted(extra))}（標準交付只保留 name 與 description；其餘欄位需人工裁決）")
     return problems
 
 
@@ -152,7 +154,7 @@ def convert(src: Path, dst: Path) -> int:
     hits = scan_claude_specific(body)
     print("\n[步驟三　語意與用語轉換]")
     if hits:
-        print(f"  疑似 Claude 專屬用語（{len(hits)} 處，需人工改寫，不自動代寫）：")
+        print(f"  疑似來源平台專屬用語（{len(hits)} 處，需人工改寫，不自動代寫）：")
         for lineno, line in hits:
             print(f"    L{lineno}: {line}")
     else:
@@ -182,7 +184,7 @@ def convert(src: Path, dst: Path) -> int:
 
 def main():
     if len(sys.argv) != 3:
-        print("用法：python scripts/convert_from_claude_skill.py <來源 Claude skill 目錄> <輸出目錄>")
+        print("用法：python scripts/convert_from_claude_skill.py <來源 skill 目錄> <輸出目錄>")
         sys.exit(2)
     sys.exit(convert(Path(sys.argv[1]), Path(sys.argv[2])))
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the docs-quality-gen v1.1 skill contract."""
+"""Validate the docs-quality-gen v1.2 skill contract."""
 
 from __future__ import annotations
 
@@ -11,13 +11,15 @@ from pathlib import Path
 
 
 BASE_SKILL_NAME = "docs-quality-gen"
-VERSIONED_SKILL_NAME = "docs-quality-gen-v1-1"
+VERSIONED_SKILL_NAME = "docs-quality-gen-v1-2"
 ALLOWED_SKILL_NAMES = {BASE_SKILL_NAME, VERSIONED_SKILL_NAME}
 MAX_TEXT_BYTES = 2_000_000
 MAX_ZIP_ENTRIES = 200
 MAX_ZIP_UNCOMPRESSED_BYTES = 10_000_000
 REQUIRED_SKILL_FILES = [
     "SKILL.md",
+    "FROZEN.md",
+    "LESSONS.md",
     "agents/openai.yaml",
     "references/spec-rules.md",
     "references/runbook-rules.md",
@@ -27,12 +29,7 @@ REQUIRED_SKILL_FILES = [
     "references/final-review-checklist.md",
     "scripts/validate_docs_quality_gen.py",
 ]
-REQUIRED_DOC_FILES = [
-    "docs/docs-quality-gen/SPEC.md",
-    "docs/docs-quality-gen/runbook.md",
-    "docs/docs-quality-gen/runbook.htm",
-    "docs/docs-quality-gen/README.html",
-]
+REQUIRED_DOC_FILENAMES = ["SPEC.md", "runbook.md", "runbook.htm", "README.html"]
 STALE_PATTERNS = [
     "Word `.doc` or `.docx` files are out of scope",
     "Word `.doc` and `.docx` files are out of scope",
@@ -41,9 +38,12 @@ STALE_PATTERNS = [
     "out of scope for v1",
     "html-basic-style",
     "command-environments",
-    "v1.2",
     "HTML 基礎美化",
     "Windows/Linux 指令對照",
+    "docs\\docs-quality-gen\\",
+    "docs/docs-quality-gen/",
+    "skills\\docs-quality-gen\\",
+    "skills/docs-quality-gen/",
 ]
 
 
@@ -82,8 +82,6 @@ def validate_required_files(root: Path, skill_name: str) -> None:
     skill_dir = root / "skills" / skill_name
     for item in REQUIRED_SKILL_FILES:
         require((skill_dir / item).is_file(), f"Missing skill file: {item}")
-    for item in REQUIRED_DOC_FILES:
-        require((root / item).is_file(), f"Missing mirrored doc file: {item}")
 
 
 def validate_skill_contract(root: Path, skill_name: str) -> None:
@@ -97,12 +95,46 @@ def validate_skill_contract(root: Path, skill_name: str) -> None:
     for token in ["Word", "doc/docx", "Word document quality checks"]:
         require(token in description, f"SKILL.md description missing trigger token: {token}")
 
-    for token in ["v1.1", "Word `.doc` and `.docx`", "word-doc-quality.md", "Word verification level"]:
-        require(token in skill_md, f"SKILL.md missing v1.1 Word contract token: {token}")
+    for token in [
+        "v1.2",
+        "Execution Priority",
+        "House Rules",
+        "FROZEN.md",
+        "LESSONS.md",
+        "Word `.doc` and `.docx`",
+        "word-doc-quality.md",
+        "Word verification level",
+        "Three repeated failures",
+        "Acceptance must be evidence-based",
+    ]:
+        require(token in skill_md, f"SKILL.md missing v1.2 contract token: {token}")
 
     openai_yaml = read_text(skill_dir / "agents" / "openai.yaml")
-    for token in ["Word DOC/DOCX", "verification-level"]:
+    for token in ["Word DOC/DOCX", "verification-level", "final delivery"]:
         require(token in openai_yaml, f"agents/openai.yaml missing token: {token}")
+
+
+def validate_frozen_and_lessons(root: Path, skill_name: str) -> None:
+    skill_dir = root / "skills" / skill_name
+    frozen = read_text(skill_dir / "FROZEN.md")
+    for token in [
+        "v1.2",
+        "locked",
+        "Stable skill folder",
+        "Word verification levels",
+        "Markdown/HTML sync rule",
+        "Release gate",
+        "Change Policy",
+    ]:
+        require(token in frozen, f"FROZEN.md missing token: {token}")
+
+    lessons = read_text(skill_dir / "LESSONS.md")
+    for token in [
+        "鏡像文件路徑不得寫死舊 skill 名稱",
+        "文件品質 gate 需要明確房規",
+        "scripts/validate_docs_quality_gen.py",
+    ]:
+        require(token in lessons, f"LESSONS.md missing token: {token}")
 
 
 def validate_word_reference(root: Path, skill_name: str) -> None:
@@ -123,12 +155,22 @@ def validate_word_reference(root: Path, skill_name: str) -> None:
         "highest verification level reached" in checklist,
         "final-review-checklist.md must require the highest Word verification level",
     )
+    for token in ["frozen contract", "LESSONS.md", "release validation"]:
+        require(token in checklist, f"final-review-checklist.md missing v1.2 token: {token}")
 
 
-def validate_mirrored_docs(root: Path) -> None:
+def validate_mirrored_docs(root: Path, skill_name: str) -> None:
+    docs_dir = root / "docs" / skill_name
+    if not docs_dir.exists():
+        return
+    for filename in REQUIRED_DOC_FILENAMES:
+        require((docs_dir / filename).is_file(), f"Missing mirrored doc file: docs/{skill_name}/{filename}")
+
     required_by_file = {
-        "docs/docs-quality-gen/SPEC.md": [
-            "v1.1",
+        "SPEC.md": [
+            "v1.2",
+            "FROZEN.md",
+            "LESSONS.md",
             "Word `.doc` and `.docx`",
             "word-doc-quality.md",
             "Level 1",
@@ -136,7 +178,10 @@ def validate_mirrored_docs(root: Path) -> None:
             "Level 3",
             "Level 4",
         ],
-        "docs/docs-quality-gen/runbook.md": [
+        "runbook.md": [
+            "v1.2",
+            "FROZEN.md",
+            "LESSONS.md",
             "Word 文件品質檢查",
             "word-doc-quality.md",
             "驗證層級",
@@ -145,7 +190,10 @@ def validate_mirrored_docs(root: Path) -> None:
             "Level 3",
             "Level 4",
         ],
-        "docs/docs-quality-gen/runbook.htm": [
+        "runbook.htm": [
+            "v1.2",
+            "FROZEN.md",
+            "LESSONS.md",
             "Word 文件品質檢查",
             "word-doc-quality.md",
             "驗證層級",
@@ -154,25 +202,32 @@ def validate_mirrored_docs(root: Path) -> None:
             "Level 3",
             "Level 4",
         ],
-        "docs/docs-quality-gen/README.html": [
+        "README.html": [
+            "v1.2",
             "Word 文件品質",
             "驗證層級",
+            "FROZEN.md",
+            "LESSONS.md",
             "DOCX",
         ],
     }
     for file_name, tokens in required_by_file.items():
-        text = read_text(root / file_name)
+        text = read_text(docs_dir / file_name)
         for token in tokens:
-            require(token in text, f"{file_name} missing token: {token}")
+            require(token in text, f"docs/{skill_name}/{file_name} missing token: {token}")
 
 
 def validate_no_stale_claims(root: Path, skill_name: str) -> None:
     search_files = [
         root / "skills" / skill_name / "SKILL.md",
+        root / "skills" / skill_name / "FROZEN.md",
+        root / "skills" / skill_name / "LESSONS.md",
         root / "skills" / skill_name / "agents" / "openai.yaml",
         *sorted((root / "skills" / skill_name / "references").glob("*.md")),
-        *[root / item for item in REQUIRED_DOC_FILES],
     ]
+    docs_dir = root / "docs" / skill_name
+    if docs_dir.exists():
+        search_files.extend(docs_dir / item for item in REQUIRED_DOC_FILENAMES)
     for path in search_files:
         text = read_text(path)
         for pattern in STALE_PATTERNS:
@@ -215,7 +270,7 @@ def find_repo_root(start: Path, skill_name: str) -> Path:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate docs-quality-gen v1.1 contract.")
+    parser = argparse.ArgumentParser(description="Validate docs-quality-gen v1.2 contract.")
     parser.add_argument("--root", type=Path, default=None, help="Repository root")
     parser.add_argument("--package", type=Path, default=None, help="Optional packaged zip to validate")
     args = parser.parse_args()
@@ -225,8 +280,9 @@ def main() -> int:
         root = args.root.resolve() if args.root else find_repo_root(Path(__file__), skill_name)
         validate_required_files(root, skill_name)
         validate_skill_contract(root, skill_name)
+        validate_frozen_and_lessons(root, skill_name)
         validate_word_reference(root, skill_name)
-        validate_mirrored_docs(root)
+        validate_mirrored_docs(root, skill_name)
         validate_no_stale_claims(root, skill_name)
         if args.package:
             package_path = args.package.resolve()
@@ -241,7 +297,7 @@ def main() -> int:
         print(f"[ERROR] unexpected {type(exc).__name__}: {exc}")
         return 2
 
-    print("[OK] docs-quality-gen v1.1 contract validated")
+    print("[OK] docs-quality-gen v1.2 contract validated")
     return 0
 
 

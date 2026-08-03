@@ -1,0 +1,13 @@
+{
+  "comment": "共用正本清單。canonical 為本包內正本路徑，target 為各 skill 包內的目標相對路徑。新增共用資產只加一筆，不改同步器。",
+  "assets": [
+    {
+      "canonical": "assets/validate_punct.py",
+      "target": "scripts/validate_punct.py"
+    },
+    {
+      "canonical": "assets/bootstrap.py",
+      "target": "scripts/bootstrap.py"
+    }
+  ]
+}

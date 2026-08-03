@@ -1,5 +1,0 @@
-# About the iTest Window > Setting preferences for the workspace
-
-To view or edit preferences, click Window > Preferences. On the Preferences page, click Spirent > General > Workspace.
-
-General information on setting and sharing preference settings appears in “Configuring iTest Preferences”.

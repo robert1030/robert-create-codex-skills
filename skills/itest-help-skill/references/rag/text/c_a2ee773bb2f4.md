@@ -1,9 +1,0 @@
-# Popups（來源文件無 TOC 對應，依資料夾結構歸類） > popups/collapseNode.html > collapseNode
-
-Collapses the specified node in a tree.
-
-Target Required Controls Trees Command The path to the node to collapse. Path is specified by labels or indices separated by the > character, for example Countries>France>Paris. Step Properties
-
-Step Properties Trigger: Mouse or Keyboard used to collapse the node. Default: Mouse Use index: Check the box if the command specifies the node path by indices, for example 0>1>1 Default: unchecked Step Properties > Target Maximum time to wait for target: Specify the maximum number of seconds to wait for the target to appear before performing an action on it. If the time is exceeded, iTest declares an execution issue for the step and then continues executing. Default: 15
-
-For details, see the online help: Flex action reference.

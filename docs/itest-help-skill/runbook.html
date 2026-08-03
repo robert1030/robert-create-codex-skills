@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iTest Help Skill 操作手冊</title>
+  <style>
+    body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 58rem; padding: 0 1rem; color: #1f2933; }
+    h1, h2, h3 { line-height: 1.25; }
+    code { background: #f1f5f9; padding: 0.1rem 0.25rem; }
+    pre { background: #0f172a; color: #f8fafc; overflow-x: auto; padding: 1rem; }
+    pre code { background: transparent; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #cbd5e1; padding: 0.5rem; text-align: left; vertical-align: top; }
+    th { background: #e2e8f0; }
+    blockquote { border-left: 0.25rem solid #f59e0b; margin-left: 0; padding-left: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>iTest Help Skill 操作手冊</h1>
+  <p>本手冊說明如何在 Windows PowerShell 使用 <code>itest-help</code>。它的主線很簡單：先查本機知識庫，確認來源，再回答。若本機證據不足，只能查官方外部資料；外部資料不可用時，要明確說明無法確認。</p>
+  <p>規格與可驗證條件見 <a href="SPEC.md">SPEC.md</a>。</p>
+
+  <h2>1. 準備工作</h2>
+  <h3>目的</h3>
+  <p>確認目前操作的是完整的 skill 資料夾，並讓後續指令使用一致的根目錄。</p>
+  <h3>操作</h3>
+  <pre><code class="language-powershell">$SkillRoot = Join-Path $env:USERPROFILE '.codex\skills\itest-help'
+Set-Location -LiteralPath $SkillRoot
+python scripts\bootstrap.py</code></pre>
+  <h3>預期結果</h3>
+  <p><code>bootstrap.py</code> 回報 Python 環境可用，且不需要額外相依套件。</p>
+  <h3>驗證</h3>
+  <pre><code class="language-powershell">Test-Path -LiteralPath .\SKILL.md
+Test-Path -LiteralPath .\knowledge\retrieval-index.jsonl</code></pre>
+  <p>兩個指令都應回傳 <code>True</code>。</p>
+  <blockquote><p>注意：<code>$env:USERPROFILE\.codex\skills\itest-help</code> 是 Windows 的可攜寫法。若 skill 安裝在其他位置，請把 <code>$SkillRoot</code> 改成實際路徑；不要只複製目前電腦的使用者名稱或磁碟代號。</p></blockquote>
+
+  <h2>2. 查詢本機知識庫</h2>
+  <h3>目的</h3>
+  <p>先取得與問題相關的已驗證 Chunk，避免用未查證記憶回答。</p>
+  <h3>操作</h3>
+  <pre><code class="language-powershell">python scripts\search_itest_help.py "Tcl Test Step" --limit 5</code></pre>
+  <p>將查詢字串換成使用者的問題。必要時以 <code>--full</code> 顯示較完整的結果內容。</p>
+  <h3>預期結果</h3>
+  <p>每筆結果應包含 <code>chunk_id</code>、<code>source_file</code>、<code>document_version</code>、標題、章節或位置，以及來源與內容雜湊。</p>
+  <h3>驗證</h3>
+  <p>確認要採用的結果是 iTest Help 26.2.0，且文字能直接支持你的結論。相似關鍵字不代表可以下結論。</p>
+
+  <h2>3. 讀取完整 Chunk 與建立引用</h2>
+  <h3>目的</h3>
+  <p>在回答前補足上下文，並保留使用者可追溯的來源。</p>
+  <h3>操作</h3>
+  <p>把 <code>&lt;chunk-id&gt;</code> 換成上一步輸出的實際值：</p>
+  <pre><code class="language-powershell">python scripts\inspect_chunk.py &lt;chunk-id&gt;</code></pre>
+  <h3>預期結果</h3>
+  <p>輸出能讓你確認原始檔案、文件版本、章節或位置與內容。</p>
+  <h3>驗證</h3>
+  <p>回答中的每個技術結論都要有能直接支持它的來源，並加入：</p>
+  <pre><code>【知識庫來源】
+
+- 檔案：
+- 文件版本：
+- 章節：
+- 頁碼或位置：
+- Chunk ID：</code></pre>
+  <p>沒有頁碼時，填入可驗證的位置並標示「未提供頁碼」。不要推測頁碼。</p>
+
+  <h2>4. 本機結果不足時</h2>
+  <h3>目的</h3>
+  <p>避免把未知資訊寫成已確認的 iTest 指令或設定。</p>
+  <h3>操作</h3>
+  <p>依序確認：結果是否為空、是否只回答到一部分、使用者版本是否不同、或來源是否互相衝突。</p>
+  <p>只有符合上述情況，且執行環境真的提供 Web Search 時，才查 iTest 官方 Help、官方文件、Support Portal、Knowledge Base、Release Notes、API Reference、Command Reference 或官方整合文件。</p>
+  <h3>預期結果</h3>
+  <p>外部內容與本機內容分開標示：</p>
+  <pre><code>【外部查證聲明】
+
+本答案有部分內容無法由目前的 iTest 知識庫完整支持。以下資訊來自外部官方資料。
+
+- 資料名稱：
+- 發布單位：
+- 適用版本：
+- URL：
+- 查詢日期：
+- 使用範圍：</code></pre>
+  <h3>驗證</h3>
+  <p>外部來源必須是官方來源，且每項外部結論要對應其 URL 與版本。論壇、部落格或未標示版本的範例不能當主要依據。</p>
+  <h3>如果外部查證不可用</h3>
+  <p>直接說明：「目前執行環境無法存取外部官方資料，因此無法完成外部查證。」接著列出已確認內容與知識缺口。不得以模型記憶補出 Cmdlet、API、Regex、Ixia 參數或操作步驟。</p>
+
+  <h2>5. AI Chat Web 配置</h2>
+  <h3>目的</h3>
+  <p>讓 Chat Web 只使用實際提供的 iTest 26.2.0 知識檔案。</p>
+  <h3>操作</h3>
+  <p>在平台的知識檔案或檢索資料來源設定中，上傳並啟用：</p>
+  <pre><code>knowledge/chat-web-knowledge.md</code></pre>
+  <p>套用 <a href="../adapters/chat-web/instructions.md">instructions.md</a> 的流程。詳細設定見 <a href="../adapters/chat-web/knowledge-configuration.md">knowledge-configuration.md</a>。</p>
+  <h3>預期結果</h3>
+  <p>Chat Web 可檢索到 <code>Chunk ID</code>、<code>Source file</code>、<code>Document version</code> 與 <code>Location</code> 欄位。</p>
+  <h3>驗證</h3>
+  <p>用下列問題之一測試，並確認回答附有可追溯的內部來源：</p>
+  <ul>
+    <li>如何新增 Tcl Test Step？</li>
+    <li>PowerShell Test Step 有哪些前置條件？</li>
+    <li>Analysis Rule 的 Regex 設定有哪些注意事項？</li>
+  </ul>
+  <blockquote><p>注意：Chat Web 不保證具有本機檔案存取、Python 或 Web Search。未實際提供的能力不能假設存在。</p></blockquote>
+
+  <h2>6. 驗證封裝內容</h2>
+  <h3>目的</h3>
+  <p>確認文件沒有改變 skill 的來源鏈、固定版本或已知限制。</p>
+  <h3>操作</h3>
+  <pre><code class="language-powershell">python scripts\validate_itest_help.py .
+python scripts\run_regression_tests.py .</code></pre>
+  <h3>預期結果</h3>
+  <p>第一個命令輸出 <code>Validation: PASS</code>。第二個命令輸出所有封裝內回歸案例通過。</p>
+  <h3>驗證</h3>
+  <p>這些檢查通過只代表 skill 契約、來源鏈與測試符合封裝規則。原始 collection 仍保留 1 個 <code>source_missing_target</code>，collection 狀態為 <code>partial_success</code>；不可把它寫成完整成功。</p>
+
+  <h2>7. 常見狀態與處理</h2>
+  <table>
+    <thead><tr><th>狀態</th><th>要做什麼</th><th>不可做什麼</th></tr></thead>
+    <tbody>
+      <tr><td><code>tool_unavailable</code></td><td>說明工具缺少，使用仍可讀的資料或無答案格式。</td><td>假裝已經檢索。</td></tr>
+      <tr><td><code>permission_denied</code></td><td>說明未授權，停止讀取該資料。</td><td>繞過權限。</td></tr>
+      <tr><td><code>no_results</code></td><td>用同義詞或版本條件重查；仍無結果再評估官方外部查證。</td><td>用模型記憶補答案。</td></tr>
+      <tr><td><code>integrity_error</code></td><td>停止引用受影響資料，僅使用仍可驗證的內容。</td><td>把部分結果當完整答案。</td></tr>
+      <tr><td><code>network_unavailable</code></td><td>說明無法完成官方外部查證。</td><td>以未標示的外部資訊替代。</td></tr>
+      <tr><td><code>version_conflict</code></td><td>分開列出版本與來源，要求版本資訊或說明不能混用。</td><td>混合不同版本的步驟。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. 更新注意事項</h2>
+  <p><code>knowledge/rag/</code>、<code>knowledge/retrieval-index.jsonl</code> 和 <code>knowledge/chat-web-knowledge.md</code> 屬於驗證資料鏈。替換知識檔案時，必須同步更新來源 manifest、provenance map、validation report、版本矩陣與回歸測試，再依 <a href="../FROZEN.md">FROZEN.md</a> 建立新版本並重新封裝。</p>
+</body>
+</html>

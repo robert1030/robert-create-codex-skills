@@ -1,6 +1,0 @@
-# 圖片：test_case_editor.20.jpg
-
-- 分類：unknown
-- 判斷依據：尺寸較大(52x38)，OCR 文字量低(0)，無法僅憑客觀特徵判斷是截圖、示意圖或照片，依規則標記為 unknown，不腦補內容
-- 尺寸：52x38
-- 引用來源 chunk：c_c51875c26930（topics/test_case_editor_steps_page.htm）

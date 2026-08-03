@@ -1,0 +1,4 @@
+{"id":"local-sufficient","scenario":"Verified local chunks directly support the answer.","policy_file":"external","required_policy_text":"只有下列情況可使用外部資料"}
+{"id":"local-insufficient","scenario":"Local knowledge has no answer.","policy_file":"external","required_policy_text":"本地知識庫沒有內容"}
+{"id":"web-unavailable","scenario":"No official web tool is available.","policy_file":"external","required_policy_text":"目前執行環境無法存取外部官方資料，因此無法完成外部查證。"}
+{"id":"tool-unavailable","scenario":"Agent has no retrieval tool permission.","policy_file":"error","required_policy_text":"不得生成未被來源支持的 iTest 步驟或語法。"}

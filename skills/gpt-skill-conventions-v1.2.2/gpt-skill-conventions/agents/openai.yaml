@@ -1,0 +1,10 @@
+interface:
+  display_name: "GPT Skill Conventions"
+  short_description: "Joan skill house rules for ChatGPT."
+  icon: "🧭"
+  accent_color: "#6B7280"
+  brand_color: "#6B7280"
+  default_prompt: "Use $gpt-skill-conventions to create or review a portable OpenAI skill with validation gates."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,10 @@
+interface:
+  display_name: "GPT Session Handoff"
+  short_description: "Create a validated handoff summary for continuing work in a new session."
+  icon: "🧭"
+  accent_color: "#4F46E5"
+  brand_color: "#4F46E5"
+  default_prompt: "Use $gpt-session-handoff to create a validated Markdown handoff for continuing this work in a new session."
+
+policy:
+  allow_implicit_invocation: true

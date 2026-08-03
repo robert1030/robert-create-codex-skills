@@ -1,9 +1,0 @@
-# Test Reports > Test reports overview > Searching for text in a test report > 第2段
-
-- **Find**：Specify the text to find. You can provide specialized text — see the Options properties.
-- **Replace With**：Because test reports are read-only, Replace operations are not supported.
-- **Direction**：Specify whether to search Forward or Backward from the cursor position. See the Wrap search option. Forward searches always begin at the beginning of the Executed Steps section of the report.
-- **Scope**：All steps: Search all rows in the report. Selected step: Search all properties and views for the selected step and its child steps only.
-- **Options**：Case-sensitive: Matches must use the identical case as the text in the Find field. Does not apply if you check the Regular expression checkbox. Whole word: Matches must be the text in the Find field surrounded by whitespace. Does not apply if you check the Regular expression checkbox. Regular expression: Interpret the text in the Find field as a regex. Wrap search: This option ensures that all specified items are searched in the case that you start a search in the “middle”. When the Find process reaches the end of the document (Direction property = Forward) or the beginning of the document (Direction property = Backward), the search continues.
-- **Include Properties**：Check an item to perform the Find process in the selected column of cells. Default: Action, Session, and Description. The Description field is not actually a property but is sometimes a collection of property settings. (For example, for CLI session types, Description displays the content of the Command property.) For the Find process, Description is considered to be a single property, so all affected properties settings are searched.
-- **Include Views**：Check a view to perform the Find process in the view. Default: Response view

@@ -1,9 +1,0 @@
-# Command Prompt sessions > Session profile property settings for Command Prompt sessions (Microsoft Windows command line) > Note for Linux and Unix users: > Terminal > Capture > Break
-
-![*](bullet_black_small.png) <!-- image_ref -->
-
-![*](bullet_black_small.png) <!-- image_ref -->
-
-| 欄位1 | 欄位2 |
-| --- | --- |
-| Number of lines to keep | Specify the character code that the device interprets as a break (so you can manually cancel an executing step). Default: Ctrl-C To add the encoding for a character set like Ctrl-Z, click Record and then press the keys. iTest places the character code into the text box. Click Add to add the code to the set of command completion characters. Limitations of the Record feature: |

@@ -1,0 +1,33 @@
+{
+  "product": "iTest Help",
+  "product_version": "26.2.0",
+  "rag": {
+    "archive_name": "itest-help_26.2.0-rag-v1.2.1.zip",
+    "version": "1.2.1",
+    "archive_sha256": "309BA7AACF41000C242FD0FBD1AF0B8B548F1EAB14A055284A3615DDE82BBC70",
+    "extracted_root": "knowledge/rag/v1.2.1-full-visual-semantics-20260730",
+    "extracted_file_count": 9329,
+    "collection_report": "knowledge/rag/v1.2.1-full-visual-semantics-20260730/collection-report-itest-help_26.2.0.zip-79edef31c6908df0.json",
+    "collection_report_sha256": "93AB5F33CB3B74359028D8792AEBA65DBAD348BFA647E469911853F10BDC9386",
+    "collection_id": "itest-help_26.2.0.zip-79edef31c6908df0"
+  },
+  "original_source": {
+    "archive_name": "itest-help_26.2.0.zip",
+    "container_sha256": "3CA1B2A6807776080842CEC3D87E16781469E4353C6A6D0871793AE100122073",
+    "member_count": 7004,
+    "member_path_match_count": 7004,
+    "member_content_sha256_match_count": 7004,
+    "missing_member_count": 0,
+    "unexpected_member_count": 0,
+    "member_hash_mismatch_count": 0,
+    "identity_status": "verified_by_member_paths_and_sha256"
+  },
+  "validation": {
+    "supporting_evidence_archive": "multiformat-rag-chunker-v1.2.1-supporting-evidence.zip",
+    "supporting_evidence_sha256": "4F9E65907C5958E9B5576325EE5418E589A0E21ACE33A14E735E0B41B3A6F91E",
+    "collection_gate_passed": true,
+    "collection_status": "partial_success",
+    "collection_exit_code": 2,
+    "known_limitation": "One source_missing_target has no unique verifiable target in the original source package."
+  }
+}

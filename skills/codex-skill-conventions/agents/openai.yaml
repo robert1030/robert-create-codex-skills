@@ -1,7 +1,0 @@
-interface:
-  display_name: "Codex Skill Conventions"
-  short_description: "Codex Skill 房規、驗證硬閘門與移植治理"
-  default_prompt: "使用 $codex-skill-conventions 檢查、重構或移植 Codex skill，並完成房規、凍結契約、驗證與交付前檢查。"
-
-policy:
-  allow_implicit_invocation: true

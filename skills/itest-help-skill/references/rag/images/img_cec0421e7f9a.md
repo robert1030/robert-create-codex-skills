@@ -1,6 +1,0 @@
-# 圖片：spirent_avalanche.3.jpg
-
-- 分類：unknown
-- 判斷依據：尺寸較大(95x22)，OCR 文字量低(0)，無法僅憑客觀特徵判斷是截圖、示意圖或照片，依規則標記為 unknown，不腦補內容
-- 尺寸：95x22
-- 引用來源 chunk：c_b98301c400c2（topics/tgen_cmds_avalanche.htm）

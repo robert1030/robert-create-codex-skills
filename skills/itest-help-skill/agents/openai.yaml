@@ -1,6 +1,0 @@
-interface:
-  display_name: "iTest Help Skill"
-  short_description: "查詢 iTest Help 26.2.0 的 GUI、Tcl、Python 與 Analysis 說明"
-  default_prompt: "使用 $itest-help-skill 查詢 iTest Help 26.2.0 的 GUI、Tcl、Python 或 Analysis 內容"
-policy:
-  allow_implicit_invocation: true

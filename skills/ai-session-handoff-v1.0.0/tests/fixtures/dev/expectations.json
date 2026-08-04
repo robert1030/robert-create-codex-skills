@@ -1,0 +1,25 @@
+{
+  "scenario": "技術開發工作",
+  "must_include": [
+    "logpack",
+    "src/logpack/pack\\.py",
+    "docs/spec\\.md",
+    "12 passed",
+    "\\[SUPERSEDED\\]"
+  ],
+  "must_not_include": [
+    "CI (?:已|全部)?(?:通過|跑過)",
+    "打包邏輯已完成",
+    "符號連結已處理",
+    "壓縮演算法已決定"
+  ],
+  "expected_next_step": "下一步：實作 `src/logpack/pack\\.py`",
+  "artifact_references": [
+    "`src/logpack/cli.py`",
+    "`tests/test_cli.py`",
+    "`docs/spec.md`"
+  ],
+  "forbidden_values": [],
+  "min_redaction_marks": 0,
+  "notes": "驗重點：已完成與未完成不得混淆；CI 未開啟不得寫成已驗證；被推翻的推測標為 SUPERSEDED。"
+}

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-session-handoff/handoff.schema.json",
+  "title": "ai-session-handoff handoff document",
+  "description": "交接文件的結構化表示。章節清單與狀態標記由 scripts/handoff_contract.py 定義，validate_skill.py 會比對兩者是否一致。",
+  "type": "object",
+  "required": ["title", "generated_at", "coverage", "mode", "sections"],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "文件標題，例如 Session 交接摘要｜主題｜日期。"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "產出時間，ISO 8601 日期或日期時間。",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+    },
+    "coverage": {
+      "type": "string",
+      "minLength": 1,
+      "description": "本次實際可見的對話範圍與限制，對應第八節的脈絡涵蓋欄。"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["agent", "web", "text-only"],
+      "description": "實際採用的輸出分支。"
+    },
+    "output_path": {
+      "type": ["string", "null"],
+      "description": "agent 模式寫入並回讀驗證成功的完整路徑；其他模式為 null。"
+    },
+    "suggested_skills": {
+      "type": "array",
+      "description": "建議下一個 agent 載入的 skill 或能力名稱。",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "decisions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision"}
+    },
+    "open_items": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/open_item"}
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "description": "九節凍結骨架，順序不可調換。",
+      "items": {
+        "type": "object",
+        "required": ["heading", "body"],
+        "additionalProperties": false,
+        "properties": {
+          "heading": {
+            "type": "string",
+            "enum": [
+              "〇、啟動指令（給下一個 session）",
+              "一、任務身分卡",
+              "二、核心脈絡",
+              "三、工作流現況",
+              "四、工作紀律與規範",
+              "五、邊界與禁區",
+              "六、凍結契約與關鍵閘門",
+              "七、已確認的對話決議",
+              "八、未決事項與風險"
+            ]
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "description": "節內容；不適用時寫「本節無內容。」"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "status": {
+      "type": "string",
+      "enum": ["[CONFIRMED]", "[INFERRED]", "[UNVERIFIED]", "[BLOCKED]", "[SUPERSEDED]"],
+      "description": "事實分級標記。"
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["reference", "purpose", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "reference": {"type": "string", "minLength": 1, "description": "路徑、URL 或 commit。"},
+        "purpose": {"type": "string", "minLength": 1, "description": "一句用途說明。"},
+        "read_hint": {"type": "string", "description": "下一個 agent 該讀哪一段。"},
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": ["decision", "reason", "scope", "reopenable", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "decision": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1},
+        "scope": {"type": "string", "minLength": 1},
+        "reopenable": {"type": "boolean"},
+        "source": {"type": "string"},
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "open_item": {
+      "type": "object",
+      "required": ["item", "category", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "item": {"type": "string", "minLength": 1},
+        "category": {
+          "type": "string",
+          "enum": [
+            "known-unknown",
+            "awaiting-user",
+            "awaiting-external",
+            "technical-risk",
+            "platform-difference",
+            "missing-access",
+            "data-loss-risk"
+          ]
+        },
+        "status": {"$ref": "#/$defs/status"}
+      }
+    }
+  }
+}

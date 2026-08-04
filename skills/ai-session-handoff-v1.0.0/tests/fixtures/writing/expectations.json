@@ -1,0 +1,24 @@
+{
+  "scenario": "文件撰寫工作",
+  "must_include": [
+    "卡住怎麼辦",
+    "handbook/01-setup\\.md",
+    "handbook/02-first-week\\.md",
+    "不使用破折號",
+    "\\[SUPERSEDED\\]"
+  ],
+  "must_not_include": [
+    "第二章(?:已完成|已寫好)",
+    "Slack 頻道已(?:寫入|確認)",
+    "求助管道已完成",
+    "常見卡關"
+  ],
+  "expected_next_step": "下一步：填寫第二章",
+  "artifact_references": [
+    "`handbook/01-setup.md`",
+    "`handbook/02-first-week.md`"
+  ],
+  "forbidden_values": [],
+  "min_redaction_marks": 0,
+  "notes": "驗重點：使用者的標點規範不得遺漏；被改掉的舊標題不得復活；被否決的 Slack 建議標為 SUPERSEDED。"
+}

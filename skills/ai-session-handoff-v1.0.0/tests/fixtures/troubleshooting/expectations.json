@@ -1,0 +1,22 @@
+{
+  "scenario": "跨平台疑難排解",
+  "must_include": [
+    "tools/build\\.py",
+    "PYTHONUTF8",
+    "WSL2 實測",
+    "\\[BLOCKED\\]",
+    "PowerShell 5\\.1 與 PowerShell 7"
+  ],
+  "must_not_include": [
+    "Windows (?:10 )?(?:已|全部)?實測(?:通過|成功)",
+    "兩個平台皆已通過",
+    "檔名含中文已驗證"
+  ],
+  "expected_next_step": "下一步：在 Windows 10 繁體中文版實測",
+  "artifact_references": [
+    "`tools/build.py`"
+  ],
+  "forbidden_values": [],
+  "min_redaction_marks": 0,
+  "notes": "驗重點：未實測平台不得標為通過；無效解法標為 SUPERSEDED；缺環境標為 BLOCKED。"
+}

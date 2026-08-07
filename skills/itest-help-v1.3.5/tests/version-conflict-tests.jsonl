@@ -1,0 +1,3 @@
+{"id":"unknown-version","scenario":"User did not provide a version and syntax may vary.","required_policy_text":"需要確認版本"}
+{"id":"different-version","scenario":"Official source is newer than local 26.2.0 knowledge.","required_policy_text":"不可無標示地套用到 26.2.0"}
+{"id":"source-conflict","scenario":"Local and official statements conflict.","required_policy_text":"【版本或來源衝突】"}

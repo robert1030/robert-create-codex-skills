@@ -1,0 +1,44 @@
+{
+  "package_format_version": "1.0",
+  "name": "itest-help",
+  "skill_version": "1.3.4",
+  "product": "iTest Help",
+  "product_version": "26.2.0",
+  "knowledge_base": {
+    "rag_version": "1.2.1",
+    "rag_archive": "itest-help_26.2.0-rag-v1.2.1.zip",
+    "rag_archive_sha256": "309BA7AACF41000C242FD0FBD1AF0B8B548F1EAB14A055284A3615DDE82BBC70",
+    "collection_id": "itest-help_26.2.0.zip-79edef31c6908df0",
+    "content_identity_status": "verified"
+  },
+  "profiles": {
+    "runtime": {
+      "includes_rag": false,
+      "includes_chat_web_knowledge": true,
+      "purpose": "Claude Code, Claude CLI, Codex CLI and Codex Desktop installation"
+    },
+    "chatweb": {
+      "includes_rag": false,
+      "includes_chat_web_knowledge": false,
+      "purpose": "claude.ai or ChatGPT custom skill upload, retrieval runs inside the code execution sandbox"
+    },
+    "full": {
+      "includes_rag": true,
+      "includes_chat_web_knowledge": true,
+      "purpose": "archival and full provenance chain validation, not for installation"
+    }
+  },
+  "deployment_targets": {
+    "ai_chat_web": "ready_with_configured_knowledge",
+    "ai_agent": "ready_with_optional_tools",
+    "claude_code": "ready_with_runtime_profile",
+    "claude_ai_skill": "ready_with_chatweb_profile",
+    "chatgpt_skill": "confirmed_with_chatweb_profile_on_chat_web_2026_08_01"
+  },
+  "entrypoints": {
+    "agent_search": "scripts/search_itest_help.py",
+    "validator": "scripts/validate_itest_help.py",
+    "deploy_validator": "scripts/validate_deploy_targets.py",
+    "regression_runner": "scripts/run_regression_tests.py"
+  }
+}

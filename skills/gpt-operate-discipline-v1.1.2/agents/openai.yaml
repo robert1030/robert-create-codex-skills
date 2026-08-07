@@ -1,0 +1,8 @@
+interface:
+  display_name: "GPT Operate Discipline"
+  short_description: "Verify high-risk technical and decision-support answers."
+  brand_color: "#455A64"
+  default_prompt: "Use $gpt-operate-discipline to verify a high-risk technical, legal, numerical, research, or decision-support response."
+
+policy:
+  allow_implicit_invocation: true

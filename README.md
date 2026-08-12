@@ -30,12 +30,12 @@ AI Agent:  https://github.com/owner/robert-create-codex-skills/dist/itest-help-v
 文件:
 無,叫AI讀zip解釋
 
-## multiformat-rag-chunker-v1.2.1.zip
+## multiformat-rag-chunker-v1.2.3
 
 Codex 安裝提示：
 
 ```text
-$skill-installer install https://github.com/owner/robert-create-codex-skills/dist/multiformat-rag-chunker-v1.2.1.zip
+$skill-installer install https://github.com/owner/robert-create-codex-skills/dist/multiformat-rag-chunker-v1.2.3.zip
 ```
 
 用途：將 PDF、DOCX、DOC、HTML、含嵌入圖片的 HTML、XML、CSV、Markdown、MP4、JPG／JPEG、PNG、HEIC／HEIF 轉成高細緻度 RAG Markdown 切片，支援英文文件為主。

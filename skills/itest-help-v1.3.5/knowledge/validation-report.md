@@ -35,3 +35,10 @@ RAG 內的 collection report 與 supporting evidence 的獨立 `validate_collect
 collection gate 是通過的，但 collection 狀態為 `partial_success`，exit code 為 `2`。原始 Help 包包含 1 個 `source_missing_target`，且沒有唯一且可驗證的原包內目標。這是來源資料的已揭露限制，不是可由 skill 猜測補齊的缺口。
 
 本 skill 可使用所有已驗證 Chunk 回答問題；遇到該未解析關聯、版本不符或知識庫沒有答案時，必須走外部官方查證或無答案降級流程。
+
+## 來源文件本身的已知矛盾與缺口
+
+以下是原始 iTest Help 26.2.0 內部的問題，不是切分或索引造成的。回答涉及這些主題時，必須向使用者揭露，不得逕自選一種說法當作定論。
+
+- **Analysis Rule 的 `Extraction group number` 起算基準互相矛盾**（2026-08-09 查證）。同一個範例 `ab(c|d)fg`，`topics/arules_extractor_properties.htm` 寫 `c|d` is group number **1**，`topics/arw_extractor_selection_page.htm` 寫的卻是 group number **zero**。兩者同屬 26.2.0，不是版本差異。知識庫沒有可裁定的第三份來源，回答時應同時說明兩種寫法並要求使用者實測確認。
+- **Analysis Rule Wizard 沒有記載分支路徑**（2026-08-09 查證）。`topics/add_analysis_rule_wizard.htm` 的頁面清單只列 7 個名稱，實際有 12 個 `arw_*` 頁面，`Custom Extractor page` 與 `Processor page` 都不在清單內，也沒有任何一頁記載進入條件。`Custom Extractor` 一詞在全庫 1,522 個 Chunk 中只出現 1 次，就在該頁自己的標題。因此 `Use line mode`、`Portion of matches to extract`、`Extraction group number` 這些欄位屬於哪一條分支，知識庫沒有明文，回答 wizard 操作步驟時必須把這個缺口說出來。

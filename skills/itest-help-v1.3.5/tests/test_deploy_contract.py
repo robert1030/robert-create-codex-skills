@@ -266,6 +266,22 @@ class ProfileTests(unittest.TestCase):
             self.assertIn(entry["chunk_id"], preview,
                           f"{entry['chunk_id']} 落在 2KB 預覽之外，result_index 沒有發揮作用")
 
+    def test_result_index_survives_a_long_pasted_query(self) -> None:
+        """貼上的錯誤訊息可能長達數百字元，query 回顯不得把索引推出 2KB 預覽。"""
+        long_query = (
+            "analysis rule wizard regular expression extractor use line mode numbered group "
+            "certificate issued by subject alternative names sha fingerprint valid from valid to "
+            "response view test case editor store the extracted data in a variable custom page "
+        ) * 3
+        completed = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "search_itest_help.py"), long_query, "--limit", "8"],
+            capture_output=True, text=True, encoding="utf-8", check=True)
+        payload = json.loads(completed.stdout)
+        preview = completed.stdout.encode("utf-8")[:2048].decode("utf-8", "ignore")
+        for entry in payload["results"]:
+            self.assertIn(entry["chunk_id"], preview,
+                          f"長查詢下 {entry['chunk_id']} 被擠出 2KB 預覽")
+
     def test_search_trims_locators_but_inspect_chunk_keeps_them(self) -> None:
         """locators 佔搜尋輸出的多數體積，檢索階段只留代表項，完整清單必須仍可取得。"""
         sys.path.insert(0, str(ROOT / "scripts"))

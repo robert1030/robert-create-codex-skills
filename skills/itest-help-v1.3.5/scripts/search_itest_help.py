@@ -125,6 +125,9 @@ def result_index(results: list[dict]) -> list[str]:
     大輸出會被 agent 環境截成前 2KB 預覽，而單筆結果就超過 2KB，導致第二名以後
     在預覽中完全不可見。把名次、分數、是否為片段、來源與 chunk_id 壓成一行，
     整份索引約 1.3KB，可完整落在預覽內。
+
+    曾經在此加上頁面 title，想讓分支限定詞在掃描階段就可見，A/B 實測 4 輪顯示
+    沒有可觀測效益，已退回，理由見 FROZEN.md 的 v1.3.5 第三批條目。
     """
     return [
         f"{position}. score {entry['score']} "
@@ -191,7 +194,6 @@ def main() -> int:
     truncated = [entry["chunk_id"] for entry in kept if entry["text_truncated"]]
     result = {
         "status": "ok" if matches else "no_results",
-        "query": args.query,
         "index_verified": verified,
         "limit_clamped": args.limit > MAX_LIMIT,
         "output_truncated": len(kept) < len(results),
@@ -200,6 +202,9 @@ def main() -> int:
     if kept:
         # 必須排在 results 之前，否則被預覽截斷就失去意義。
         result["result_index"] = result_index(kept)
+    # query 回顯排在索引之後：貼上的錯誤訊息可能長達數百字元，放在前面會把
+    # 索引的末幾筆推出 2KB 預覽，而回顯本身對掃描階段沒有價值。
+    result["query"] = args.query
     result["results"] = kept
     if truncated:
         # 只放相對路徑，不寫絕對路徑：檢索輸出可能被轉貼，不應帶上使用者家目錄結構。

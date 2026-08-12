@@ -393,6 +393,88 @@ v1.3.5 第一批改動後的實機測試，題一再度失敗。查核發現：�
 - **反例**：Opus 版在沒有 `result_index` 的條件下也答對過同一題，另一輪 Sonnet 因 `grep` 失敗而改讀全文也答對過。因此 `result_index` 不是答對的必要條件。
 - 因果強度：本次改動建立在「agent 因為沒看到所以沒查」這個合理但未證實的推論上，而該推論的唯一直接證據是 agent 自述，其可靠性已在本節開頭被證偽一次。
 
+### 第三批改動：分支限定詞在掃描階段的可見度
+
+依使用者裁示，本批同樣就地覆蓋 v1.3.5，不另開版本號。
+
+#### 起因
+
+同一題在兩個平台各失敗一次：Claude Chat Web（chatweb profile）與 Codex（runtime profile）都把 Analysis Rule Wizard 的 `Custom` 分支與 `Store data in a variable or a JSON response value` 分支混寫成同一條路徑，把只存在於 Custom Extractor page 的 `Use line mode`、`Portion of matches to extract`、`Extraction group number` 掛到 Store data 分支底下。兩次都要熟悉 GUI 的使用者指出後才更正。
+
+#### 全庫查證
+
+索引母體為 1,301 個檔案、1,522 個 chunk。所有比對一律不分大小寫，所用 pattern 逐條列出，供日後重算。
+
+| 口徑 | pattern | 數量 | 佔比 |
+| --- | --- | ---: | ---: |
+| 內文含 custom | `custom` 加 `re.I` | 165 chunk／136 檔 | 10.5% |
+| 檔名含 custom | `'custom' in source_file.lower()` | 9 檔 | 0.7% |
+| 標題含 custom | `custom` 加 `re.I` 比對 `title` | 14 檔 | 1.1% |
+| `Custom` 作為可選值出現 | <code>\|\s*Custom[^\|]{0,40}\|\s*[A-Z]</code> 或 `(select\|choose)\s+(the\s+)?Custom`，皆加 `re.I` | 14 檔 | 1.1% |
+| 選項決定後續欄位或頁面 | `depends? (upon\|on) (your\|the )?(selection\|choice\|option)`、`(appears\|available\|displayed\|enabled\|shown) only (if\|when)`、`if you (select\|choose\|check\|selected)`、`when you (select\|choose\|check)`、`(page\|dialog\|field\|property\|option)s? (appears\|is displayed\|opens) (only )?(if\|when)`，皆加 `re.I` | 134 chunk／110 檔 | 8.5% |
+
+**前一次統計的更正**：本節初版把「內文含 Custom」記為 33 chunk／30 檔（2.3%），該數字**錯誤**，原因是所用 pattern `\bCustom\b` **大小寫敏感**，漏掉全部小寫的 `custom`（custom parsers、custom session type、custom key store 等）。正確值為 165 chunk／136 檔（10.5%），是原記載的 4.5 倍。同批的「選項決定後續欄位」8.2% 改以不分大小寫且更寬的 pattern 重算為 8.5%，差異來自原 pattern 已內含 `[Ii]f`、`[Ww]hen` 兩種形式，結論不受影響。**日後任何全庫統計一律加 `re.I`，並把 pattern 原文寫進紀錄，否則數字無法被重算，也就無法被推翻。**
+
+決定性證據不受此更正影響，已用不分大小寫重驗：`Custom Extractor` 這個片語在全庫**只命中 1 個檔案**，就是 `arw_extractor_selection_page.htm` 自己的標題。`add_analysis_rule_wizard.htm` 的頁面清單只列 7 個名稱，實際有 12 個 `arw_*` 頁，Custom Extractor page 與 Processor page 都不在清單內，也沒有任何一頁記載進入條件。**知識庫沒有記載 wizard 的分支路徑，這是來源文件的資訊缺口，檢索策略補不出來。**
+
+#### 問題規模的正確描述
+
+Custom 相關內容佔全庫 10.5%，其中 14 頁把 `Custom` 當成可選值。這 14 頁並非同一類風險，語意分三種：GUI 分支選項（`arw_rule_type_selection_page.htm`、`rme_table_page.htm`、`test_report_create_customized_html_report.htm`、`trt_customize.htm`）、欄位名稱含 Custom 但不構成分支（Custom line terminator、Custom Templates folder、Custom queries、Custom types page）、功能名稱（Custom session type 的 `sb_*` 系列）。
+
+**`arw_extractor_selection_page.htm` 的特殊性不在於數量稀少，而在於它是這類頁面中唯一沒有自我說明進入條件的。** 對照 `rme_table_page.htm`，同樣是選 Custom 才要填額外欄位，但它自己寫著「If you specify Custom, then specify the delimiter string in the Other delimiter text box」，讀到該頁就知道條件。ARW 那條路徑沒有任何一頁寫出對應句子，模型只能自己接。這是比「全庫僅此一例」更準確的歸因。
+
+#### 知識庫覆蓋率查核（本次順帶完成）
+
+以原始 Help 目錄 `com.fnfr.svt.help_26.2.0.202603260106` 逐檔比對：`topics/` 967、`popups/` 318、根目錄 `about.html` 1，合計 1,286 個 HTML 內容頁，**全部都在索引內，零遺漏**；加上 15 個 `cheatsheets/` XML 即為索引的 1,301 檔。未進索引的 426 個檔案全是 `topics/Formats/` 與 `topics/Reports/` 底下的建置產物 XML，不是內容頁。內容量方面，逐檔比對原始 HTML 去標籤後的字元數與索引 `text` 長度，比率中位數 1.15，`topics/` 底下全部不低於 0.79，**沒有內容流失**。比率低於 0.5 的 6 個全是 cheatsheets 的 XML，屬去標籤法對 XML 不適用，不是資料問題。
+
+#### 為什麼不加規則
+
+`core/response-format.md` 的「知識庫只能支持部分內容時，明寫『知識庫目前只能確認以下部分：』」與 `core/uncertainty-policy.md` 的「不得產生沒有來源支持的 iTest 語法或操作步驟」**已經涵蓋這次的錯誤**，這是遵守失敗，不是規則缺失。加規則要撞 15,500 字元的必讀量預算，且 41 條 `required_policy_text` 全是字面比對，只保證文字存在、對行為零保證。理由與 v1.3.5 否決候選 2 相同。本批**沒有動 `SKILL.md` 與任何政策檔**，必讀量維持 14,942 字元。
+
+#### 試過但已退回：`result_index` 加 title
+
+先做的假設是「掃描面可見」與「細讀面可見」不等價：title 本來就在 `results[].title` 裡，兩個平台都拿得到卻沒用來判斷分支，因此把它提到 `result_index` 每一列，格式為 `名次 score 片段旗標 [title] source_file :: chunk_id`，以 56 字元截斷以免撐破 2 KB 預覽。
+
+**A/B 實測 4 輪，此假設被推翻，該項已退回。** 兩棵樹除了 `result_index` 有無 title 與鍵順序外完全相同，同一題同一模型各跑 2 輪：
+
+| 輪次 | 組別 | Rule page 選了什麼 | 分支處理 | 判定 |
+| --- | --- | --- | --- | --- |
+| 1 | 無 title | Custom | 明寫兩條路徑不同 | 正確 |
+| 2 | 無 title | Store data | 下一步標成「Extract page（Custom Extractor page）」 | 錯誤 |
+| 3 | 有 title | Store data | 同上，完整重現原始失敗 | 錯誤 |
+| 4 | 有 title | Store data 為主，附條件分岔回 Custom | 主推路徑仍錯，但標示了不確定 | 部分正確 |
+
+無 title 組一對一錯，有 title 組零對一錯加一部分正確，**沒有觀察到方向性效果**。失敗形態在兩組完全一致，都是把 Rule page 的簡化分支接到 Custom Extractor page 的欄位上。四輪都拿到了 title，會不會用它跟它排在第幾行無關。依本節開頭預先寫下的退回條件，移除 title 與 `clip_title()`。
+
+#### 保留的變更：`query` 回顯移到 `result_index` 之後
+
+貼上的錯誤訊息可長達數百字元，回顯排在索引之前會把末幾筆推出預覽，而回顯本身對掃描階段沒有價值。這項與 title 無關，效果可量測，予以保留。`result_index` 仍排在 `results` 之前，凍結契約未變。
+
+| 指標 | 第二批 | 第三批 |
+| --- | ---: | ---: |
+| `results` 之前的 header | 1,476 位元組 | 1,476 位元組 |
+| 前 2 KB 可辨識的結果筆數（316 字元貼上查詢） | 8/8 | 8/8 |
+| 前 2 KB 可辨識的結果筆數（780 字元貼上查詢） | 不足，依 header 推算必然被擠出 | **8/8** |
+
+#### 防迴歸
+
+改動前以未修改的 v1.3.5 建立 golden 基準，9 組查詢共 64 筆，記錄 `chunk_id`、`score` 與 `text` 的 SHA-256。每次改動後各比對一次，**全部零差異**。新增 2 個 `retrieval-tests` 案例（`arw-custom-extractor-page`、`arw-rule-page-branches`，70 增至 72）鎖住 Custom 分支的證據不會掉出檢索範圍，新增 1 項契約斷言（32 增至 33）守長查詢下的預覽可見度。三個 profile 的五道閘門與標點閘門全綠。
+
+#### 來源文件的矛盾（本批查證的副產品）
+
+四輪測試中有三輪各自獨立指出知識庫有內部矛盾，經逐字比對**屬實**：同一個範例 `ab(c|d)fg`，`arules_extractor_properties.htm` 寫 `c|d` is group number **1**，`arw_extractor_selection_page.htm` 寫的是 group number **zero**，兩者同屬 26.2.0。這是來源文件的問題，不是切分或索引造成的，已連同 wizard 缺少分支路徑一併記入 `knowledge/validation-report.md` 的「來源文件本身的已知矛盾與缺口」。該檔不在 agent 必讀清單內，不佔注意力預算。
+
+四輪都誠實揭露了這個矛盾並要求使用者實測確認，是 `uncertainty-policy` 有在運作的正面證據。
+
+#### 能力邊界與證據強度
+
+- **可量測且已驗證**：長查詢下索引不被擠出預覽、golden 零差異、來源文件的兩處缺陷。這些是機制層與文件層事實。
+- **已被實測推翻**：「把分支限定詞提到掃描面能減少分支混淆」。這是本 skill 第一次用 A/B 對照直接推翻自己的假設，而不是留著未證實的改動。
+- **本次實測的方法限制**：n=4，每組僅 2 輪，全部在 Claude Code 環境的 Sonnet 上跑，而原始失敗發生在 Claude Chat Web 與 Codex。無法排除微弱效果，也無法確認本測試設定重現得出原始失敗條件的全貌。有 2 輪確實重現了失敗形態，這一點支持測試設定有效。
+- **根因仍未解決**：知識庫沒有記載 wizard 的分支路徑，這是來源文件的缺口。在不編造的前提下，skill 能做的只有揭露缺口，不是補上答案。8.5% 的同型分支風險並未消除。
+- **統計方法曾出錯並已更正**：本節初版的 Custom 計數低估 4.5 倍，錯在 pattern 大小寫敏感。更正後結論未變，但問題規模的描述變了，詳見「全庫查證」與「問題規模的正確描述」兩節。
+- **未做的事**：chatweb profile 沒有檢索腳本，本批對它沒有任何影響。
+
 ### 未變更項
 
-`knowledge/` 下的任何資料檔、v1.0.0 至 v1.3.4 的所有凍結雜湊與紀律、`agents/openai.yaml`、所有 `scripts/` 程式邏輯一律未改。三個 profile 的定義與檔案組成不變，仍為 49、48、9,378 檔。
+`knowledge/` 下的任何資料檔、v1.0.0 至 v1.3.4 的所有凍結雜湊與紀律、`agents/openai.yaml` 一律未改。除本節第二批與第三批明確列出的 `scripts/search_itest_help.py` 改動外，其餘 `scripts/` 程式邏輯未動。三個 profile 的定義與檔案組成不變，仍為 49、48、9,378 檔。

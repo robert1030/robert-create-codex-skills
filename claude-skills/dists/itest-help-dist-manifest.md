@@ -1,14 +1,16 @@
 # itest-help dist 清單
 
-產生日期：2026-08-06
+產生日期：2026-08-09（v1.3.5 第三批就地覆蓋，前次為 2026-08-06）
 
-## v1.3.5（現行版，減量與預算契約）
+## v1.3.5（現行版，減量與預算契約，分支限定詞可見度）
 
 | 檔案 | 檔案數 | 大小 | SHA-256 |
 | --- | ---: | ---: | --- |
-| `itest-help-v1.3.5-runtime.zip` | 49 | 2.23 MB | `952CFD86C1DCDA5CD67F42C8474870781507D8113A6D72A0D44B4151C9EF3422` |
-| `itest-help-v1.3.5-chatweb.zip` | 48 | 1.18 MB | `AF8DF3F14B68F44269462905C70A8B648C18598C0D3F5FB7C65697B7C18FF79F` |
-| `itest-help-v1.3.5-full.zip` | 9,378 | 18.75 MB | `DFD04FAA911EA6DB68D8AF9667E1B30429352EA9E0BBEC6150052CD01FF10105` |
+| `itest-help-v1.3.5-runtime.zip` | 49 | 2.23 MB | `9E72798DB8EEE1E2DE319D9038E0695AB2AFD5492B25CC6F7BC1D91B645E48EE` |
+| `itest-help-v1.3.5-chatweb.zip` | 48 | 1.19 MB | `1BD4ACF1D78913959AC832C3F65901CB94D7E47F1D4F77587A5E3305FC74EADA` |
+| `itest-help-v1.3.5-full.zip` | 9,378 | 18.76 MB | `424A9D4839D4CAFCA4A48A6AF87712C90582FDC35667DAB910638019EED39939` |
+
+上表為第三批加統計更正後的雜湊。同為 2026-08-09 的前一次建置雜湊為 `32E41951…`、`058386FA…`、`3417FF3A…`，2026-08-06 第二批為 `952CFD86…`、`AF8DF3F1…`、`DFD04FAA…`，兩者的 zip 都已被覆蓋，不再存在。
 
 ## v1.3.4（片段自報）
 
@@ -57,3 +59,11 @@
 **v1.3.4 的變更**：`search_itest_help.py` 在回應頂層新增 `truncated_count` 與 `next_action`，讓片段結果自報並提示取完整內容的指令，指令一律用相對路徑不含家目錄。golden diff 零差異，取窗演算法未動。效果未經 A/B 驗證，詳見 `FROZEN.md` 的 v1.3.4 條目。
 
 **v1.3.5 的變更**：分兩批。第一批是減法：壓縮重複表述並移除 `SKILL.md` 中給人看的兩節，agent 每次啟動必讀量由 16,316 降至 14,942 字元（減 8.4%）。**規則一條未刪**，41 條守門字串全數保留。新增 `test_agent_startup_context_budget_is_capped`，把必讀量上限訂為 15,500 字元，日後加規則必須先刪等量內容。第二批（同日追加，依裁決不另開版）：`search_itest_help.py` 新增排在 `results` 之前的 `result_index`，並把檢索結果的 `locators` 精簡為前 2 個代表項加 `locators_total`，完整清單仍由 `inspect_chunk.py` 提供。單次輸出 53,320 降至 24,079 位元組，前 2 KB 可辨識的結果筆數由 2/8 增至 8/8。兩批皆未改變排序與取窗，golden diff 零差異。詳見 `FROZEN.md` 的 v1.3.5 條目。
+
+**v1.3.5 第三批的變更**（2026-08-09，依裁決同樣就地覆蓋）：起因是同一題在 Claude Chat Web 與 Codex 各失敗一次，兩者都把 Analysis Rule Wizard 的 `Custom` 分支與 `Store data in a variable or a JSON response value` 分支混寫。全庫查證顯示 `Custom Extractor` 一詞只出現 1 次，就在該頁標題，知識庫沒有記載 wizard 的分支路徑。
+
+實際落地三件事：一是 `query` 回顯移到 `result_index` 之後，讓數百字元的貼上查詢不再把索引末幾筆推出 2 KB 預覽；二是新增 2 個檢索回歸案例（70 增至 72）與 1 項長查詢契約斷言（32 增至 33）；三是把來源文件的兩處缺陷記入 `knowledge/validation-report.md`，包含 `Extraction group number` 起算基準在兩份 26.2.0 頁面中互相矛盾（一份寫 1，一份寫 zero），以及 wizard 沒有記載分支路徑。
+
+**曾試過但已退回**：`result_index` 加頁面 title。A/B 對照 4 輪（唯一變因是有無 title），無 title 組一對一錯，有 title 組零對一錯加一部分正確，沒有觀察到方向性效果，依事前寫下的退回條件移除。**沒有動 `SKILL.md` 與任何政策檔**，必讀量維持 14,942 字元。golden diff 零差異，三個 profile 六道閘門全綠。詳見 `FROZEN.md` 的 v1.3.5 第三批條目。
+
+**統計更正（2026-08-09 同日追加）**：第三批初次記載的「內文含 Custom 佔 2.3%」是錯的，pattern `\bCustom\b` 大小寫敏感，漏掉全部小寫的 `custom`。正確值為 165 chunk／136 檔＝**10.5%**；「選項決定後續欄位」由 8.2% 重算為 8.5%。決定性證據（`Custom Extractor` 片語全庫只命中 1 個檔案）以不分大小寫重驗後仍成立，結論未變。同時完成知識庫覆蓋率查核：原始 Help 的 1,286 個 HTML 內容頁**全數在索引內，零遺漏**，內容量比率中位數 1.15、`topics/` 全部不低於 0.79，**無內容流失**。`FROZEN.md` 已補上所有統計的 pattern 原文，日後可重算。詳見 `FROZEN.md` 的 v1.3.5 第三批條目。

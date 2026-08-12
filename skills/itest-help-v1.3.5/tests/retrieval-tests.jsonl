@@ -8,3 +8,5 @@
 {"id":"ixia","category":"Ixia","query":"Ixia","required_terms":["Ixia"]}
 {"id":"all-session","category":"All Session","query":"All Session settings","required_terms":["Session"]}
 {"id":"troubleshooting","category":"Troubleshooting","query":"troubleshoot hanging","required_terms":["troubleshoot"]}
+{"id":"arw-custom-extractor-page","category":"Analysis Rule","query":"analysis rule wizard regular expression extractor use line mode numbered group","required_terms":["Custom Extractor page","Use line mode","numbered_group"]}
+{"id":"arw-rule-page-branches","category":"Analysis Rule","query":"analysis rule wizard rule page custom store data in a variable","required_terms":["Store data in a variable or a JSON response value","Custom"]}

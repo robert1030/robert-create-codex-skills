@@ -1,0 +1,15 @@
+interface:
+  display_name: "Multiformat RAG Chunker"
+  short_description: "Process and validate every supported RAG source format."
+  default_prompt: "Use $multiformat-rag-chunker to inventory every supplied source as first-class routes and select the actual format adapter. Before final chunking, assess each source's hierarchy, semantic units, retrieval granularity, and atomic blocks against the 1,000 to 1,400 token default; if the default is unsuitable, proactively propose source-specific min/max tokens, overlap, detail level, rationale, and tradeoffs. Feature-detect current native multimodal capability before any visual fallback and require machine-readable evidence before OCR admission. Apply format-specific lanes only when their conditions match, and never infer the whole skill's scope from a recent patch or test fixture. Never self-authorize partial chunks, and return only source-validated RAG outputs with an evidence-bounded status."
+  icon: "📚"
+  accent_color: "#5B6478"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+policy:
+  products:
+  - "chatgpt"
+  - "codex"
+  - "api"
+  - "atlas"
+  allow_implicit_invocation: false

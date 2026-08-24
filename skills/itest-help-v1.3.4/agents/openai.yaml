@@ -1,8 +1,0 @@
-interface:
-  display_name: "iTest Help"
-  short_description: "已驗證 iTest 26.2 知識庫查詢與來源引用"
-  default_prompt: "Use $itest-help to answer an iTest 26.2 question with verified citations."
-
-policy:
-  allow_implicit_invocation: true
-

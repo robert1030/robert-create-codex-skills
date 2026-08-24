@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<d:catalog xmlns:d="urn:demo:catalog" xmlns:m="urn:demo:meta">
+  <d:item m:code="one">Brush <d:term>one's teeth</d:term> every day.</d:item>
+  <d:item m:code="two">Clean <d:term>one's face</d:term> every morning.</d:item>
+</d:catalog>

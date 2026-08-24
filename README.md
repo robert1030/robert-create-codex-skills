@@ -30,18 +30,19 @@ AI Agent:  https://github.com/owner/robert-create-codex-skills/dist/itest-help-v
 文件:
 無,叫AI讀zip解釋
 
-## multiformat-rag-chunker-v1.2.3
+## rag-chunk-generator
 
 Codex 安裝提示：
 
 ```text
-$skill-installer install https://github.com/owner/robert-create-codex-skills/dist/multiformat-rag-chunker-v1.2.3.zip
+$skill-installer install https://github.com/owner/robert-create-codex-skills/dist/rag-chunk-generator-v1.3.2.zip
 ```
 
-用途：將 PDF、DOCX、DOC、HTML、含嵌入圖片的 HTML、XML、CSV、Markdown、MP4、JPG／JPEG、PNG、HEIC／HEIF 轉成高細緻度 RAG Markdown 切片，支援英文文件為主。
+用途：將 PDF、DOCX、DOC、HTML、XML、MP4 轉成高細緻度 RAG 切片器。
 - AI agent (ex: Codex ): 將zip 放到 /skills/ 內後解壓縮即可,重啟 AI Agent
 - AI web Chat: 從 AI web chat add 對應的zip, 在新對話使用
-- 目前主要支援ChatGPT chat web 和 ChatGPT codex Agent, claude 仍未同步建構
+- 版本: v1.3.2 基於酒Ann老師的rag-chunk-generator-v1.2版,個人改良調整後,進版成v1.3.2
+- 以PDF為例,如果整個PDF是掃描式圖片內容,需先使用OCR處理過(NAPS2-第一次處理, OCRmyPDF + Tesseract OCR-二次處理,效果比較好, 參考"Windows-把掃描PDF變成可搜尋可複製文字的PDF.md"
 
 文件:
 無,叫AI讀zip解釋
@@ -62,25 +63,11 @@ $skill-installer install https://github.com/owner/robert-create-codex-skills/dis
 - `docs/docs-quality-gen-v1-1/runbook.htm`
 - `docs/docs-quality-gen-v1-1/SPEC.md`
 
-## joan-skill-conventions-v1.2.1 (基於酒Ann老師的skill建構基礎,調整修改後的v1.2.1版本)
-
-version:1.2.1
-目的: 作為建立,升級,檢視,重構 skill 的基本工具
-AI Chat 安裝 Claude.ai Chat Web -> customize -> skill 安裝/上傳整包zip，即可安裝skill
-AI agent 安裝 joan-skill-conventions-v1.2.1.zip -> /.claude/skills/ 解壓縮, 重啟AI Agent
-
+## joan-skill-conventions(基於酒Ann老師的skill建構基礎-v1.4, 調整Description of skill.md 後的v1.4.1版)
 ```text
-skill installer，前往下載 https://github.com/robert1030/robert-create-codex-skills/claude-skills/dists/joan-skill-conventions-v1.2.1.zip
-```
-
-文件:
-無,叫AI讀zip解釋
-
-## gpt-skill-conventions (基於酒Ann老師的skill建構基礎,轉換的gpt-skill-conventions-v1.2.2)
-```text
-version:1.2.2
+version:1.4.1
 目的: 作為建立,升級,檢視,重構 skill 的基本工具, 也能把claude ai (WebGUI)的skill 轉換成相容codex(仍須測試轉換成效)
-skill installer，前往下載 https://github.com/robert1030/robert-create-codex-skills/dist/gpt-skill-conventions-v1.2.2.zip
+skill installer，前往下載 https://github.com/robert1030/robert-create-codex-skills/dist/joan-skill-conventions-v1.4.1.zip
 在Chatgpt web skill 安裝/上傳整包zip，即可安裝skill
 ```
 
@@ -119,6 +106,18 @@ version:1.1
 
 ```text
 skill installer，前往下載 https://github.com/owner/robert-create-codex-skills/claude-skills/dists/operate-discipline-v1.1.zip
+```
+
+文件：
+無,叫AI讀zip解釋
+
+## code-audit-fix
+version: 無 (應該之後要定義為1.0版)
+目的: （程式新建,重購,修改)後,檢查程式碼冗於未用,程式執行效率最佳化,邏輯錯誤,型別錯誤,溢位漏洞,例外錯誤,資安風險,然後修正的skill
+支援: Claude.ai ChatWeb / Claude.ai code-cli, ChatGPT codex
+
+```text
+skill installer，前往下載 https://github.com/owner/robert-create-codex-skills/dist/code-audit-fix.zip
 ```
 
 文件：

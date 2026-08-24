@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<help>
-  <chapter id="intro">
-    <title>XML Help</title>
-    <paragraph>Validate the local configuration.</paragraph>
-    <steps><step>Open settings</step><step>Run validation</step></steps>
-  </chapter>
-</help>

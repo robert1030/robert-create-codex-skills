@@ -10,7 +10,7 @@ import hashlib
 import json
 
 SKILL_NAME = "ai-session-handoff"
-VERSION = "1.0.1"
+VERSION = "1.1.1"
 
 # 九節交接骨架：標題文字與順序為 v1.0.0 凍結契約。
 HEADINGS = [

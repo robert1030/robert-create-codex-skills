@@ -61,8 +61,9 @@ check("README 標題為新名稱", contract.SKILL_NAME in readme)
 check("FROZEN.md 含新版本條目", "v" + contract.VERSION in frozen)
 
 versions = set(re.findall(r"v\d+\.\d+(?:\.\d+)?", frozen))
+current_major = "v" + contract.VERSION.split(".")[0] + "."
 check("FROZEN.md 只記本產品線的版本（無舊帳）",
-      versions and all(v.startswith("v1.0.") for v in versions))
+      versions and all(v.startswith(current_major) for v in versions))
 check("FROZEN.md 含目前版本條目", ("v" + contract.VERSION) in versions)
 check("FROZEN.md 無 migration 或 release notes 段落",
       all(word not in frozen for word in ("migration", "遷移", "release notes", "升級流程")))

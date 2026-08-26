@@ -75,12 +75,12 @@ skill installer，前往下載 https://github.com/robert1030/robert-create-codex
 無,叫AI讀zip解釋
 
 ## ai-session-handoff (AI Chat / AI Agent) 對話交接摘要 skill
-version:1.0.1
-目的: 交接對話的上下文脈絡摘要skill
+version:1.1.1
+目的: 交接對話的上下文脈絡摘要skill + speak-human-tw(整合說人話部分功能來梳理最後輸出)
 支援: ChatGPT web Chat/web work; ChatGPT codex; Claude.ai web chat; Claude.ai code-cli
 
 ```text
-skill installer，前往下載 https://github.com/robert1030/robert-create-codex-skills/dist/ai-session-handoff-v1.0.1.zip
+skill installer，前往下載 https://github.com/robert1030/robert-create-codex-skills/dist/ai-session-handoff-v1.1.1.zip
 在Chatgpt/Claude.ai web skill 安裝/上傳整包zip，即可安裝skill
 ```
 

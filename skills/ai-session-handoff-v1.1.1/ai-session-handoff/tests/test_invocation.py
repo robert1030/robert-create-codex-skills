@@ -55,7 +55,14 @@ check("多主題混雜才停下問一題", "多主題混雜" in step1)
 print("== 流程完成條件 ==")
 steps = re.findall(r"^## Step (\d)：(.+)$", skill, flags=re.M)
 check("六個步驟齊備", [s[0] for s in steps] == ["1", "2", "3", "4", "5", "6"])
-check("每步都有完成條件", skill.count("**完成條件**") == 6)
+# v1.1.0：允許 Step N.5 這類子步驟（例如 Step 5.5）額外存在完成條件，
+# 只要主線六個 Step 各自仍有一次即可；子步驟數量不設上限，因為子步驟
+# 本身是否該有完成條件屬於流程設計判斷，不該被計數規則反過來限制設計。
+main_step_markers = re.findall(r"^## Step \d：", skill, flags=re.M)
+substep_markers = re.findall(r"^## Step \d\.\d：", skill, flags=re.M)
+completion_count = skill.count("**完成條件**")
+check("每步都有完成條件",
+      completion_count == len(main_step_markers) + len(substep_markers))
 check("Step 2 建立 evidence map", "evidence map" in skill)
 check("Step 3 採引用而非複製", "引用 artifact，不要複製 artifact" in skill)
 check("Step 5 列出五級狀態標記", all(tag in skill for tag in contract.STATUS_TAGS))

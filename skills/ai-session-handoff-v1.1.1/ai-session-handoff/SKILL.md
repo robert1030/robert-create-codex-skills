@@ -1,10 +1,12 @@
 ---
 name: ai-session-handoff
-description: "handoff：把當前 session 壓縮成下一個 AI session 可直接接手的交接文件，內容為九節凍結骨架、五級事實分級、敏感資訊遮蔽與 artifact 引用。使用時機：使用者要做 session 交接或 handoff；context 快滿要換新對話繼續；要讓另一個 agent 或另一個平台接手這份工作；要把目前工作狀態保存下來供後續延續。單純摘要一段文字、翻譯或整理一份既有文件不適用。"
+description: "handoff：把當前 session 壓縮成下一個 AI session 可直接接手的交接文件，內容為九節凍結骨架、五級事實分級、敏感資訊遮蔽與 artifact 引用；可選的 Step 5.5 能把敘述文字潤成更像人話，同時保護九節骨架與狀態標記等結構性元素不被改動。使用時機：使用者要做 session 交接或 handoff；context 快滿要換新對話繼續；要讓另一個 agent 或另一個平台接手這份工作；要把目前工作狀態保存下來供後續延續；接手對象是人而非 AI、希望內容讀起來更自然時也適用（走 Step 5.5）。單純摘要一段文字、翻譯或整理一份既有文件不適用。"
 ---
 
 # AI Session Handoff
 
+> v1.1.1｜2026-08-26：修正 references/output-contract.md 第二節「核心脈絡」的名詞定義規則，補一條寫作紀律：任務域的品質規則、系統狀態碼或內部術語，必須寫一條與具體格式或個案無關的通用定義，不得只在使用到它的個別小節裡順帶定義。起因：實測發現同一個 skill 兩次交接產出，一次把這類名詞寫成通用定義、一次拆散進個案小節、遺漏通用定義句，本版把規則本身補齊，防止同一落差再發生。九節骨架與凍結雜湊未動。
+> v1.1.0｜2026-08-26：新增 Step 5.5（人話化，可選），把 speak-human-tw 的雙重確認機制接進交接流程，只潤飾敘述文字，九節骨架與狀態標記等結構性元素受 `scripts/humanize_filter.py` 保護不被人話化改動；凍結雜湊未變，仍為 `7f29cd5d626067c2`。
 > v1.0.1｜跨 AI agent、AI Web Chat 與跨作業系統使用。純文字型 skill：只用 Python 標準函式庫，無外部相依，離線可用。
 
 把當前 session 壓縮成一份下一個 AI session 貼上就能接手的 handoff。品質標準：下一個 agent 不必回頭翻原對話，就知道在解什麼問題、驗收標準是什麼、做到哪裡、哪些決策已凍結不得推翻、下一步從哪一行開始，而且不會把推論當成已確認事實。
@@ -88,6 +90,44 @@ description: "handoff：把當前 session 壓縮成下一個 AI session 可直�
 
 **完成條件**：沒有明文秘密、沒有把推論寫成事實、沒有虛構的檔案或測試結果，且下一個 agent 看得出第一個該執行的動作。
 
+## Step 5.5：人話化（可選）
+
+Step 5 綠燈後才進這一步；沒過 Step 5 不得進入人話化，結構不合格的底稿不值得潤稿。這一步只調語感，不重寫內容，讀者是**接手的人**，不是接手的 AI；九節骨架本身仍是給下一個 AI session 讀的，兩者目的不衝突，但潤稿動作必須避開結構性元素。
+
+**觸發時機**：Step 5 完成後，主動問使用者要不要做人話化；使用者答否就跳過，直接進 Step 6。
+
+**完整保護清單**見 `references/humanize-guardrails.md`，每次進入本步驟前先讀。
+
+### 5.5.1 過濾
+
+把逐節掃出的候選修改項整理成 JSON（欄位：`location`／`original`／`reason`／`suggestion`），有 Python 可用時先跑：
+
+```text
+<python> scripts/humanize_filter.py <candidates.json>
+```
+
+輸出的 `kept` 才是可以交給使用者勾選的候選清單；`removed` 是自動剔除的項目，不列入清單，也不用另外跟使用者解釋為什麼被剔除。沒有執行環境時，逐項手動比對 `references/humanize-guardrails.md` 第一層九項規則，行為要與腳本邏輯一致。
+
+### 5.5.2 雙重確認（沿用 speak-human-tw 規則，不改成預設跳過）
+
+第一輪只列清單、不動筆：把 `kept` 清單依四欄格式（觸發位置／原句／為什麼要改／建議怎麼改）逐條編號列出，問「以上 {N} 處有什麼地方是你覺得需要修改的嗎？」，等使用者回覆才進第二輪。
+
+第二輪只套用使用者勾選的項目，未勾選的維持原文。
+
+### 5.5.3 套用後重驗
+
+套用完成後，凡命中第六、七節的人話化項目，額外附加一行：
+
+> 語意強度抽查：改寫前後是否仍指向同一個狀態標記等級？
+
+這一行不是要使用者再多做一次確認動作，是提醒他在交付前多看一眼剛套用的這幾條，理由見 `references/humanize-guardrails.md`「語意強度保護」一節：字串比對抓不到語意強度被稀釋，只能靠這一步人工留意。
+
+接著，不論改動大小，用 Step 5 同一支結構驗證器對人話化後的定稿重跑一次：`<python> scripts/validate_handoff.py <人話化後的定稿路徑>`。
+
+非 0 就是人話化動到了不該動的結構，回頭檢查是哪一條候選項造成的（優先懷疑：套用時語序調整意外帶掉了緊鄰的標記或固定字串），修正後重驗，不得略過這一步直接交付。
+
+**完成條件**：使用者選擇跳過，或完成一輪「過濾→清單確認→套用→語意強度抽查→重驗」且 `validate_handoff.py` 退出碼 0。
+
 ## Step 6：依能力輸出
 
 先偵測能力再決定分支，不以平台名稱決定行為。有 Python 時可執行 `<python> scripts/detect_capabilities.py` 取得 JSON 結果。
@@ -98,7 +138,7 @@ description: "handoff：把當前 session 壓縮成下一個 AI session 可直�
 
 各分支的判定條件、暫存目錄解析順序與降級階梯見 `references/platform-capabilities.md`；Windows 與跨編碼的處理見 `references/encoding-policy.md`。
 
-**完成條件**：使用者實際收到 handoff；若回報了檔案路徑，該檔案已回讀驗證存在且內容相符；輸出的編碼與結構驗證通過。交付後問使用者是否滿意，不滿意就依方向修改並重跑 Step 5。
+**完成條件**：使用者實際收到 handoff；若回報了檔案路徑，該檔案已回讀驗證存在且內容相符；輸出的編碼與結構驗證通過。交付後問使用者是否滿意，不滿意就依方向修改並重跑 Step 5（若上一輪做過人話化，改動內容後一併重跑 Step 5.5）。
 
 ---
 
@@ -137,3 +177,4 @@ description: "handoff：把當前 session 壓縮成下一個 AI session 可直�
 | 對話中出現金鑰、憑證、密碼或個資 | `references/redaction-policy.md` |
 | 想看完整範例或最小可用範例 | `references/examples.md` |
 | 需要結構化輸出或以程式檢查交接內容 | `schemas/handoff.schema.json` |
+| 使用者選擇進入 Step 5.5（人話化） | `references/humanize-guardrails.md`：第一層九項保護清單、第二層各節可動範圍、語意強度保護規則 |

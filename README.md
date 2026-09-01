@@ -124,12 +124,12 @@ skill installer，前往下載 https://github.com/owner/robert-create-codex-skil
 無,叫AI讀zip解釋
 
 ## challenge-claim
-version: 0.2.0
+version: 0.2.1
 目的: 「挑戰這個論點」、「幫我批判思考」、「找出這段分析的漏洞」或提供主張、研究摘要、PDF與決策方案時，用於拆解論證、檢查前提、提出反例並形成可驗證的修正結論
 支援: Claude.ai ChatWeb / Claude.ai code-cli, ChatGPT codex
 
 ```text
-skill installer，前往下載 https://github.com/owner/robert-create-codex-skills/dist/challenge-claim-v0.2.0.zip
+skill installer，前往下載 https://github.com/owner/robert-create-codex-skills/dist/challenge-claim-v0.2.1.zip
 ```
 
 文件：

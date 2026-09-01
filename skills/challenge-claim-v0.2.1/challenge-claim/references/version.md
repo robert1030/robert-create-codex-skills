@@ -2,6 +2,38 @@
 
 SKILL.md 只保留最新版的版號戳記，歷史版本一律記在本檔，遵循最小揭露：只記錄「哪一版改了什麼、影響哪些檔案」，不保留舊版全文。
 
+## v0.2.1｜2026-09-01
+
+更名版。只動名稱與版號，方法論、輸出契約、三條鐵則與兩支驗證器的邏輯完全未動。
+
+**變更**
+
+- 技能名稱由 `critical-argument-challenger` 改為 `challenge-claim`，資料夾名與交付 zip 檔名一併更名。
+- `SKILL.md` 的 frontmatter `version` 與 `metadata.version` 由 0.2.0 提升為 0.2.1，版號戳記改為只載本版資訊。
+- 兩支 Python 檔的 docstring 標頭同步更新版號。
+
+**名稱字串替換對帳**
+
+改名共替換 9 處名稱字串，分布於 7 個檔案：
+
+| 檔案 | 處數 | 位置 |
+|---|---|---|
+| `SKILL.md` | 3 | frontmatter `name`、`metadata.domain`、H1 標題 |
+| `references/argument-analysis-framework.md` | 1 | 第 3 行的技能名引用 |
+| `references/bias-and-fallacy-catalog.md` | 1 | 第 3 行的技能名引用 |
+| `references/critical-thinking-question-bank.md` | 1 | 第 3 行的技能名引用 |
+| `references/evidence-calibration-and-output-schema.md` | 1 | 第 3 行的技能名引用 |
+| `scripts/check_output_contract.py` | 1 | docstring 標頭 |
+| `tests/test_validators.py` | 1 | docstring 標頭 |
+
+**與 v0.2.0 的累計關係**
+
+四份既有 reference 的字串級替換為累計 14 處：v0.2.0 的 10 處（見下節逐條替換清單），加上本版的 4 處名稱替換。下節「四份既有 reference 共 10 處字串級替換」一句的計數範圍僅限 v0.2.0，屬於已凍結的版本紀錄，本版不予變更。
+
+**已知限制**
+
+- 本版與評測用的另一支同名 skill 撞名。若兩者需並存於同一個 skills 目錄，其中一支必須再更名。
+
 ## v0.2.0｜2026-08-31
 
 契約收斂與防造假版。

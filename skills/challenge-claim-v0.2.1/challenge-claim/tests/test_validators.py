@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-test_validators.py — challenge-claim v0.2.0 兩支驗證器的回歸測試。
+test_validators.py — challenge-claim v0.2.1 兩支驗證器的回歸測試。
 
 pytest 可收集（函式以 test_ 開頭），也支援 `python3 tests/test_validators.py` 直跑。
 

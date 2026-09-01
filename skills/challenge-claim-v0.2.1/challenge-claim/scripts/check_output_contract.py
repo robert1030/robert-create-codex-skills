@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_output_contract.py — challenge-claim v0.2.0 輸出契約驗證器。
+check_output_contract.py — challenge-claim v0.2.1 輸出契約驗證器。
 
 驗的是「本次要交付的那一份論點挑戰分析」，不是寫死的範例。
 

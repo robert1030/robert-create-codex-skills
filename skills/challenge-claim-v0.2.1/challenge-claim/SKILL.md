@@ -1,13 +1,13 @@
 ---
 name: challenge-claim
 description: "當使用者說「挑戰這個論點」、「幫我批判思考」、「找出這段分析的漏洞」或提供主張、研究摘要、PDF與決策方案時，用於拆解論證、檢查前提、提出反例並形成可驗證的修正結論；不適用於只要求摘要、翻譯、語句潤飾或單純整理來源。成功輸出應包含主張結構、證據與前提檢查、反方觀點、信心界線及可執行的驗證建議，且必須通過輸出契約驗證閘門。"
-version: 0.2.0
-metadata: {"author":"SkillNow","language":"zh-TW","domain":"challenge-claim","version":"0.2.0"}
+version: 0.2.1
+metadata: {"author":"SkillNow","language":"zh-TW","domain":"challenge-claim","version":"0.2.1"}
 ---
 
 # challenge-claim
 
-> **v0.2.0｜2026-08-31**：契約收斂與防造假版。新增輸出契約優先序宣告、四份 reference 的條件式路由、三條防造假鐵則、可執行驗證閘門 `scripts/check_output_contract.py` 與 `scripts/validate_punct.py`、壞範例 `examples/bad-example.md`、回歸測試 `tests/test_validators.py`。歷史版本見 `references/version.md`。
+> **v0.2.1｜2026-09-01**：更名版。技能名稱由原本的長名改為 `challenge-claim`，全包 9 處名稱字串、資料夾名與交付 zip 檔名一併更新；方法論、輸出契約、鐵則與驗證器邏輯完全未動。歷史版本見 `references/version.md`。
 
 本技能將批判思考轉化為可重複執行的論證挑戰流程，特別處理隱含前提、缺失前提、過度推論、確認偏誤、AI 輔助決策中的盲目信任，以及以蘇格拉底式提問促進反思。技能會區分事實、推論與價值判斷，避免把冗長推理誤當成高品質分析。
 
